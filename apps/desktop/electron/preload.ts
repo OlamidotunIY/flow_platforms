@@ -22,3 +22,11 @@ contextBridge.exposeInMainWorld('ipcRenderer', {
   // You can expose other APTs you need here.
   // ...
 })
+
+contextBridge.exposeInMainWorld('flowWindow', {
+  close: () => ipcRenderer.invoke('flow-window:close'),
+  minimize: () => ipcRenderer.invoke('flow-window:minimize'),
+  openApp: () => ipcRenderer.invoke('flow-window:open-app'),
+  openAuth: () => ipcRenderer.invoke('flow-window:open-auth'),
+  toggleMaximize: () => ipcRenderer.invoke('flow-window:toggle-maximize'),
+})

@@ -26,6 +26,13 @@
   },
   "exports": {
     ".": "./src/index.ts",
-    "./auth": "./src/auth.ts"
+    "./auth": "./src/auth.ts",
+    "./config": "./src/config.ts",
+    "./features": "./src/features/index.ts",
+    "./features/*": "./src/features/*/index.ts",
+    "./layouts": "./src/layouts/index.ts",
+    "./routing": "./src/routing/index.ts",
+    "./routing/*": "./src/routing/*.tsx",
+    "./store": "./src/store/index.ts"
   }
 }

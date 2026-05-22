@@ -2,12 +2,9 @@ import { clearApiAccessToken, configureApiClient, setApiAccessToken } from "@flo
 import { createAuthClient } from "better-auth/react";
 import { organizationClient } from "better-auth/client/plugins";
 
-const bearerTokenKey = "flow.better-auth.bearer-token";
+import { setFlowConfig, type FlowClientConfig } from "./config";
 
-export type FlowClientConfig = {
-  apiBaseUrl: string;
-  authBaseUrl: string;
-};
+const bearerTokenKey = "flow.better-auth.bearer-token";
 
 export type FlowAuthClient = ReturnType<typeof createFlowAuthClient>;
 
@@ -44,6 +41,8 @@ export function createFlowAuthClient(config: FlowClientConfig) {
 }
 
 export function configureFlowClients(config: FlowClientConfig) {
+  setFlowConfig(config);
+
   configureApiClient({
     baseUrl: config.apiBaseUrl,
     tokenStorage: browserTokenStorage,

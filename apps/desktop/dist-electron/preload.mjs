@@ -20,3 +20,10 @@ electron.contextBridge.exposeInMainWorld("ipcRenderer", {
   // You can expose other APTs you need here.
   // ...
 });
+electron.contextBridge.exposeInMainWorld("flowWindow", {
+  close: () => electron.ipcRenderer.invoke("flow-window:close"),
+  minimize: () => electron.ipcRenderer.invoke("flow-window:minimize"),
+  openApp: () => electron.ipcRenderer.invoke("flow-window:open-app"),
+  openAuth: () => electron.ipcRenderer.invoke("flow-window:open-auth"),
+  toggleMaximize: () => electron.ipcRenderer.invoke("flow-window:toggle-maximize")
+});

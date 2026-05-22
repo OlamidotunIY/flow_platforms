@@ -1,5 +1,5 @@
-import { FlowApp } from "@flow/app-shell";
+import { AppRouting } from "@flow/app-shell/routing";
 
 export function App() {
-  return <FlowApp />;
+  return <AppRouting />;
 }

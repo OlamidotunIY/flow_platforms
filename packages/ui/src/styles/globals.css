@@ -128,6 +128,14 @@
   body {
     @apply bg-background text-foreground;
   }
+  html.flow-transparent-window,
+  html.flow-transparent-window body,
+  html.flow-transparent-window #root {
+    background: transparent;
+  }
+  html.flow-transparent-window [data-slot="card"] {
+    background-color: var(--card);
+  }
   html {
     @apply font-serif;
   }
