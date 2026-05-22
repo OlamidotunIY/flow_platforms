@@ -1,0 +1,25 @@
+{
+  "name": "@flow/api",
+  "version": "0.0.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build": "tsc --noEmit",
+    "dev": "pnpm codegen:watch",
+    "lint": "tsc --noEmit",
+    "typecheck": "tsc --noEmit",
+    "codegen": "openapi-ts --file openapi-ts.config.ts",
+    "codegen:watch": "openapi-ts --file openapi-ts.config.ts --watch"
+  },
+  "devDependencies": {
+    "@hey-api/openapi-ts": "0.97.2",
+    "@types/node": "25.1.0"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./client": "./src/client.ts",
+    "./generated": "./src/generated/index.ts",
+    "./types": "./src/generated/types.gen.ts",
+    "./sdk": "./src/generated/sdk.gen.ts"
+  }
+}
