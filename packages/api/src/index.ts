@@ -1,4 +1,11 @@
-export { apiClient, configureApiClient } from "./client";
-export type { ConfigureApiClientOptions } from "./client";
+export {
+  apiClient,
+  clearApiAccessToken,
+  configureApiAccessTokenStorage,
+  configureApiClient,
+  getApiAccessToken,
+  setApiAccessToken,
+} from "./client";
+export type { ApiAccessTokenStorage, ConfigureApiClientOptions } from "./client";
 
 export * from "./generated/index";

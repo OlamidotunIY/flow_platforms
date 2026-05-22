@@ -7,13 +7,16 @@
     "dev": "vite",
     "build": "tsc && vite build && electron-builder",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "typecheck": "tsc --noEmit",
     "preview": "vite preview"
   },
   "dependencies": {
     "@flow/api": "workspace:*",
+    "@flow/app-shell": "workspace:*",
     "@flow/ui": "workspace:*",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^7.15.1"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.2.1",

@@ -1,0 +1,31 @@
+{
+  "name": "@flow/app-shell",
+  "version": "0.0.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build": "tsc --noEmit",
+    "lint": "tsc --noEmit",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@flow/api": "workspace:*",
+    "@flow/ui": "workspace:*",
+    "better-auth": "1.6.11",
+    "lucide-react": "^1.16.0",
+    "react-router-dom": "^7.15.1",
+    "zustand": "5.0.9"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.10",
+    "typescript": "^5.9.3"
+  },
+  "peerDependencies": {
+    "react": ">=18",
+    "react-dom": ">=18"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./auth": "./src/auth.ts"
+  }
+}
