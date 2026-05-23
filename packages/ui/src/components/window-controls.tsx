@@ -19,13 +19,47 @@ function WindowControls({
   onMinimize,
   showMaximize = true,
 }: WindowControlsProps) {
+  function runWindowAction(
+    event: React.MouseEvent<HTMLButtonElement>,
+    action: (() => void) | undefined,
+    channel: string
+  ) {
+    event.preventDefault()
+    event.stopPropagation()
+    action?.()
+
+    const ipcRenderer = (
+      globalThis as typeof globalThis & {
+        window?: {
+          ipcRenderer?: {
+            invoke?: (channel: string) => Promise<unknown>
+            send?: (channel: string) => void
+          }
+        }
+      }
+    ).window?.ipcRenderer
+
+    if (!action && ipcRenderer?.invoke) {
+      void ipcRenderer.invoke(channel)
+      return
+    }
+
+    if (!action && ipcRenderer?.send) {
+      ipcRenderer.send(channel)
+    }
+  }
+
   return (
     <div className={cn("flex items-center gap-0.5", className)}>
       <Button
         aria-label="Minimize window"
-        className="opacity-70 hover:opacity-100"
-        onClick={onMinimize}
+        className="opacity-70 hover:opacity-100 [-webkit-app-region:no-drag]"
+        onClick={(event) =>
+          runWindowAction(event, onMinimize, "flow-window:minimize")
+        }
         size="icon-sm"
+        style={{ WebkitAppRegion: "no-drag" } as React.CSSProperties}
+        type="button"
         variant="ghost"
       >
         <MinusIcon data-icon="inline-start" />
@@ -33,9 +67,13 @@ function WindowControls({
       {showMaximize ? (
         <Button
           aria-label="Maximize window"
-          className="opacity-70 hover:opacity-100"
-          onClick={onMaximize}
+          className="opacity-70 hover:opacity-100 [-webkit-app-region:no-drag]"
+          onClick={(event) =>
+            runWindowAction(event, onMaximize, "flow-window:toggle-maximize")
+          }
           size="icon-sm"
+          style={{ WebkitAppRegion: "no-drag" } as React.CSSProperties}
+          type="button"
           variant="ghost"
         >
           <Maximize2Icon data-icon="inline-start" />
@@ -43,9 +81,13 @@ function WindowControls({
       ) : null}
       <Button
         aria-label="Close window"
-        className="opacity-70 hover:bg-destructive/15 hover:text-destructive hover:opacity-100"
-        onClick={onClose}
+        className="opacity-70 hover:bg-destructive/15 hover:text-destructive hover:opacity-100 [-webkit-app-region:no-drag]"
+        onClick={(event) =>
+          runWindowAction(event, onClose, "flow-window:close")
+        }
         size="icon-sm"
+        style={{ WebkitAppRegion: "no-drag" } as React.CSSProperties}
+        type="button"
         variant="ghost"
       >
         <XIcon data-icon="inline-start" />
@@ -81,7 +123,10 @@ function WindowTitleBar({
       >
         {children}
       </div>
-      <div className="px-2 [-webkit-app-region:no-drag]">
+      <div
+        className="px-2 [-webkit-app-region:no-drag]"
+        style={{ WebkitAppRegion: "no-drag" } as React.CSSProperties}
+      >
         <WindowControls {...controls} />
       </div>
     </div>

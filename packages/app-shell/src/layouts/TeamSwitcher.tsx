@@ -1,4 +1,5 @@
 import { Check, ChevronsUpDown, Plus } from "lucide-react"
+import { Button } from "@flow/ui/components/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,26 +17,37 @@ import {
   useSidebar,
 } from "@flow/ui/components/sidebar"
 
-import type { SidebarDepartment, SidebarOrganization } from "./sidebar-data"
+import type {
+  FlowDepartmentSummary,
+  FlowOrganizationSummary,
+} from "../store/userStore"
 
 export function TeamSwitcher({
   activeDepartment,
   activeOrganization,
+  onCreateDepartment,
   onDepartmentChange,
   onOrganizationChange,
   organizations,
 }: {
-  activeDepartment: SidebarDepartment
-  activeOrganization: SidebarOrganization
-  onDepartmentChange: (department: SidebarDepartment) => void
-  onOrganizationChange: (organization: SidebarOrganization) => void
-  organizations: SidebarOrganization[]
+  activeDepartment: FlowDepartmentSummary
+  activeOrganization: FlowOrganizationSummary
+  onCreateDepartment: () => void
+  onDepartmentChange: (department: FlowDepartmentSummary) => void
+  onOrganizationChange: (organization: FlowOrganizationSummary) => void
+  organizations: FlowOrganizationSummary[]
 }) {
   const { isMobile } = useSidebar()
 
-  function selectOrganization(organization: SidebarOrganization) {
+  function selectOrganization(organization: FlowOrganizationSummary) {
     onOrganizationChange(organization)
-    onDepartmentChange(organization.departments[0])
+
+    const nextDepartment =
+      organization.activeDepartment ?? organization.departments?.[0]
+
+    if (nextDepartment) {
+      onDepartmentChange(nextDepartment)
+    }
   }
 
   return (
@@ -48,7 +60,9 @@ export function TeamSwitcher({
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
               <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                <activeOrganization.logo />
+                <span className="text-xs font-medium">
+                  {activeOrganization.name.slice(0, 2).toUpperCase()}
+                </span>
               </div>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-medium">
@@ -76,12 +90,14 @@ export function TeamSwitcher({
                   className="gap-2 p-2"
                 >
                   <div className="flex size-6 items-center justify-center rounded-md border">
-                    <organization.logo />
+                    <span className="text-[0.625rem] font-medium">
+                      {organization.name.slice(0, 2).toUpperCase()}
+                    </span>
                   </div>
                   <div className="grid flex-1">
                     <span className="truncate">{organization.name}</span>
                     <span className="truncate text-xs text-muted-foreground">
-                      {organization.plan}
+                      {organization.slug}
                     </span>
                   </div>
                   {organization.id === activeOrganization.id ? <Check /> : null}
@@ -90,11 +106,22 @@ export function TeamSwitcher({
               ))}
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuLabel className="text-xs text-muted-foreground">
-              Active stream
-            </DropdownMenuLabel>
+            <div className="flex items-center justify-between px-2 py-1.5">
+              <DropdownMenuLabel className="p-0 text-xs text-muted-foreground">
+                Active department
+              </DropdownMenuLabel>
+              <Button
+                aria-label="Create department"
+                onClick={onCreateDepartment}
+                size="icon-xs"
+                type="button"
+                variant="ghost"
+              >
+                <Plus />
+              </Button>
+            </div>
             <DropdownMenuGroup>
-              {activeOrganization.departments.map((department) => (
+              {activeOrganization.departments?.map((department) => (
                 <DropdownMenuItem
                   key={department.id}
                   onSelect={() => onDepartmentChange(department)}
@@ -106,17 +133,6 @@ export function TeamSwitcher({
                   <span className="truncate">{department.name}</span>
                 </DropdownMenuItem>
               ))}
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              <DropdownMenuItem className="gap-2 p-2">
-                <div className="flex size-6 items-center justify-center rounded-md border bg-transparent">
-                  <Plus />
-                </div>
-                <div className="font-medium text-muted-foreground">
-                  Add organization
-                </div>
-              </DropdownMenuItem>
             </DropdownMenuGroup>
           </DropdownMenuContent>
         </DropdownMenu>

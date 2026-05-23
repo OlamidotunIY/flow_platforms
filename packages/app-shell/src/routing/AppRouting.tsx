@@ -59,7 +59,7 @@ function DesktopLoadingWindow() {
 
   return (
     <main className="grid min-h-svh place-items-center overflow-hidden bg-transparent p-2 text-foreground">
-      <Card className="relative w-full max-w-[316px] py-0 [-webkit-app-region:drag]">
+      <Card className="relative w-full max-w-[440px] py-0 [-webkit-app-region:drag]">
         <div className="absolute top-2 right-2 [-webkit-app-region:no-drag]">
           <WindowControls
             onClose={windowControls?.close}
@@ -67,7 +67,7 @@ function DesktopLoadingWindow() {
             showMaximize={false}
           />
         </div>
-        <CardContent className="flex h-36 items-center justify-center pt-8">
+        <CardContent className="flex h-56 items-center justify-center px-6 pt-10">
           <LoaderBody label="Starting Flow..." />
         </CardContent>
       </Card>

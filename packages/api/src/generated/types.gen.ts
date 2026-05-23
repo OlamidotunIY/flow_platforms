@@ -4,234 +4,791 @@ export type ClientOptions = {
     baseUrl: string;
 };
 
-export type CreateOrganizationDto = {
-    name: string;
-    slug: string;
-    logo?: string;
-    metadata?: {
-        [key: string]: unknown;
-    };
-    userId?: string;
-    keepCurrentActiveOrganization?: boolean;
+export type UserPreferenceEntity = {
+    id: string;
+    userId: string;
+    theme: string;
+    timezone?: string | null;
+    language: string;
+    emailNotifications: boolean;
+    pushNotifications: boolean;
+    user: UserEntity;
 };
 
-export type CheckSlugDto = {
-    slug: string;
-};
-
-export type SetActiveOrganizationDto = {
-    organizationId?: {
-        [key: string]: unknown;
-    };
-    organizationSlug?: {
-        [key: string]: unknown;
-    };
-};
-
-export type UpdateOrganizationDataDto = {
-    name?: string;
-    slug?: string;
-    logo?: string;
-    metadata?: {
-        [key: string]: unknown;
-    };
-};
-
-export type UpdateOrganizationDto = {
-    data: UpdateOrganizationDataDto;
-    organizationId?: string;
-};
-
-export type OrganizationIdDto = {
+export type OrganizationMemberEntity = {
+    id: string;
     organizationId: string;
+    userId: string;
+    role: string;
+    status: 'INVITED' | 'ACTIVE' | 'SUSPENDED' | 'REMOVED';
+    joinedAt?: string | null;
+    createdAt: string;
+    updatedAt: string;
+    organization: OrganizationEntity;
+    user: UserEntity;
 };
 
-export type InviteMemberDto = {
-    email: string;
-    role: string | Array<string>;
-    organizationId?: string;
-    resend?: boolean;
-    teamId?: string;
-};
-
-export type InvitationIdDto = {
-    invitationId: string;
-};
-
-export type AddMemberDto = {
-    userId?: {
-        [key: string]: unknown;
-    } | null;
-    role: string | Array<string>;
-    organizationId?: string;
-    teamId?: string;
-};
-
-export type RemoveMemberDto = {
-    memberIdOrEmail: string;
-    organizationId?: string;
-};
-
-export type UpdateMemberRoleDto = {
-    role: string | Array<string>;
-    memberId: string;
-    organizationId?: string;
-};
-
-export type PermissionDto = {
-    permissions: {
-        [key: string]: Array<string>;
-    };
-    organizationId?: string;
-};
-
-export type CreateTeamDto = {
-    name: string;
-    organizationId?: string;
-};
-
-export type UpdateTeamDto = {
-    teamId: string;
-    data: {
-        [key: string]: unknown;
-    };
-};
-
-export type RemoveTeamDto = {
-    teamId: string;
-    organizationId?: string;
-};
-
-export type SetActiveTeamDto = {
-    teamId?: {
-        [key: string]: unknown;
-    } | null;
-};
-
-export type TeamMemberDto = {
+export type TeamMemberEntity = {
+    id: string;
     teamId: string;
     userId: string;
+    status: 'INVITED' | 'ACTIVE' | 'SUSPENDED' | 'REMOVED';
+    joinedAt?: string | null;
+    createdAt: string;
+    team: TeamEntity;
+    user: UserEntity;
 };
 
-export type CreateOrganizationRoleDto = {
-    role: string;
-    permission: {
-        [key: string]: Array<string>;
-    };
-    organizationId?: string;
+export type WorkflowEntity = {
+    id: string;
+    organizationId: string;
+    projectTypeId?: string | null;
+    name: string;
+    description?: string | null;
+    isDefault: boolean;
+    createdAt: string;
+    updatedAt: string;
+    organization: OrganizationEntity;
+    projectType?: ProjectTypeEntity | null;
+    statuses: Array<WorkflowStatusEntity>;
 };
 
-export type UpdateOrganizationRoleDataDto = {
-    roleName?: string;
-    permission?: {
-        [key: string]: Array<string>;
-    };
+export type WorkflowStatusEntity = {
+    id: string;
+    workflowId: string;
+    name: string;
+    key: string;
+    color?: string | null;
+    sortOrder: number;
+    isDone: boolean;
+    createdAt: string;
+    updatedAt: string;
+    workflow: WorkflowEntity;
+    tasks: Array<TaskEntity>;
 };
 
-export type UpdateOrganizationRoleDto = {
-    roleName?: string;
-    roleId?: string;
-    organizationId?: string;
-    data: UpdateOrganizationRoleDataDto;
+export type TaskAssigneeEntity = {
+    id: string;
+    taskId: string;
+    userId: string;
+    assignedAt: string;
+    task: TaskEntity;
+    user: UserEntity;
 };
 
-export type DeleteOrganizationRoleDto = {
-    roleName?: string;
-    roleId?: string;
-    organizationId?: string;
+export type ChatRoomMemberEntity = {
+    id: string;
+    chatRoomId: string;
+    userId: string;
+    joinedAt: string;
+    mutedAt?: string | null;
+    leftAt?: string | null;
+    chatRoom: ChatRoomEntity;
+    user: UserEntity;
 };
 
-export type SignUpEmailDto = {
-    email: string;
-    password: string;
-    name?: string;
-    image?: string;
-    callbackURL?: string;
+export type PinnedMessageEntity = {
+    id: string;
+    chatRoomId: string;
+    messageId: string;
+    pinnedById: string;
+    createdAt: string;
+    chatRoom: ChatRoomEntity;
+    message: MessageEntity;
+    pinnedBy: UserEntity;
 };
 
-export type SignInEmailDto = {
-    email: string;
-    password: string;
-    rememberMe?: boolean;
-    callbackURL?: string;
-};
-
-export type SignInSocialDto = {
-    provider: string;
-    callbackURL?: string;
-    errorCallbackURL?: string;
-    newUserCallbackURL?: string;
-};
-
-export type RevokeSessionDto = {
-    token: string;
-};
-
-export type RequestPasswordResetDto = {
-    email: string;
-    redirectTo?: string;
-};
-
-export type ResetPasswordDto = {
-    token: string;
-    newPassword: string;
-};
-
-export type VerifyPasswordDto = {
-    password: string;
-};
-
-export type SendVerificationEmailDto = {
-    email: string;
-    callbackURL?: string;
-};
-
-export type ChangeEmailDto = {
-    newEmail: string;
-    callbackURL?: string;
-};
-
-export type ChangePasswordDto = {
-    newPassword: string;
-    currentPassword: string;
-    revokeOtherSessions?: boolean;
-};
-
-export type SetPasswordDto = {
-    newPassword: string;
-};
-
-export type UpdateUserDto = {
-    name?: string;
-    image?: string;
-    avatarUrl?: string;
-};
-
-export type UpdateSessionDto = {
-    activeOrganizationId?: {
+export type ChatRoomEntity = {
+    id: string;
+    organizationId: string;
+    departmentId?: string | null;
+    teamId?: string | null;
+    projectId?: string | null;
+    taskId?: string | null;
+    type: 'ORGANIZATION' | 'DEPARTMENT' | 'TEAM' | 'PROJECT' | 'TASK' | 'DIRECT' | 'GROUP';
+    name?: string | null;
+    description?: string | null;
+    metadata?: {
         [key: string]: unknown;
-    };
-    activeTeamId?: {
+    } | null;
+    createdAt: string;
+    updatedAt: string;
+    deletedAt?: string | null;
+    organization: OrganizationEntity;
+    department?: DepartmentEntity | null;
+    team?: TeamEntity | null;
+    project?: ProjectEntity | null;
+    task?: TaskEntity | null;
+    members: Array<ChatRoomMemberEntity>;
+    messages: Array<MessageEntity>;
+    pinnedMessages: Array<PinnedMessageEntity>;
+};
+
+export type MessageReadEntity = {
+    id: string;
+    messageId: string;
+    userId: string;
+    readAt: string;
+    message: MessageEntity;
+    user: UserEntity;
+};
+
+export type MessageReactionEntity = {
+    id: string;
+    messageId: string;
+    userId: string;
+    emoji: string;
+    createdAt: string;
+    message: MessageEntity;
+    user: UserEntity;
+};
+
+export type MessageEntity = {
+    id: string;
+    chatRoomId: string;
+    senderId: string;
+    parentMessageId?: string | null;
+    type: 'TEXT' | 'IMAGE' | 'FILE' | 'SYSTEM';
+    content?: string | null;
+    metadata?: {
         [key: string]: unknown;
-    };
+    } | null;
+    createdAt: string;
+    updatedAt: string;
+    editedAt?: string | null;
+    deletedAt?: string | null;
+    chatRoom: ChatRoomEntity;
+    sender: UserEntity;
+    parentMessage?: MessageEntity | null;
+    replies: Array<MessageEntity>;
+    files: Array<FileEntity>;
+    reads: Array<MessageReadEntity>;
+    reactions: Array<MessageReactionEntity>;
+    pins: Array<PinnedMessageEntity>;
 };
 
-export type DeleteUserDto = {
-    password?: string;
-    token?: string;
-    callbackURL?: string;
+export type FileEntity = {
+    id: string;
+    organizationId?: string | null;
+    uploadedById: string;
+    projectId?: string | null;
+    taskId?: string | null;
+    taskCommentId?: string | null;
+    messageId?: string | null;
+    ownerType: 'USER_AVATAR' | 'ORG_LOGO' | 'PROJECT' | 'TASK' | 'TASK_COMMENT' | 'MESSAGE';
+    fileName: string;
+    originalName?: string | null;
+    mimeType: string;
+    size: number;
+    bucketName: string;
+    objectPath: string;
+    publicUrl?: string | null;
+    metadata?: {
+        [key: string]: unknown;
+    } | null;
+    createdAt: string;
+    deletedAt?: string | null;
+    organization?: OrganizationEntity | null;
+    uploadedBy: UserEntity;
+    project?: ProjectEntity | null;
+    task?: TaskEntity | null;
+    taskComment?: TaskCommentEntity | null;
+    message?: MessageEntity | null;
 };
 
-export type LinkSocialDto = {
-    provider: string;
-    callbackURL?: string;
-    errorCallbackURL?: string;
-    newUserCallbackURL?: string;
+export type TaskCommentEntity = {
+    id: string;
+    taskId: string;
+    userId: string;
+    content: string;
+    metadata?: {
+        [key: string]: unknown;
+    } | null;
+    createdAt: string;
+    updatedAt: string;
+    deletedAt?: string | null;
+    task: TaskEntity;
+    user: UserEntity;
+    files: Array<FileEntity>;
 };
 
-export type UnlinkAccountDto = {
+export type LabelEntity = {
+    id: string;
+    organizationId: string;
+    name: string;
+    color?: string | null;
+    createdAt: string;
+    updatedAt: string;
+    taskLabels: Array<TaskLabelEntity>;
+};
+
+export type TaskLabelEntity = {
+    id: string;
+    taskId: string;
+    labelId: string;
+    task: TaskEntity;
+    label: LabelEntity;
+};
+
+export type ActivityLogEntity = {
+    id: string;
+    organizationId: string;
+    userId?: string | null;
+    projectId?: string | null;
+    taskId?: string | null;
+    action: string;
+    entityType: string;
+    entityId: string;
+    metadata?: {
+        [key: string]: unknown;
+    } | null;
+    createdAt: string;
+    organization: OrganizationEntity;
+    user?: UserEntity | null;
+    project?: ProjectEntity | null;
+    task?: TaskEntity | null;
+};
+
+export type TaskEntity = {
+    id: string;
+    projectId: string;
+    parentTaskId?: string | null;
+    workflowStatusId?: string | null;
+    createdById: string;
+    title: string;
+    icon?: string | null;
+    description?: string | null;
+    priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
+    status: 'TODO' | 'IN_PROGRESS' | 'REVIEW' | 'DONE' | 'BLOCKED';
+    startDate?: string | null;
+    dueDate?: string | null;
+    sortOrder: number;
+    metadata?: {
+        [key: string]: unknown;
+    } | null;
+    createdAt: string;
+    updatedAt: string;
+    deletedAt?: string | null;
+    project: ProjectEntity;
+    parentTask?: TaskEntity | null;
+    subtasks: Array<TaskEntity>;
+    workflowStatus?: WorkflowStatusEntity | null;
+    createdBy: UserEntity;
+    assignees: Array<TaskAssigneeEntity>;
+    comments: Array<TaskCommentEntity>;
+    labels: Array<TaskLabelEntity>;
+    customValues: Array<CustomFieldValueEntity>;
+    files: Array<FileEntity>;
+    chatRooms: Array<ChatRoomEntity>;
+    activityLogs: Array<ActivityLogEntity>;
+};
+
+export type CustomFieldValueEntity = {
+    id: string;
+    fieldId: string;
+    projectId?: string | null;
+    taskId?: string | null;
+    valueText?: string | null;
+    valueNumber?: number | null;
+    valueBoolean?: boolean | null;
+    valueDate?: string | null;
+    valueJson?: {
+        [key: string]: unknown;
+    } | null;
+    createdAt: string;
+    updatedAt: string;
+    field: CustomFieldEntity;
+    project?: ProjectEntity | null;
+    task?: TaskEntity | null;
+};
+
+export type CustomFieldEntity = {
+    id: string;
+    organizationId: string;
+    projectTypeId?: string | null;
+    name: string;
+    key: string;
+    scope: 'PROJECT' | 'TASK';
+    type: 'TEXT' | 'LONG_TEXT' | 'NUMBER' | 'BOOLEAN' | 'DATE' | 'SINGLE_SELECT' | 'MULTI_SELECT' | 'USER' | 'USERS' | 'URL' | 'FILE' | 'JSON';
+    description?: string | null;
+    isRequired: boolean;
+    isSystem: boolean;
+    options?: {
+        [key: string]: unknown;
+    } | null;
+    defaultValue?: {
+        [key: string]: unknown;
+    } | null;
+    sortOrder: number;
+    createdAt: string;
+    updatedAt: string;
+    deletedAt?: string | null;
+    organization: OrganizationEntity;
+    projectType?: ProjectTypeEntity | null;
+    values: Array<CustomFieldValueEntity>;
+};
+
+export type ProjectViewEntity = {
+    id: string;
+    projectId?: string | null;
+    projectTypeId?: string | null;
+    name: string;
+    type: 'KANBAN' | 'SCRUM' | 'LIST' | 'TABLE' | 'CALENDAR' | 'TIMELINE';
+    config?: {
+        [key: string]: unknown;
+    } | null;
+    isDefault: boolean;
+    sortOrder: number;
+    createdAt: string;
+    updatedAt: string;
+    project?: ProjectEntity | null;
+    projectType?: ProjectTypeEntity | null;
+};
+
+export type ProjectTypeEntity = {
+    id: string;
+    organizationId: string;
+    name: string;
+    description?: string | null;
+    icon?: string | null;
+    color?: string | null;
+    defaultView: 'KANBAN' | 'SCRUM' | 'LIST' | 'TABLE' | 'CALENDAR' | 'TIMELINE';
+    config?: {
+        [key: string]: unknown;
+    } | null;
+    createdAt: string;
+    updatedAt: string;
+    deletedAt?: string | null;
+    organization: OrganizationEntity;
+    projects: Array<ProjectEntity>;
+    customFields: Array<CustomFieldEntity>;
+    workflows: Array<WorkflowEntity>;
+    views: Array<ProjectViewEntity>;
+};
+
+export type ProjectMemberEntity = {
+    id: string;
+    projectId: string;
+    userId: string;
+    status: 'ACTIVE' | 'REMOVED';
+    joinedAt?: string | null;
+    createdAt: string;
+    updatedAt: string;
+    project: ProjectEntity;
+    user: UserEntity;
+};
+
+export type ProjectParticipantEntity = {
+    id: string;
+    projectId: string;
+    departmentId?: string | null;
+    teamId?: string | null;
+    userId?: string | null;
+    createdAt: string;
+    project: ProjectEntity;
+};
+
+export type ProjectEntity = {
+    id: string;
+    organizationId: string;
+    projectTypeId?: string | null;
+    departmentId?: string | null;
+    teamId?: string | null;
+    createdById: string;
+    name: string;
+    key?: string | null;
+    icon?: string | null;
+    description?: string | null;
+    scope: 'ORGANIZATION' | 'DEPARTMENT' | 'TEAM' | 'CROSS_FUNCTIONAL';
+    status: 'PLANNING' | 'ACTIVE' | 'ON_HOLD' | 'COMPLETED' | 'ARCHIVED';
+    startDate?: string | null;
+    dueDate?: string | null;
+    metadata?: {
+        [key: string]: unknown;
+    } | null;
+    createdAt: string;
+    updatedAt: string;
+    deletedAt?: string | null;
+    organization: OrganizationEntity;
+    projectType?: ProjectTypeEntity | null;
+    department?: DepartmentEntity | null;
+    team?: TeamEntity | null;
+    createdBy: UserEntity;
+    members: Array<ProjectMemberEntity>;
+    participants: Array<ProjectParticipantEntity>;
+    tasks: Array<TaskEntity>;
+    views: Array<ProjectViewEntity>;
+    customValues: Array<CustomFieldValueEntity>;
+    chatRooms: Array<ChatRoomEntity>;
+    files: Array<FileEntity>;
+    activityLogs: Array<ActivityLogEntity>;
+};
+
+export type TeamEntity = {
+    id: string;
+    organizationId: string;
+    departmentId?: string | null;
+    name: string;
+    description?: string | null;
+    color?: string | null;
+    createdAt: string;
+    updatedAt: string;
+    deletedAt?: string | null;
+    organization: OrganizationEntity;
+    department?: DepartmentEntity | null;
+    members: Array<TeamMemberEntity>;
+    projects: Array<ProjectEntity>;
+    chatRooms: Array<ChatRoomEntity>;
+};
+
+export type DepartmentEntity = {
+    id: string;
+    organizationId: string;
+    name: string;
+    description?: string | null;
+    color?: string | null;
+    createdAt: string;
+    updatedAt: string;
+    deletedAt?: string | null;
+    organization: OrganizationEntity;
+    members: Array<DepartmentMemberEntity>;
+    teams: Array<TeamEntity>;
+    projects: Array<ProjectEntity>;
+    chatRooms: Array<ChatRoomEntity>;
+};
+
+export type DepartmentMemberEntity = {
+    id: string;
+    departmentId: string;
+    userId: string;
+    status: 'INVITED' | 'ACTIVE' | 'SUSPENDED' | 'REMOVED';
+    joinedAt?: string | null;
+    createdAt: string;
+    department: DepartmentEntity;
+    user: UserEntity;
+};
+
+export type InvitationEntity = {
+    id: string;
+    organizationId: string;
+    email: string;
+    token?: string | null;
+    role?: string | null;
+    status: string;
+    teamId?: string | null;
+    invitedById?: string | null;
+    inviterId?: string | null;
+    acceptedById?: string | null;
+    expiresAt: string;
+    acceptedAt?: string | null;
+    createdAt: string;
+    organization: OrganizationEntity;
+    invitedBy?: UserEntity | null;
+    inviter?: UserEntity | null;
+    acceptedBy?: UserEntity | null;
+};
+
+export type NotificationEntity = {
+    id: string;
+    organizationId?: string | null;
+    userId: string;
+    type: 'INFO' | 'TASK_ASSIGNED' | 'TASK_UPDATED' | 'COMMENT' | 'MENTION' | 'MESSAGE' | 'INVITATION' | 'SYSTEM';
+    title: string;
+    body?: string | null;
+    entityType?: string | null;
+    entityId?: string | null;
+    metadata?: {
+        [key: string]: unknown;
+    } | null;
+    readAt?: string | null;
+    createdAt: string;
+    organization?: OrganizationEntity | null;
+    user: UserEntity;
+};
+
+export type TemplateTeamEntity = {
+    id: string;
+    departmentId?: string | null;
+    templateId: string;
+    name: string;
+    description?: string | null;
+    color?: string | null;
+    sortOrder: number;
+    template: OrganizationTemplateEntity;
+    department?: TemplateDepartmentEntity | null;
+};
+
+export type TemplateDepartmentEntity = {
+    id: string;
+    templateId: string;
+    name: string;
+    description?: string | null;
+    color?: string | null;
+    sortOrder: number;
+    template: OrganizationTemplateEntity;
+    teams: Array<TemplateTeamEntity>;
+};
+
+export type TemplateRoleEntity = {
+    id: string;
+    templateId: string;
+    name: string;
+    description?: string | null;
+    permissions?: {
+        [key: string]: unknown;
+    } | null;
+    isSystem: boolean;
+    template: OrganizationTemplateEntity;
+};
+
+export type TemplateCustomFieldEntity = {
+    id: string;
+    templateProjectTypeId: string;
+    name: string;
+    key: string;
+    type: 'TEXT' | 'LONG_TEXT' | 'NUMBER' | 'BOOLEAN' | 'DATE' | 'SINGLE_SELECT' | 'MULTI_SELECT' | 'USER' | 'USERS' | 'URL' | 'FILE' | 'JSON';
+    description?: string | null;
+    isRequired: boolean;
+    isSystem: boolean;
+    options?: {
+        [key: string]: unknown;
+    } | null;
+    defaultValue?: {
+        [key: string]: unknown;
+    } | null;
+    sortOrder: number;
+    projectType: TemplateProjectTypeEntity;
+};
+
+export type TemplateWorkflowStatusEntity = {
+    id: string;
+    workflowId: string;
+    name: string;
+    key: string;
+    color?: string | null;
+    sortOrder: number;
+    isDone: boolean;
+    workflow: TemplateWorkflowEntity;
+};
+
+export type TemplateWorkflowEntity = {
+    id: string;
+    templateProjectTypeId: string;
+    name: string;
+    description?: string | null;
+    isDefault: boolean;
+    projectType: TemplateProjectTypeEntity;
+    statuses: Array<TemplateWorkflowStatusEntity>;
+};
+
+export type TemplateProjectViewEntity = {
+    id: string;
+    templateProjectTypeId: string;
+    name: string;
+    type: 'KANBAN' | 'SCRUM' | 'LIST' | 'TABLE' | 'CALENDAR' | 'TIMELINE';
+    config?: {
+        [key: string]: unknown;
+    } | null;
+    isDefault: boolean;
+    sortOrder: number;
+    projectType: TemplateProjectTypeEntity;
+};
+
+export type TemplateProjectTypeEntity = {
+    id: string;
+    templateId: string;
+    name: string;
+    description?: string | null;
+    icon?: string | null;
+    color?: string | null;
+    defaultView: 'KANBAN' | 'SCRUM' | 'LIST' | 'TABLE' | 'CALENDAR' | 'TIMELINE';
+    config?: {
+        [key: string]: unknown;
+    } | null;
+    template: OrganizationTemplateEntity;
+    fields: Array<TemplateCustomFieldEntity>;
+    workflows: Array<TemplateWorkflowEntity>;
+    views: Array<TemplateProjectViewEntity>;
+};
+
+export type TemplateChatRoomEntity = {
+    id: string;
+    templateId: string;
+    name: string;
+    description?: string | null;
+    type: 'ORGANIZATION' | 'DEPARTMENT' | 'TEAM' | 'PROJECT' | 'TASK' | 'DIRECT' | 'GROUP';
+    isDefault: boolean;
+    template: OrganizationTemplateEntity;
+};
+
+export type OrganizationTemplateEntity = {
+    id: string;
+    organizationId?: string | null;
+    name: string;
+    description?: string | null;
+    category?: string | null;
+    isPublic: boolean;
+    metadata?: {
+        [key: string]: unknown;
+    } | null;
+    createdById?: string | null;
+    createdAt: string;
+    updatedAt: string;
+    deletedAt?: string | null;
+    organization?: OrganizationEntity | null;
+    createdBy?: UserEntity | null;
+    departments: Array<TemplateDepartmentEntity>;
+    teams: Array<TemplateTeamEntity>;
+    roles: Array<TemplateRoleEntity>;
+    projectTypes: Array<TemplateProjectTypeEntity>;
+    chatRooms: Array<TemplateChatRoomEntity>;
+};
+
+export type SessionEntity = {
+    id: string;
+    expiresAt: string;
+    token: string;
+    createdAt: string;
+    updatedAt: string;
+    ipAddress?: string | null;
+    userAgent?: string | null;
+    userId: string;
+    activeOrganizationId?: string | null;
+    activeTeamId?: string | null;
+    activeDepartmentId?: string | null;
+    user: UserEntity;
+};
+
+export type AccountEntity = {
+    id: string;
+    accountId: string;
     providerId: string;
-    accountId?: string;
+    userId: string;
+    accessToken?: string | null;
+    refreshToken?: string | null;
+    idToken?: string | null;
+    accessTokenExpiresAt?: string | null;
+    refreshTokenExpiresAt?: string | null;
+    scope?: string | null;
+    password?: string | null;
+    createdAt: string;
+    updatedAt: string;
+    user: UserEntity;
+};
+
+export type UserEntity = {
+    id: string;
+    name?: string | null;
+    email: string;
+    avatarUrl?: string | null;
+    status: 'ACTIVE' | 'SUSPENDED' | 'DELETED';
+    createdAt: string;
+    updatedAt: string;
+    deletedAt?: string | null;
+    emailVerified: boolean;
+    image?: string | null;
+    preference?: UserPreferenceEntity | null;
+    organizationMembers: Array<OrganizationMemberEntity>;
+    departmentMembers: Array<DepartmentMemberEntity>;
+    teamMembers: Array<TeamMemberEntity>;
+    projectMembers: Array<ProjectMemberEntity>;
+    createdOrganizations: Array<OrganizationEntity>;
+    createdProjects: Array<ProjectEntity>;
+    createdTasks: Array<TaskEntity>;
+    sentInvitations: Array<InvitationEntity>;
+    betterAuthSentInvitations: Array<InvitationEntity>;
+    acceptedInvitations: Array<InvitationEntity>;
+    uploadedFiles: Array<FileEntity>;
+    assignedTasks: Array<TaskAssigneeEntity>;
+    comments: Array<TaskCommentEntity>;
+    chatMemberships: Array<ChatRoomMemberEntity>;
+    sentMessages: Array<MessageEntity>;
+    messageReads: Array<MessageReadEntity>;
+    reactions: Array<MessageReactionEntity>;
+    pinnedMessages: Array<PinnedMessageEntity>;
+    notifications: Array<NotificationEntity>;
+    activityLogs: Array<ActivityLogEntity>;
+    createdTemplates: Array<OrganizationTemplateEntity>;
+    sessions: Array<SessionEntity>;
+    accounts: Array<AccountEntity>;
+};
+
+export type OrganizationSettingsEntity = {
+    id: string;
+    organizationId: string;
+    allowMemberInvites: boolean;
+    allowGuestAccess: boolean;
+    defaultTimezone?: string | null;
+    metadata?: {
+        [key: string]: unknown;
+    } | null;
+    organization: OrganizationEntity;
+};
+
+export type OrganizationRoleEntity = {
+    id: string;
+    organizationId: string;
+    role: string;
+    permission: string;
+    createdAt: string;
+    updatedAt: string;
+    organization: OrganizationEntity;
+};
+
+export type OrganizationEntity = {
+    id: string;
+    name: string;
+    slug: string;
+    description?: string | null;
+    logoUrl?: string | null;
+    metadata?: string | null;
+    createdById?: string | null;
+    createdAt: string;
+    updatedAt: string;
+    deletedAt?: string | null;
+    createdBy?: UserEntity | null;
+    settings?: OrganizationSettingsEntity | null;
+    members: Array<OrganizationMemberEntity>;
+    invitations: Array<InvitationEntity>;
+    departments: Array<DepartmentEntity>;
+    teams: Array<TeamEntity>;
+    authRoles: Array<OrganizationRoleEntity>;
+    projects: Array<ProjectEntity>;
+    projectTypes: Array<ProjectTypeEntity>;
+    customFields: Array<CustomFieldEntity>;
+    workflows: Array<WorkflowEntity>;
+    chatRooms: Array<ChatRoomEntity>;
+    files: Array<FileEntity>;
+    notifications: Array<NotificationEntity>;
+    activityLogs: Array<ActivityLogEntity>;
+    templates: Array<OrganizationTemplateEntity>;
+};
+
+export type VerificationEntity = {
+    id: string;
+    identifier: string;
+    value: string;
+    expiresAt: string;
+    createdAt: string;
+    updatedAt: string;
+};
+
+export type EmailVerificationTokenEntity = {
+    id: string;
+    email: string;
+    token: string;
+    expiresAt: string;
+    usedAt?: string | null;
+    createdAt: string;
+};
+
+export type PasswordResetTokenEntity = {
+    id: string;
+    userId: string;
+    token: string;
+    expiresAt: string;
+    usedAt?: string | null;
+    createdAt: string;
 };
 
 export type UsersControllerGetUserInfoV1Data = {
@@ -243,664 +800,4 @@ export type UsersControllerGetUserInfoV1Data = {
 
 export type UsersControllerGetUserInfoV1Responses = {
     200: unknown;
-};
-
-export type OrganizationsControllerListV1Data = {
-    body?: never;
-    path?: never;
-    query?: never;
-    url: '/api/v1/organizations';
-};
-
-export type OrganizationsControllerListV1Responses = {
-    200: unknown;
-};
-
-export type OrganizationsControllerCreateV1Data = {
-    body: CreateOrganizationDto;
-    path?: never;
-    query?: never;
-    url: '/api/v1/organizations';
-};
-
-export type OrganizationsControllerCreateV1Responses = {
-    201: unknown;
-};
-
-export type OrganizationsControllerCheckSlugV1Data = {
-    body: CheckSlugDto;
-    path?: never;
-    query?: never;
-    url: '/api/v1/organizations/check-slug';
-};
-
-export type OrganizationsControllerCheckSlugV1Responses = {
-    201: unknown;
-};
-
-export type OrganizationsControllerSetActiveV1Data = {
-    body: SetActiveOrganizationDto;
-    path?: never;
-    query?: never;
-    url: '/api/v1/organizations/set-active';
-};
-
-export type OrganizationsControllerSetActiveV1Responses = {
-    201: unknown;
-};
-
-export type OrganizationsControllerGetFullV1Data = {
-    body?: never;
-    path?: never;
-    query?: never;
-    url: '/api/v1/organizations/full';
-};
-
-export type OrganizationsControllerGetFullV1Responses = {
-    200: unknown;
-};
-
-export type OrganizationsControllerUpdateV1Data = {
-    body: UpdateOrganizationDto;
-    path?: never;
-    query?: never;
-    url: '/api/v1/organizations/update';
-};
-
-export type OrganizationsControllerUpdateV1Responses = {
-    201: unknown;
-};
-
-export type OrganizationsControllerDeleteV1Data = {
-    body: OrganizationIdDto;
-    path?: never;
-    query?: never;
-    url: '/api/v1/organizations/delete';
-};
-
-export type OrganizationsControllerDeleteV1Responses = {
-    201: unknown;
-};
-
-export type OrganizationsControllerInviteMemberV1Data = {
-    body: InviteMemberDto;
-    path?: never;
-    query?: never;
-    url: '/api/v1/organizations/invite-member';
-};
-
-export type OrganizationsControllerInviteMemberV1Responses = {
-    201: unknown;
-};
-
-export type OrganizationsControllerAcceptInvitationV1Data = {
-    body: InvitationIdDto;
-    path?: never;
-    query?: never;
-    url: '/api/v1/organizations/accept-invitation';
-};
-
-export type OrganizationsControllerAcceptInvitationV1Responses = {
-    201: unknown;
-};
-
-export type OrganizationsControllerCancelInvitationV1Data = {
-    body: InvitationIdDto;
-    path?: never;
-    query?: never;
-    url: '/api/v1/organizations/cancel-invitation';
-};
-
-export type OrganizationsControllerCancelInvitationV1Responses = {
-    201: unknown;
-};
-
-export type OrganizationsControllerRejectInvitationV1Data = {
-    body: InvitationIdDto;
-    path?: never;
-    query?: never;
-    url: '/api/v1/organizations/reject-invitation';
-};
-
-export type OrganizationsControllerRejectInvitationV1Responses = {
-    201: unknown;
-};
-
-export type OrganizationsControllerGetInvitationV1Data = {
-    body?: never;
-    path?: never;
-    query?: never;
-    url: '/api/v1/organizations/invitation';
-};
-
-export type OrganizationsControllerGetInvitationV1Responses = {
-    200: unknown;
-};
-
-export type OrganizationsControllerListInvitationsV1Data = {
-    body?: never;
-    path?: never;
-    query?: never;
-    url: '/api/v1/organizations/invitations';
-};
-
-export type OrganizationsControllerListInvitationsV1Responses = {
-    200: unknown;
-};
-
-export type OrganizationsControllerListUserInvitationsV1Data = {
-    body?: never;
-    path?: never;
-    query?: never;
-    url: '/api/v1/organizations/user-invitations';
-};
-
-export type OrganizationsControllerListUserInvitationsV1Responses = {
-    200: unknown;
-};
-
-export type OrganizationsControllerListMembersV1Data = {
-    body?: never;
-    path?: never;
-    query?: never;
-    url: '/api/v1/organizations/members';
-};
-
-export type OrganizationsControllerListMembersV1Responses = {
-    200: unknown;
-};
-
-export type OrganizationsControllerAddMemberV1Data = {
-    body: AddMemberDto;
-    path?: never;
-    query?: never;
-    url: '/api/v1/organizations/members';
-};
-
-export type OrganizationsControllerAddMemberV1Responses = {
-    201: unknown;
-};
-
-export type OrganizationsControllerRemoveMemberV1Data = {
-    body: RemoveMemberDto;
-    path?: never;
-    query?: never;
-    url: '/api/v1/organizations/remove-member';
-};
-
-export type OrganizationsControllerRemoveMemberV1Responses = {
-    201: unknown;
-};
-
-export type OrganizationsControllerUpdateMemberRoleV1Data = {
-    body: UpdateMemberRoleDto;
-    path?: never;
-    query?: never;
-    url: '/api/v1/organizations/update-member-role';
-};
-
-export type OrganizationsControllerUpdateMemberRoleV1Responses = {
-    201: unknown;
-};
-
-export type OrganizationsControllerGetActiveMemberV1Data = {
-    body?: never;
-    path?: never;
-    query?: never;
-    url: '/api/v1/organizations/active-member';
-};
-
-export type OrganizationsControllerGetActiveMemberV1Responses = {
-    200: unknown;
-};
-
-export type OrganizationsControllerGetActiveMemberRoleV1Data = {
-    body?: never;
-    path?: never;
-    query?: never;
-    url: '/api/v1/organizations/active-member-role';
-};
-
-export type OrganizationsControllerGetActiveMemberRoleV1Responses = {
-    200: unknown;
-};
-
-export type OrganizationsControllerLeaveV1Data = {
-    body: OrganizationIdDto;
-    path?: never;
-    query?: never;
-    url: '/api/v1/organizations/leave';
-};
-
-export type OrganizationsControllerLeaveV1Responses = {
-    201: unknown;
-};
-
-export type OrganizationsControllerHasPermissionV1Data = {
-    body: PermissionDto;
-    path?: never;
-    query?: never;
-    url: '/api/v1/organizations/has-permission';
-};
-
-export type OrganizationsControllerHasPermissionV1Responses = {
-    201: unknown;
-};
-
-export type OrganizationsControllerListTeamsV1Data = {
-    body?: never;
-    path?: never;
-    query?: never;
-    url: '/api/v1/organizations/teams';
-};
-
-export type OrganizationsControllerListTeamsV1Responses = {
-    200: unknown;
-};
-
-export type OrganizationsControllerCreateTeamV1Data = {
-    body: CreateTeamDto;
-    path?: never;
-    query?: never;
-    url: '/api/v1/organizations/teams';
-};
-
-export type OrganizationsControllerCreateTeamV1Responses = {
-    201: unknown;
-};
-
-export type OrganizationsControllerUpdateTeamV1Data = {
-    body: UpdateTeamDto;
-    path?: never;
-    query?: never;
-    url: '/api/v1/organizations/update-team';
-};
-
-export type OrganizationsControllerUpdateTeamV1Responses = {
-    201: unknown;
-};
-
-export type OrganizationsControllerRemoveTeamV1Data = {
-    body: RemoveTeamDto;
-    path?: never;
-    query?: never;
-    url: '/api/v1/organizations/remove-team';
-};
-
-export type OrganizationsControllerRemoveTeamV1Responses = {
-    201: unknown;
-};
-
-export type OrganizationsControllerSetActiveTeamV1Data = {
-    body: SetActiveTeamDto;
-    path?: never;
-    query?: never;
-    url: '/api/v1/organizations/set-active-team';
-};
-
-export type OrganizationsControllerSetActiveTeamV1Responses = {
-    201: unknown;
-};
-
-export type OrganizationsControllerListUserTeamsV1Data = {
-    body?: never;
-    path?: never;
-    query?: never;
-    url: '/api/v1/organizations/user-teams';
-};
-
-export type OrganizationsControllerListUserTeamsV1Responses = {
-    200: unknown;
-};
-
-export type OrganizationsControllerListTeamMembersV1Data = {
-    body?: never;
-    path?: never;
-    query?: never;
-    url: '/api/v1/organizations/team-members';
-};
-
-export type OrganizationsControllerListTeamMembersV1Responses = {
-    200: unknown;
-};
-
-export type OrganizationsControllerAddTeamMemberV1Data = {
-    body: TeamMemberDto;
-    path?: never;
-    query?: never;
-    url: '/api/v1/organizations/add-team-member';
-};
-
-export type OrganizationsControllerAddTeamMemberV1Responses = {
-    201: unknown;
-};
-
-export type OrganizationsControllerRemoveTeamMemberV1Data = {
-    body: TeamMemberDto;
-    path?: never;
-    query?: never;
-    url: '/api/v1/organizations/remove-team-member';
-};
-
-export type OrganizationsControllerRemoveTeamMemberV1Responses = {
-    201: unknown;
-};
-
-export type OrganizationsControllerListRolesV1Data = {
-    body?: never;
-    path?: never;
-    query?: never;
-    url: '/api/v1/organizations/roles';
-};
-
-export type OrganizationsControllerListRolesV1Responses = {
-    200: unknown;
-};
-
-export type OrganizationsControllerCreateRoleV1Data = {
-    body: CreateOrganizationRoleDto;
-    path?: never;
-    query?: never;
-    url: '/api/v1/organizations/roles';
-};
-
-export type OrganizationsControllerCreateRoleV1Responses = {
-    201: unknown;
-};
-
-export type OrganizationsControllerGetRoleV1Data = {
-    body?: never;
-    path?: never;
-    query?: never;
-    url: '/api/v1/organizations/role';
-};
-
-export type OrganizationsControllerGetRoleV1Responses = {
-    200: unknown;
-};
-
-export type OrganizationsControllerUpdateRoleV1Data = {
-    body: UpdateOrganizationRoleDto;
-    path?: never;
-    query?: never;
-    url: '/api/v1/organizations/update-role';
-};
-
-export type OrganizationsControllerUpdateRoleV1Responses = {
-    201: unknown;
-};
-
-export type OrganizationsControllerDeleteRoleV1Data = {
-    body: DeleteOrganizationRoleDto;
-    path?: never;
-    query?: never;
-    url: '/api/v1/organizations/delete-role';
-};
-
-export type OrganizationsControllerDeleteRoleV1Responses = {
-    201: unknown;
-};
-
-export type AuthControllerSignUpEmailV1Data = {
-    body: SignUpEmailDto;
-    path?: never;
-    query?: never;
-    url: '/api/v1/auth/sign-up/email';
-};
-
-export type AuthControllerSignUpEmailV1Responses = {
-    201: unknown;
-};
-
-export type AuthControllerSignInEmailV1Data = {
-    body: SignInEmailDto;
-    path?: never;
-    query?: never;
-    url: '/api/v1/auth/sign-in/email';
-};
-
-export type AuthControllerSignInEmailV1Responses = {
-    201: unknown;
-};
-
-export type AuthControllerSignInSocialV1Data = {
-    body: SignInSocialDto;
-    path?: never;
-    query?: never;
-    url: '/api/v1/auth/sign-in/social';
-};
-
-export type AuthControllerSignInSocialV1Responses = {
-    201: unknown;
-};
-
-export type AuthControllerSignOutV1Data = {
-    body?: never;
-    path?: never;
-    query?: never;
-    url: '/api/v1/auth/sign-out';
-};
-
-export type AuthControllerSignOutV1Responses = {
-    201: unknown;
-};
-
-export type AuthControllerGetSessionV1Data = {
-    body?: never;
-    path?: never;
-    query?: never;
-    url: '/api/v1/auth/get-session';
-};
-
-export type AuthControllerGetSessionV1Responses = {
-    200: unknown;
-};
-
-export type AuthControllerListSessionsV1Data = {
-    body?: never;
-    path?: never;
-    query?: never;
-    url: '/api/v1/auth/list-sessions';
-};
-
-export type AuthControllerListSessionsV1Responses = {
-    200: unknown;
-};
-
-export type AuthControllerRevokeSessionV1Data = {
-    body: RevokeSessionDto;
-    path?: never;
-    query?: never;
-    url: '/api/v1/auth/revoke-session';
-};
-
-export type AuthControllerRevokeSessionV1Responses = {
-    201: unknown;
-};
-
-export type AuthControllerRevokeSessionsV1Data = {
-    body?: never;
-    path?: never;
-    query?: never;
-    url: '/api/v1/auth/revoke-sessions';
-};
-
-export type AuthControllerRevokeSessionsV1Responses = {
-    201: unknown;
-};
-
-export type AuthControllerRevokeOtherSessionsV1Data = {
-    body?: never;
-    path?: never;
-    query?: never;
-    url: '/api/v1/auth/revoke-other-sessions';
-};
-
-export type AuthControllerRevokeOtherSessionsV1Responses = {
-    201: unknown;
-};
-
-export type AuthControllerRequestPasswordResetV1Data = {
-    body: RequestPasswordResetDto;
-    path?: never;
-    query?: never;
-    url: '/api/v1/auth/request-password-reset';
-};
-
-export type AuthControllerRequestPasswordResetV1Responses = {
-    201: unknown;
-};
-
-export type AuthControllerResetPasswordV1Data = {
-    body: ResetPasswordDto;
-    path?: never;
-    query?: never;
-    url: '/api/v1/auth/reset-password';
-};
-
-export type AuthControllerResetPasswordV1Responses = {
-    201: unknown;
-};
-
-export type AuthControllerVerifyPasswordV1Data = {
-    body: VerifyPasswordDto;
-    path?: never;
-    query?: never;
-    url: '/api/v1/auth/verify-password';
-};
-
-export type AuthControllerVerifyPasswordV1Responses = {
-    201: unknown;
-};
-
-export type AuthControllerSendVerificationEmailV1Data = {
-    body: SendVerificationEmailDto;
-    path?: never;
-    query?: never;
-    url: '/api/v1/auth/send-verification-email';
-};
-
-export type AuthControllerSendVerificationEmailV1Responses = {
-    201: unknown;
-};
-
-export type AuthControllerVerifyEmailV1Data = {
-    body?: never;
-    path?: never;
-    query?: never;
-    url: '/api/v1/auth/verify-email';
-};
-
-export type AuthControllerVerifyEmailV1Responses = {
-    200: unknown;
-};
-
-export type AuthControllerChangeEmailV1Data = {
-    body: ChangeEmailDto;
-    path?: never;
-    query?: never;
-    url: '/api/v1/auth/change-email';
-};
-
-export type AuthControllerChangeEmailV1Responses = {
-    201: unknown;
-};
-
-export type AuthControllerChangePasswordV1Data = {
-    body: ChangePasswordDto;
-    path?: never;
-    query?: never;
-    url: '/api/v1/auth/change-password';
-};
-
-export type AuthControllerChangePasswordV1Responses = {
-    201: unknown;
-};
-
-export type AuthControllerSetPasswordV1Data = {
-    body: SetPasswordDto;
-    path?: never;
-    query?: never;
-    url: '/api/v1/auth/set-password';
-};
-
-export type AuthControllerSetPasswordV1Responses = {
-    201: unknown;
-};
-
-export type AuthControllerUpdateUserV1Data = {
-    body: UpdateUserDto;
-    path?: never;
-    query?: never;
-    url: '/api/v1/auth/update-user';
-};
-
-export type AuthControllerUpdateUserV1Responses = {
-    201: unknown;
-};
-
-export type AuthControllerUpdateSessionV1Data = {
-    body: UpdateSessionDto;
-    path?: never;
-    query?: never;
-    url: '/api/v1/auth/update-session';
-};
-
-export type AuthControllerUpdateSessionV1Responses = {
-    201: unknown;
-};
-
-export type AuthControllerDeleteUserV1Data = {
-    body: DeleteUserDto;
-    path?: never;
-    query?: never;
-    url: '/api/v1/auth/delete-user';
-};
-
-export type AuthControllerDeleteUserV1Responses = {
-    201: unknown;
-};
-
-export type AuthControllerListAccountsV1Data = {
-    body?: never;
-    path?: never;
-    query?: never;
-    url: '/api/v1/auth/list-accounts';
-};
-
-export type AuthControllerListAccountsV1Responses = {
-    200: unknown;
-};
-
-export type AuthControllerAccountInfoV1Data = {
-    body?: never;
-    path?: never;
-    query?: never;
-    url: '/api/v1/auth/account-info';
-};
-
-export type AuthControllerAccountInfoV1Responses = {
-    200: unknown;
-};
-
-export type AuthControllerLinkSocialV1Data = {
-    body: LinkSocialDto;
-    path?: never;
-    query?: never;
-    url: '/api/v1/auth/link-social';
-};
-
-export type AuthControllerLinkSocialV1Responses = {
-    201: unknown;
-};
-
-export type AuthControllerUnlinkAccountV1Data = {
-    body: UnlinkAccountDto;
-    path?: never;
-    query?: never;
-    url: '/api/v1/auth/unlink-account';
-};
-
-export type AuthControllerUnlinkAccountV1Responses = {
-    201: unknown;
 };

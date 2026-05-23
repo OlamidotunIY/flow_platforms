@@ -11,6 +11,10 @@ export const PATHS = {
   messages: {
     root: "/messages",
   },
+  projects: {
+    root: "/projects",
+    detail: (projectId: string) => `/projects/${projectId}`,
+  },
   error: {
     root: "/error",
     notFound: "/error/404",

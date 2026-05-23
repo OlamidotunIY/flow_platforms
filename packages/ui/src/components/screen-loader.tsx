@@ -16,9 +16,9 @@ function LoaderBody({
   label = "Checking your session...",
 }: Pick<ScreenLoaderProps, "label">) {
   return (
-    <div className="flex items-center gap-3 text-sm text-muted-foreground">
-      <div className="size-4 animate-spin rounded-full border-2 border-muted-foreground/30 border-t-foreground" />
-      {label}
+    <div className="flex min-h-32 w-full max-w-md items-center justify-center gap-4 rounded-xl border bg-card/80 px-8 py-10 text-sm text-muted-foreground shadow-sm">
+      <div className="size-6 animate-spin rounded-full border-2 border-primary/20 border-t-primary" />
+      <span>{label}</span>
     </div>
   )
 }

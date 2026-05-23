@@ -1,5 +1,6 @@
-import { useCallback } from "react"
-import { Link, Outlet, useLocation } from "react-router-dom"
+import { useCallback, useEffect, useRef, useState } from "react"
+import { Link, Outlet, useLocation, useNavigate } from "react-router-dom"
+import { ArrowLeft, ArrowRight } from "lucide-react"
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -8,6 +9,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@flow/ui/components/breadcrumb"
+import { Button } from "@flow/ui/components/button"
 import { Separator } from "@flow/ui/components/separator"
 import {
   SidebarInset,
@@ -30,11 +32,68 @@ function getBreadcrumbPage(pathname: string) {
   return "Workspace"
 }
 
+function getLocationKey(location: ReturnType<typeof useLocation>) {
+  return `${location.pathname}${location.search}${location.hash}`
+}
+
 export function MainLayout() {
   const authClient = getFlowAuthClient()
   const windowControls = getDesktopWindowControls()
   const location = useLocation()
+  const navigate = useNavigate()
   const isDesktop = isDesktopPlatform()
+  const [routeHistory, setRouteHistory] = useState(() => [
+    getLocationKey(location),
+  ])
+  const [routeHistoryIndex, setRouteHistoryIndex] = useState(0)
+  const navigationIntent = useRef<"back" | "forward" | null>(null)
+  const currentLocationKey = getLocationKey(location)
+  const canGoBack =
+    routeHistoryIndex > 0 && currentLocationKey !== PATHS.root
+  const canGoForward = routeHistoryIndex < routeHistory.length - 1
+
+  useEffect(() => {
+    const intent = navigationIntent.current
+    navigationIntent.current = null
+
+    if (intent) {
+      return
+    }
+
+    setRouteHistory((history) => {
+      if (history[routeHistoryIndex] === currentLocationKey) {
+        return history
+      }
+
+      const nextHistory = history.slice(0, routeHistoryIndex + 1)
+      nextHistory.push(currentLocationKey)
+      setRouteHistoryIndex(nextHistory.length - 1)
+
+      return nextHistory
+    })
+  }, [currentLocationKey, routeHistoryIndex])
+
+  function goBack() {
+    if (!canGoBack) {
+      return
+    }
+
+    const nextIndex = routeHistoryIndex - 1
+    navigationIntent.current = "back"
+    setRouteHistoryIndex(nextIndex)
+    navigate(routeHistory[nextIndex])
+  }
+
+  function goForward() {
+    if (!canGoForward) {
+      return
+    }
+
+    const nextIndex = routeHistoryIndex + 1
+    navigationIntent.current = "forward"
+    setRouteHistoryIndex(nextIndex)
+    navigate(routeHistory[nextIndex])
+  }
 
   const signOut = useCallback(async () => {
     await authClient.signOut()
@@ -56,7 +115,30 @@ export function MainLayout() {
           onMaximize={windowControls?.toggleMaximize}
           onMinimize={windowControls?.minimize}
         >
-          Flow Desktop
+          <div className="flex items-center gap-1 [-webkit-app-region:no-drag]">
+            <Button
+              aria-label="Go back"
+              className="[-webkit-app-region:no-drag]"
+              disabled={!canGoBack}
+              onClick={goBack}
+              size="icon-sm"
+              type="button"
+              variant="ghost"
+            >
+              <ArrowLeft />
+            </Button>
+            <Button
+              aria-label="Go forward"
+              className="[-webkit-app-region:no-drag]"
+              disabled={!canGoForward}
+              onClick={goForward}
+              size="icon-sm"
+              type="button"
+              variant="ghost"
+            >
+              <ArrowRight />
+            </Button>
+          </div>
         </WindowTitleBar>
       ) : null}
       <TooltipProvider>

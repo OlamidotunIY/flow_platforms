@@ -33,7 +33,26 @@ export function getDesktopWindowControls() {
     return undefined
   }
 
-  return window.flowWindow
+  if (window.flowWindow) {
+    return window.flowWindow
+  }
+
+  const ipcRenderer = window.ipcRenderer
+
+  if (!ipcRenderer) {
+    return undefined
+  }
+
+  return {
+    close: () => ipcRenderer.invoke("flow-window:close") as Promise<void>,
+    minimize: () =>
+      ipcRenderer.invoke("flow-window:minimize") as Promise<void>,
+    openApp: () => ipcRenderer.invoke("flow-window:open-app") as Promise<void>,
+    openAuth: () =>
+      ipcRenderer.invoke("flow-window:open-auth") as Promise<void>,
+    toggleMaximize: () =>
+      ipcRenderer.invoke("flow-window:toggle-maximize") as Promise<void>,
+  }
 }
 
 export type DesktopWindowKind = "loading" | "auth" | "app"

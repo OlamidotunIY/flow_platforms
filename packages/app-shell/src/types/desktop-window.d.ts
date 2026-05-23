@@ -10,6 +10,9 @@ declare global {
     flowDiagnostics?: {
       authRequestFailed: (payload: unknown) => void
     }
+    ipcRenderer?: {
+      invoke: (channel: string, ...args: unknown[]) => Promise<unknown>
+    }
   }
 }
 

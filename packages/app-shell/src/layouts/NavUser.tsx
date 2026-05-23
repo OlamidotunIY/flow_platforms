@@ -26,7 +26,11 @@ import {
   useSidebar,
 } from "@flow/ui/components/sidebar"
 
-import type { SidebarUser } from "./sidebar-data"
+type SidebarUser = {
+  name: string
+  email: string
+  avatar?: string | null
+}
 
 function getInitials(name: string) {
   const initials = name

@@ -1,35 +1,38 @@
 import { create } from "zustand"
+import type {
+  DepartmentEntity,
+  OrganizationEntity,
+  ProjectEntity,
+  UserEntity,
+} from "@flow/api"
 
 import type { FlowAuthClient } from "../auth"
 
 type AuthSession = ReturnType<FlowAuthClient["useSession"]>["data"]
-export type FlowUser = NonNullable<AuthSession>["user"]
+type FlowSessionUser = NonNullable<AuthSession>["user"]
+export type FlowUser = FlowSessionUser | UserEntity
 
-export type FlowProjectSummary = {
-  id: string
-  name: string
-  url: string
-  icon?: string | null
+export type FlowProjectSummary = Pick<ProjectEntity, "icon" | "id" | "name"> & {
+  url?: string
 }
 
-export type FlowDepartmentSummary = {
-  id: string
-  name: string
-  slug?: string | null
+export type FlowDepartmentSummary = Pick<
+  DepartmentEntity,
+  "color" | "description" | "id" | "name" | "organizationId"
+> & {
   projects: FlowProjectSummary[]
 }
 
-export type FlowOrganizationSummary = {
-  id: string
-  name: string
-  slug?: string | null
-  logo?: string | null
-  plan?: string | null
+export type FlowOrganizationSummary = Pick<
+  OrganizationEntity,
+  "id" | "logoUrl" | "name" | "slug"
+> & {
   activeDepartment: FlowDepartmentSummary | null
+  departments?: FlowDepartmentSummary[]
 }
 
 export type FlowUserInfo = {
-  user: FlowUser
+  user: UserEntity
   activeOrganization: FlowOrganizationSummary | null
   organizations?: FlowOrganizationSummary[]
 }

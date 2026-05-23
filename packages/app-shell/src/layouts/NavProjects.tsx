@@ -24,27 +24,28 @@ import {
   useSidebar,
 } from "@flow/ui/components/sidebar"
 
+import { PATHS } from "../routing/paths"
+
 type Project = {
+  id: string
   name: string
   url: string
   icon: LucideIcon
 }
 
 export function NavProjects({
-  departmentName,
   projects,
 }: {
-  departmentName: string
   projects: Project[]
 }) {
   const { isMobile } = useSidebar()
 
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
-      <SidebarGroupLabel>{departmentName} projects</SidebarGroupLabel>
+      <SidebarGroupLabel>Recent projects</SidebarGroupLabel>
       <SidebarMenu>
         {projects.map((item) => (
-          <SidebarMenuItem key={item.name}>
+          <SidebarMenuItem key={item.id}>
             <SidebarMenuButton asChild>
               <Link to={item.url}>
                 <item.icon />
@@ -82,6 +83,14 @@ export function NavProjects({
             </DropdownMenu>
           </SidebarMenuItem>
         ))}
+        <SidebarMenuItem>
+          <SidebarMenuButton asChild className="text-sidebar-foreground/70">
+            <Link to={PATHS.projects.root}>
+              <MoreHorizontal className="text-sidebar-foreground/70" />
+              <span>More</span>
+            </Link>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
       </SidebarMenu>
     </SidebarGroup>
   )
