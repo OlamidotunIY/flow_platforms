@@ -1,8 +1,14 @@
-import { useState } from "react"
+import * as React from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { Button } from "@flow/ui/components/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@flow/ui/components/card"
-import { Field, FieldDescription, FieldGroup, FieldLabel } from "@flow/ui/components/field"
+import { Card, CardContent, CardHeader } from "@flow/ui/components/card"
+import {
+  Field,
+  FieldDescription,
+  FieldGroup,
+  FieldLabel,
+  FieldSeparator,
+} from "@flow/ui/components/field"
 import { Input } from "@flow/ui/components/input"
 import { WindowControls } from "@flow/ui/components/window-controls"
 import { cn } from "@flow/ui/lib/utils"
@@ -10,19 +16,48 @@ import { cn } from "@flow/ui/lib/utils"
 import { getFlowAuthClient } from "../../../auth"
 import { getDesktopWindowControls, isDesktopPlatform } from "../../../config"
 import { PATHS } from "../../../routing/paths"
+import {
+  AppleIcon,
+  FlowLogo,
+  GoogleIcon,
+  isAppleDevice,
+  type AuthStep,
+} from "../components/AuthFormParts"
+
+function nameFromEmail(email: string) {
+  return email.split("@")[0]?.trim() || email
+}
 
 export default function SignUpPage() {
   const authClient = getFlowAuthClient()
   const windowControls = getDesktopWindowControls()
   const navigate = useNavigate()
-  const [name, setName] = useState("")
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [error, setError] = useState<string>()
+  const [email, setEmail] = React.useState("")
+  const [password, setPassword] = React.useState("")
+  const [step, setStep] = React.useState<AuthStep>("email")
+  const [error, setError] = React.useState<string>()
+  const [isSubmitting, setIsSubmitting] = React.useState(false)
+  const isDesktop = isDesktopPlatform()
+  const showApple = isAppleDevice()
 
-  async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function signUpWithEmail(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    const result = await authClient.signUp.email({ email, name, password })
+    setError(undefined)
+
+    if (step === "email") {
+      setStep("password")
+      return
+    }
+
+    setIsSubmitting(true)
+
+    const result = await authClient.signUp.email({
+      email,
+      name: nameFromEmail(email),
+      password,
+    })
+
+    setIsSubmitting(false)
 
     if (result.error) {
       setError(result.error.message ?? "Unable to create account.")
@@ -37,18 +72,21 @@ export default function SignUpPage() {
     navigate(PATHS.root, { replace: true })
   }
 
-  const isDesktop = isDesktopPlatform()
+  async function signInWithProvider(provider: "apple" | "google") {
+    await authClient.signIn.social({ provider })
+  }
+
+  const title = step === "email" ? "Continue" : "Create account"
 
   return (
     <Card
       className={cn(
-        "relative overflow-hidden bg-card shadow-2xl",
-        isDesktop &&
-          "rounded-lg border-border py-0 shadow-[0_24px_80px_rgba(0,0,0,0.55)] [-webkit-app-region:drag]"
+        "relative overflow-hidden bg-card",
+        isDesktop && "rounded-lg border-border py-0 [-webkit-app-region:drag]"
       )}
     >
       {isDesktop ? (
-        <div className="absolute right-2 top-2 [-webkit-app-region:no-drag]">
+        <div className="absolute top-2.5 right-2.5 [-webkit-app-region:no-drag]">
           <WindowControls
             onClose={windowControls?.close}
             onMinimize={windowControls?.minimize}
@@ -56,32 +94,132 @@ export default function SignUpPage() {
           />
         </div>
       ) : null}
-      <CardHeader className={cn("text-center", isDesktop && "pt-8")}>
-        <CardTitle className="text-xl">Create account</CardTitle>
-        <CardDescription>Start using Flow across all your platforms.</CardDescription>
+      <CardHeader className={cn("text-center", isDesktop && "px-7 pt-8 pb-4")}>
+        <FlowLogo
+          title="Create account"
+          description="Start with email or continue with a social account."
+        />
       </CardHeader>
-      <CardContent className={cn(isDesktop && "[-webkit-app-region:no-drag]")}>
-        <form onSubmit={onSubmit}>
-          <FieldGroup>
-            <Field>
-              <FieldLabel htmlFor="name">Name</FieldLabel>
-              <Input id="name" required value={name} onChange={(event) => setName(event.target.value)} />
+      <CardContent
+        className={cn(isDesktop && "px-7 pb-6 [-webkit-app-region:no-drag]")}
+      >
+        <form onSubmit={signUpWithEmail}>
+          <FieldGroup className={cn(isDesktop && "gap-4")}>
+            <Field className={cn(isDesktop && "gap-2.5")}>
+              {showApple ? (
+                <Button
+                  className={cn(isDesktop && "h-10 text-[0.8125rem]")}
+                  variant="outline"
+                  type="button"
+                  onClick={() => signInWithProvider("apple")}
+                >
+                  <AppleIcon />
+                  Continue with Apple
+                </Button>
+              ) : null}
+              <Button
+                className={cn(isDesktop && "h-10 text-[0.8125rem]")}
+                variant="outline"
+                type="button"
+                onClick={() => signInWithProvider("google")}
+              >
+                <GoogleIcon />
+                Continue with Google
+              </Button>
             </Field>
+            <FieldSeparator
+              className={cn(
+                "*:data-[slot=field-separator-content]:bg-card",
+                isDesktop &&
+                  "py-0 *:data-[slot=field-separator-content]:text-[0.6875rem]"
+              )}
+            >
+              Or continue with
+            </FieldSeparator>
+            {step === "email" ? (
+              <Field className={cn(isDesktop && "gap-2")}>
+                <FieldLabel
+                  className={cn(isDesktop && "text-[0.8125rem]")}
+                  htmlFor="signup-email"
+                >
+                  Email
+                </FieldLabel>
+                <Input
+                  id="signup-email"
+                  required
+                  type="email"
+                  placeholder="m@example.com"
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
+                  className={cn(
+                    isDesktop && "h-10 rounded-lg px-3 text-[0.875rem]"
+                  )}
+                />
+              </Field>
+            ) : (
+              <Field className={cn(isDesktop && "gap-2")}>
+                <FieldLabel
+                  className={cn(isDesktop && "text-[0.8125rem]")}
+                  htmlFor="signup-password"
+                >
+                  Password
+                </FieldLabel>
+                <Input
+                  id="signup-password"
+                  required
+                  autoFocus
+                  type="password"
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                  className={cn(
+                    isDesktop && "h-10 rounded-lg px-3 text-[0.875rem]"
+                  )}
+                />
+                <button
+                  className="w-fit text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+                  type="button"
+                  onClick={() => {
+                    setPassword("")
+                    setStep("email")
+                  }}
+                >
+                  Use a different email
+                </button>
+              </Field>
+            )}
+            {error ? (
+              <Field>
+                <FieldDescription className="text-destructive">
+                  {error}
+                </FieldDescription>
+              </Field>
+            ) : null}
             <Field>
-              <FieldLabel htmlFor="signup-email">Email</FieldLabel>
-              <Input id="signup-email" required type="email" value={email} onChange={(event) => setEmail(event.target.value)} />
+              <Button
+                className={cn(isDesktop && "h-10 text-[0.8125rem]")}
+                type="submit"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "Creating account..." : title}
+              </Button>
+              <FieldDescription
+                className={cn("text-center", isDesktop && "text-xs")}
+              >
+                Already have an account?{" "}
+                <Link to={PATHS.auth.login}>Login</Link>
+              </FieldDescription>
             </Field>
-            <Field>
-              <FieldLabel htmlFor="signup-password">Password</FieldLabel>
-              <Input id="signup-password" required type="password" value={password} onChange={(event) => setPassword(event.target.value)} />
-            </Field>
-            {error ? <FieldDescription className="text-destructive">{error}</FieldDescription> : null}
-            <Button type="submit">Sign up</Button>
-            <FieldDescription className="text-center">
-              Already have an account? <Link to={PATHS.auth.login}>Login</Link>
-            </FieldDescription>
           </FieldGroup>
         </form>
+        <FieldDescription
+          className={cn(
+            "mt-4 text-center",
+            isDesktop && "mt-3 text-[0.6875rem] leading-4"
+          )}
+        >
+          By clicking continue, you agree to our{" "}
+          <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
+        </FieldDescription>
       </CardContent>
     </Card>
   )

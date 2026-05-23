@@ -5,8 +5,9 @@
 @import "@fontsource-variable/roboto-slab";
 
 @custom-variant dark (&:is(.dark *));
-@source "../../../apps/**/*.{ts,tsx}";
-@source "../../../components/**/*.{ts,tsx}";
+@source "../../../../apps/**/*.{ts,tsx}";
+@source "../../../app-shell/src/**/*.{ts,tsx}";
+@source "../../../../components/**/*.{ts,tsx}";
 @source "../**/*.{ts,tsx}";
 
 :root {

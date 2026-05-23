@@ -19,8 +19,8 @@ export function AuthLayout() {
 
   if (isDesktop) {
     return (
-      <main className="grid min-h-svh place-items-center overflow-hidden bg-transparent p-3 text-foreground">
-        <div className="w-full max-w-[396px]">
+      <main className="grid min-h-svh place-items-center overflow-hidden bg-transparent p-4 text-foreground">
+        <div className="w-full max-w-[408px]">
           <Outlet />
         </div>
       </main>

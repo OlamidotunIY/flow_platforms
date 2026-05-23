@@ -38,7 +38,7 @@ function DesktopLoadingWindow() {
 
   return (
     <main className="grid min-h-svh place-items-center overflow-hidden bg-transparent p-2 text-foreground">
-      <Card className="relative w-full max-w-[316px] py-0 shadow-2xl [-webkit-app-region:drag]">
+      <Card className="relative w-full max-w-[316px] py-0 [-webkit-app-region:drag]">
         <div className="absolute right-2 top-2 [-webkit-app-region:no-drag]">
           <WindowControls
             onClose={windowControls?.close}

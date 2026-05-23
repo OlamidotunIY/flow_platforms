@@ -30,6 +30,7 @@ function createBaseWindow({
     height,
     backgroundColor: transparent ? "#00000000" : void 0,
     frame: false,
+    hasShadow: !transparent,
     resizable,
     show: false,
     title,
@@ -77,8 +78,8 @@ function openAuthWindow() {
     return;
   }
   authWindow = createBaseWindow({
-    width: 420,
-    height: 500,
+    width: 440,
+    height: 560,
     resizable: false,
     transparent: true,
     title: "Flow Desktop"
