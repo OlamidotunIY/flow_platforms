@@ -1,14 +1,30 @@
+import type { ComponentPropsWithoutRef, ReactNode } from "react"
 import { Collapsible as CollapsiblePrimitive } from "radix-ui"
 
-function Collapsible({
-  ...props
-}: React.ComponentProps<typeof CollapsiblePrimitive.Root>) {
+type CollapsibleProps = ComponentPropsWithoutRef<"div"> & {
+  asChild?: boolean
+  defaultOpen?: boolean
+  disabled?: boolean
+  onOpenChange?: (open: boolean) => void
+  open?: boolean
+}
+
+type CollapsibleTriggerProps = ComponentPropsWithoutRef<"button"> & {
+  asChild?: boolean
+}
+
+type CollapsibleContentProps = ComponentPropsWithoutRef<"div"> & {
+  forceMount?: true
+  children?: ReactNode
+}
+
+function Collapsible({ ...props }: CollapsibleProps) {
   return <CollapsiblePrimitive.Root data-slot="collapsible" {...props} />
 }
 
 function CollapsibleTrigger({
   ...props
-}: React.ComponentProps<typeof CollapsiblePrimitive.CollapsibleTrigger>) {
+}: CollapsibleTriggerProps) {
   return (
     <CollapsiblePrimitive.CollapsibleTrigger
       data-slot="collapsible-trigger"
@@ -19,7 +35,7 @@ function CollapsibleTrigger({
 
 function CollapsibleContent({
   ...props
-}: React.ComponentProps<typeof CollapsiblePrimitive.CollapsibleContent>) {
+}: CollapsibleContentProps) {
   return (
     <CollapsiblePrimitive.CollapsibleContent
       data-slot="collapsible-content"
