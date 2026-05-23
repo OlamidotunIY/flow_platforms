@@ -108,7 +108,7 @@ export function LoginForm({
 
   return (
     <div
-      className={cn("flex flex-col", isDesktop && "h-full", className)}
+      className={cn("flex flex-col", isDesktop && "h-full w-full", className)}
       {...props}
     >
       <Card
@@ -128,7 +128,7 @@ export function LoginForm({
           </div>
         ) : null}
         <CardHeader
-          className={cn("text-center", isDesktop && "px-7 pt-8 pb-4")}
+          className={cn("text-center", isDesktop && "px-8 pt-10 pb-5")}
         >
           <FlowLogo
             title="Welcome back"
@@ -136,7 +136,7 @@ export function LoginForm({
           />
         </CardHeader>
         <CardContent
-          className={cn(isDesktop && "px-7 pb-0 [-webkit-app-region:no-drag]")}
+          className={cn(isDesktop && "px-8 pb-0 [-webkit-app-region:no-drag]")}
         >
           <form onSubmit={signInWithEmail}>
             <FieldGroup className={cn(isDesktop && "gap-4")}>

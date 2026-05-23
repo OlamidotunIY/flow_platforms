@@ -234,6 +234,17 @@ export type UnlinkAccountDto = {
     accountId?: string;
 };
 
+export type UsersControllerGetUserInfoV1Data = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/users/me';
+};
+
+export type UsersControllerGetUserInfoV1Responses = {
+    200: unknown;
+};
+
 export type OrganizationsControllerListV1Data = {
     body?: never;
     path?: never;

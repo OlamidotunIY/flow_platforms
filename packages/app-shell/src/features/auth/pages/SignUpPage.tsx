@@ -124,14 +124,14 @@ export default function SignUpPage() {
           />
         </div>
       ) : null}
-      <CardHeader className={cn("text-center", isDesktop && "px-7 pt-8 pb-4")}>
+      <CardHeader className={cn("text-center", isDesktop && "px-8 pt-10 pb-5")}>
         <FlowLogo
           title="Create account"
           description="Start with email or continue with a social account."
         />
       </CardHeader>
       <CardContent
-        className={cn(isDesktop && "px-7 pb-0 [-webkit-app-region:no-drag]")}
+        className={cn(isDesktop && "px-8 pb-0 [-webkit-app-region:no-drag]")}
       >
         <form onSubmit={signUpWithEmail}>
           <FieldGroup className={cn(isDesktop && "gap-4")}>

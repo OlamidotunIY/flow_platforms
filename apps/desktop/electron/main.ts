@@ -104,8 +104,8 @@ function openAuthWindow() {
   }
 
   authWindow = createBaseWindow({
-    width: 440,
-    height: 520,
+    width: 500,
+    height: 620,
     resizable: false,
     transparent: true,
     title: "Flow Desktop",

@@ -19,7 +19,7 @@ export function AuthLayout() {
 
   if (isDesktop) {
     return (
-      <main className="h-svh max-h-svh w-screen overflow-hidden bg-transparent text-foreground">
+      <main className="h-svh max-h-svh w-screen overflow-hidden bg-transparent p-3 text-foreground">
         <div className="h-full w-full overflow-hidden">
           <Outlet />
         </div>

@@ -9,7 +9,13 @@
     "strict": true,
     "noEmit": true,
     "paths": {
-      "@flow/ui/*": ["./src/*"]
+      "@flow/ui/*": ["./src/*"],
+      "@workspace/ui/components": ["./src/components"],
+      "@workspace/ui/components/*": ["./src/components/*"],
+      "@workspace/ui/hooks": ["./src/hooks"],
+      "@workspace/ui/hooks/*": ["./src/hooks/*"],
+      "@workspace/ui/lib": ["./src/lib"],
+      "@workspace/ui/lib/*": ["./src/lib/*"]
     }
   },
   "include": ["."],
