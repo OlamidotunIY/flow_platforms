@@ -19,8 +19,11 @@ import { PATHS } from "../../../routing/paths"
 import {
   AppleIcon,
   FlowLogo,
+  getAuthErrorMessage,
   GoogleIcon,
   isAppleDevice,
+  LoadingButtonContent,
+  logAuthRequestError,
   type AuthStep,
 } from "../components/AuthFormParts"
 
@@ -37,8 +40,12 @@ export default function SignUpPage() {
   const [step, setStep] = React.useState<AuthStep>("email")
   const [error, setError] = React.useState<string>()
   const [isSubmitting, setIsSubmitting] = React.useState(false)
+  const [socialProvider, setSocialProvider] = React.useState<
+    "apple" | "google"
+  >()
   const isDesktop = isDesktopPlatform()
   const showApple = isAppleDevice()
+  const isBusy = isSubmitting || Boolean(socialProvider)
 
   async function signUpWithEmail(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -49,31 +56,53 @@ export default function SignUpPage() {
       return
     }
 
-    setIsSubmitting(true)
+    try {
+      setIsSubmitting(true)
 
-    const result = await authClient.signUp.email({
-      email,
-      name: nameFromEmail(email),
-      password,
-    })
+      const result = await authClient.signUp.email({
+        email,
+        name: nameFromEmail(email),
+        password,
+      })
 
-    setIsSubmitting(false)
+      if (result.error) {
+        setError(result.error.message ?? "Unable to create account.")
+        return
+      }
 
-    if (result.error) {
-      setError(result.error.message ?? "Unable to create account.")
-      return
+      if (isDesktopPlatform()) {
+        await windowControls?.openApp()
+        return
+      }
+
+      navigate(PATHS.root, { replace: true })
+    } catch (requestError) {
+      logAuthRequestError({
+        action: "sign-up with email",
+        path: "/sign-up/email",
+        error: requestError,
+      })
+      setError(getAuthErrorMessage(requestError))
+    } finally {
+      setIsSubmitting(false)
     }
-
-    if (isDesktopPlatform()) {
-      await windowControls?.openApp()
-      return
-    }
-
-    navigate(PATHS.root, { replace: true })
   }
 
   async function signInWithProvider(provider: "apple" | "google") {
-    await authClient.signIn.social({ provider })
+    try {
+      setError(undefined)
+      setSocialProvider(provider)
+      await authClient.signIn.social({ provider })
+    } catch (requestError) {
+      logAuthRequestError({
+        action: `sign-in with ${provider}`,
+        path: "/sign-in/social",
+        error: requestError,
+      })
+      setError(getAuthErrorMessage(requestError))
+    } finally {
+      setSocialProvider(undefined)
+    }
   }
 
   const title = step === "email" ? "Continue" : "Create account"
@@ -82,7 +111,8 @@ export default function SignUpPage() {
     <Card
       className={cn(
         "relative overflow-hidden bg-card",
-        isDesktop && "rounded-lg border-border py-0 [-webkit-app-region:drag]"
+        isDesktop &&
+          "flex h-full justify-center rounded-lg border-border py-0 [-webkit-app-region:drag]"
       )}
     >
       {isDesktop ? (
@@ -101,7 +131,7 @@ export default function SignUpPage() {
         />
       </CardHeader>
       <CardContent
-        className={cn(isDesktop && "px-7 pb-6 [-webkit-app-region:no-drag]")}
+        className={cn(isDesktop && "px-7 pb-0 [-webkit-app-region:no-drag]")}
       >
         <form onSubmit={signUpWithEmail}>
           <FieldGroup className={cn(isDesktop && "gap-4")}>
@@ -111,20 +141,26 @@ export default function SignUpPage() {
                   className={cn(isDesktop && "h-10 text-[0.8125rem]")}
                   variant="outline"
                   type="button"
+                  disabled={isBusy}
                   onClick={() => signInWithProvider("apple")}
                 >
-                  <AppleIcon />
-                  Continue with Apple
+                  {socialProvider === "apple" ? null : <AppleIcon />}
+                  <LoadingButtonContent isLoading={socialProvider === "apple"}>
+                    Continue with Apple
+                  </LoadingButtonContent>
                 </Button>
               ) : null}
               <Button
                 className={cn(isDesktop && "h-10 text-[0.8125rem]")}
                 variant="outline"
                 type="button"
+                disabled={isBusy}
                 onClick={() => signInWithProvider("google")}
               >
-                <GoogleIcon />
-                Continue with Google
+                {socialProvider === "google" ? null : <GoogleIcon />}
+                <LoadingButtonContent isLoading={socialProvider === "google"}>
+                  Continue with Google
+                </LoadingButtonContent>
               </Button>
             </Field>
             <FieldSeparator
@@ -150,6 +186,7 @@ export default function SignUpPage() {
                   type="email"
                   placeholder="m@example.com"
                   value={email}
+                  disabled={isBusy}
                   onChange={(event) => setEmail(event.target.value)}
                   className={cn(
                     isDesktop && "h-10 rounded-lg px-3 text-[0.875rem]"
@@ -170,6 +207,7 @@ export default function SignUpPage() {
                   autoFocus
                   type="password"
                   value={password}
+                  disabled={isBusy}
                   onChange={(event) => setPassword(event.target.value)}
                   className={cn(
                     isDesktop && "h-10 rounded-lg px-3 text-[0.875rem]"
@@ -198,9 +236,11 @@ export default function SignUpPage() {
               <Button
                 className={cn(isDesktop && "h-10 text-[0.8125rem]")}
                 type="submit"
-                disabled={isSubmitting}
+                disabled={isBusy}
               >
-                {isSubmitting ? "Creating account..." : title}
+                <LoadingButtonContent isLoading={isSubmitting}>
+                  {isSubmitting ? "Creating account..." : title}
+                </LoadingButtonContent>
               </Button>
               <FieldDescription
                 className={cn("text-center", isDesktop && "text-xs")}

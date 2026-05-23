@@ -1,4 +1,8 @@
+import type * as React from "react"
 import { CardDescription, CardTitle } from "@flow/ui/components/card"
+import { Spinner } from "@flow/ui/components/spinner"
+
+import { getFlowAuthEndpointUrl } from "../../../auth"
 
 export type AuthStep = "email" | "password"
 
@@ -66,4 +70,61 @@ export function GoogleIcon() {
       />
     </svg>
   )
+}
+
+export function LoadingButtonContent({
+  children,
+  isLoading,
+}: {
+  children: React.ReactNode
+  isLoading: boolean
+}) {
+  return (
+    <>
+      {isLoading ? <Spinner /> : null}
+      <span>{children}</span>
+    </>
+  )
+}
+
+export function getAuthErrorMessage(error: unknown) {
+  if (error instanceof Error && error.name === "AbortError") {
+    return "The auth request timed out. Check the console for request details."
+  }
+
+  if (error instanceof TypeError && error.message === "Failed to fetch") {
+    return "Unable to reach the auth server. Check the console for request details."
+  }
+
+  if (error instanceof Error && error.message) {
+    return error.message
+  }
+
+  return "Unable to complete the auth request. Check the console for request details."
+}
+
+export function logAuthRequestError({
+  action,
+  error,
+  path,
+}: {
+  action: string
+  error: unknown
+  path: string
+}) {
+  const payload = {
+    action,
+    endpoint: getFlowAuthEndpointUrl(path),
+    error:
+      error instanceof Error
+        ? {
+            message: error.message,
+            name: error.name,
+            stack: error.stack,
+          }
+        : error,
+  }
+
+  console.error("[Flow Auth] Request failed", payload)
+  window.flowDiagnostics?.authRequestFailed(payload)
 }

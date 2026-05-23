@@ -79,7 +79,7 @@ function openAuthWindow() {
   }
   authWindow = createBaseWindow({
     width: 440,
-    height: 560,
+    height: 520,
     resizable: false,
     transparent: true,
     title: "Flow Desktop"
@@ -131,6 +131,9 @@ ipcMain.handle("flow-window:open-auth", () => {
 });
 ipcMain.handle("flow-window:open-app", () => {
   openAppWindow();
+});
+ipcMain.on("flow-auth:request-failed", (_event, payload) => {
+  console.error("[Flow Auth] Request failed", payload);
 });
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") {

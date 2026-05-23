@@ -1,7 +1,7 @@
-import { ipcRenderer, contextBridge } from 'electron'
+import { ipcRenderer, contextBridge } from "electron"
 
 // --------- Expose some API to the Renderer process ---------
-contextBridge.exposeInMainWorld('ipcRenderer', {
+contextBridge.exposeInMainWorld("ipcRenderer", {
   on(...args: Parameters<typeof ipcRenderer.on>) {
     const [channel, listener] = args
     return ipcRenderer.on(channel, (event, ...args) => listener(event, ...args))
@@ -23,10 +23,15 @@ contextBridge.exposeInMainWorld('ipcRenderer', {
   // ...
 })
 
-contextBridge.exposeInMainWorld('flowWindow', {
-  close: () => ipcRenderer.invoke('flow-window:close'),
-  minimize: () => ipcRenderer.invoke('flow-window:minimize'),
-  openApp: () => ipcRenderer.invoke('flow-window:open-app'),
-  openAuth: () => ipcRenderer.invoke('flow-window:open-auth'),
-  toggleMaximize: () => ipcRenderer.invoke('flow-window:toggle-maximize'),
+contextBridge.exposeInMainWorld("flowWindow", {
+  close: () => ipcRenderer.invoke("flow-window:close"),
+  minimize: () => ipcRenderer.invoke("flow-window:minimize"),
+  openApp: () => ipcRenderer.invoke("flow-window:open-app"),
+  openAuth: () => ipcRenderer.invoke("flow-window:open-auth"),
+  toggleMaximize: () => ipcRenderer.invoke("flow-window:toggle-maximize"),
+})
+
+contextBridge.exposeInMainWorld("flowDiagnostics", {
+  authRequestFailed: (payload: unknown) =>
+    ipcRenderer.send("flow-auth:request-failed", payload),
 })

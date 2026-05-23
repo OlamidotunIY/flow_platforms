@@ -19,8 +19,11 @@ import { PATHS } from "../../../routing/paths"
 import {
   AppleIcon,
   FlowLogo,
+  getAuthErrorMessage,
   GoogleIcon,
   isAppleDevice,
+  LoadingButtonContent,
+  logAuthRequestError,
   type AuthStep,
 } from "./AuthFormParts"
 
@@ -36,7 +39,11 @@ export function LoginForm({
   const [step, setStep] = React.useState<AuthStep>("email")
   const [error, setError] = React.useState<string>()
   const [isSubmitting, setIsSubmitting] = React.useState(false)
+  const [socialProvider, setSocialProvider] = React.useState<
+    "apple" | "google"
+  >()
   const showApple = isAppleDevice()
+  const isBusy = isSubmitting || Boolean(socialProvider)
 
   async function signInWithEmail(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -47,42 +54,68 @@ export function LoginForm({
       return
     }
 
-    setIsSubmitting(true)
+    try {
+      setIsSubmitting(true)
 
-    const result = await authClient.signIn.email({
-      email,
-      password,
-      rememberMe: true,
-    })
+      const result = await authClient.signIn.email({
+        email,
+        password,
+        rememberMe: true,
+      })
 
-    setIsSubmitting(false)
+      if (result.error) {
+        setError(result.error.message ?? "Unable to sign in.")
+        return
+      }
 
-    if (result.error) {
-      setError(result.error.message ?? "Unable to sign in.")
-      return
+      if (isDesktopPlatform()) {
+        await windowControls?.openApp()
+        return
+      }
+
+      navigate(PATHS.root, { replace: true })
+    } catch (requestError) {
+      logAuthRequestError({
+        action: "sign-in with email",
+        path: "/sign-in/email",
+        error: requestError,
+      })
+      setError(getAuthErrorMessage(requestError))
+    } finally {
+      setIsSubmitting(false)
     }
-
-    if (isDesktopPlatform()) {
-      await windowControls?.openApp()
-      return
-    }
-
-    navigate(PATHS.root, { replace: true })
   }
 
   async function signInWithProvider(provider: "apple" | "google") {
-    await authClient.signIn.social({ provider })
+    try {
+      setError(undefined)
+      setSocialProvider(provider)
+      await authClient.signIn.social({ provider })
+    } catch (requestError) {
+      logAuthRequestError({
+        action: `sign-in with ${provider}`,
+        path: "/sign-in/social",
+        error: requestError,
+      })
+      setError(getAuthErrorMessage(requestError))
+    } finally {
+      setSocialProvider(undefined)
+    }
   }
 
   const isDesktop = isDesktopPlatform()
   const title = step === "email" ? "Continue" : "Login"
 
   return (
-    <div className={cn("flex flex-col", className)} {...props}>
+    <div
+      className={cn("flex flex-col", isDesktop && "h-full", className)}
+      {...props}
+    >
       <Card
         className={cn(
           "relative overflow-hidden bg-card",
-          isDesktop && "rounded-lg border-border py-0 [-webkit-app-region:drag]"
+          isDesktop &&
+            "flex h-full justify-center rounded-lg border-border py-0 [-webkit-app-region:drag]"
         )}
       >
         {isDesktop ? (
@@ -103,7 +136,7 @@ export function LoginForm({
           />
         </CardHeader>
         <CardContent
-          className={cn(isDesktop && "px-7 pb-6 [-webkit-app-region:no-drag]")}
+          className={cn(isDesktop && "px-7 pb-0 [-webkit-app-region:no-drag]")}
         >
           <form onSubmit={signInWithEmail}>
             <FieldGroup className={cn(isDesktop && "gap-4")}>
@@ -113,20 +146,28 @@ export function LoginForm({
                     className={cn(isDesktop && "h-10 text-[0.8125rem]")}
                     variant="outline"
                     type="button"
+                    disabled={isBusy}
                     onClick={() => signInWithProvider("apple")}
                   >
-                    <AppleIcon />
-                    Continue with Apple
+                    {socialProvider === "apple" ? null : <AppleIcon />}
+                    <LoadingButtonContent
+                      isLoading={socialProvider === "apple"}
+                    >
+                      Continue with Apple
+                    </LoadingButtonContent>
                   </Button>
                 ) : null}
                 <Button
                   className={cn(isDesktop && "h-10 text-[0.8125rem]")}
                   variant="outline"
                   type="button"
+                  disabled={isBusy}
                   onClick={() => signInWithProvider("google")}
                 >
-                  <GoogleIcon />
-                  Continue with Google
+                  {socialProvider === "google" ? null : <GoogleIcon />}
+                  <LoadingButtonContent isLoading={socialProvider === "google"}>
+                    Continue with Google
+                  </LoadingButtonContent>
                 </Button>
               </Field>
               <FieldSeparator
@@ -152,6 +193,7 @@ export function LoginForm({
                     placeholder="m@example.com"
                     required
                     value={email}
+                    disabled={isBusy}
                     onChange={(event) => setEmail(event.target.value)}
                     className={cn(
                       isDesktop && "h-10 rounded-lg px-3 text-[0.875rem]"
@@ -183,6 +225,7 @@ export function LoginForm({
                     required
                     autoFocus
                     value={password}
+                    disabled={isBusy}
                     onChange={(event) => setPassword(event.target.value)}
                     className={cn(
                       isDesktop && "h-10 rounded-lg px-3 text-[0.875rem]"
@@ -211,9 +254,11 @@ export function LoginForm({
                 <Button
                   className={cn(isDesktop && "h-10 text-[0.8125rem]")}
                   type="submit"
-                  disabled={isSubmitting}
+                  disabled={isBusy}
                 >
-                  {isSubmitting ? "Logging in..." : title}
+                  <LoadingButtonContent isLoading={isSubmitting}>
+                    {isSubmitting ? "Logging in..." : title}
+                  </LoadingButtonContent>
                 </Button>
                 <FieldDescription
                   className={cn("text-center", isDesktop && "text-xs")}

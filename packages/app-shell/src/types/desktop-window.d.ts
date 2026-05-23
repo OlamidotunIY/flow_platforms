@@ -7,6 +7,9 @@ declare global {
       openAuth: () => Promise<void>
       toggleMaximize: () => Promise<void>
     }
+    flowDiagnostics?: {
+      authRequestFailed: (payload: unknown) => void
+    }
   }
 }
 

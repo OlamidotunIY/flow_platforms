@@ -27,3 +27,6 @@ electron.contextBridge.exposeInMainWorld("flowWindow", {
   openAuth: () => electron.ipcRenderer.invoke("flow-window:open-auth"),
   toggleMaximize: () => electron.ipcRenderer.invoke("flow-window:toggle-maximize")
 });
+electron.contextBridge.exposeInMainWorld("flowDiagnostics", {
+  authRequestFailed: (payload) => electron.ipcRenderer.send("flow-auth:request-failed", payload)
+});
