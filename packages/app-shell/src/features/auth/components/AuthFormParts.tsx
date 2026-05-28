@@ -1,3 +1,5 @@
+/// <reference path="../../../types/desktop-window.d.ts" />
+
 import type * as React from "react"
 import { CardDescription, CardTitle } from "@flow/ui/components/card"
 import { Spinner } from "@flow/ui/components/spinner"

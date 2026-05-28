@@ -2,7 +2,7 @@
 
 import type { Client, Options as Options2, TDataShape } from './client';
 import { client } from './client.gen';
-import type { UsersControllerGetUserInfoV1Data, UsersControllerGetUserInfoV1Responses } from './types.gen';
+import type { AppControllerGetHealthV1Data, AppControllerGetHealthV1Responses, AskAiControllerGetHomeV1Data, AskAiControllerGetHomeV1Responses, CustomFieldsControllerCreateFieldV1Data, CustomFieldsControllerCreateFieldV1Responses, CustomFieldsControllerDeleteFieldV1Data, CustomFieldsControllerDeleteFieldV1Responses, CustomFieldsControllerListFieldsV1Data, CustomFieldsControllerListFieldsV1Responses, CustomFieldsControllerRestoreFieldV1Data, CustomFieldsControllerRestoreFieldV1Responses, CustomFieldsControllerUpdateFieldV1Data, CustomFieldsControllerUpdateFieldV1Responses, CustomFieldsControllerUpsertValueV1Data, CustomFieldsControllerUpsertValueV1Responses, DashboardControllerGetDashboardV1Data, DashboardControllerGetDashboardV1Responses, DepartmentsControllerCreateDepartmentV1Data, DepartmentsControllerCreateDepartmentV1Responses, DepartmentsControllerSetActiveDepartmentV1Data, DepartmentsControllerSetActiveDepartmentV1Responses, DocsControllerCreateDocV1Data, DocsControllerCreateDocV1Responses, DocsControllerDeleteDocV1Data, DocsControllerDeleteDocV1Responses, DocsControllerGetDocV1Data, DocsControllerGetDocV1Responses, DocsControllerListDocsV1Data, DocsControllerListDocsV1Responses, DocsControllerUpdateDocV1Data, DocsControllerUpdateDocV1Responses, InboxControllerGetInboxV1Data, InboxControllerGetInboxV1Responses, InboxControllerGetRoomV1Data, InboxControllerGetRoomV1Responses, MeetingsControllerCreateMeetingV1Data, MeetingsControllerCreateMeetingV1Responses, MeetingsControllerDeleteMeetingV1Data, MeetingsControllerDeleteMeetingV1Responses, MeetingsControllerGetMeetingV1Data, MeetingsControllerGetMeetingV1Responses, MeetingsControllerListMeetingsV1Data, MeetingsControllerListMeetingsV1Responses, MeetingsControllerRemoveAttendeeV1Data, MeetingsControllerRemoveAttendeeV1Responses, MeetingsControllerUpdateMeetingV1Data, MeetingsControllerUpdateMeetingV1Responses, MeetingsControllerUpsertAttendeeV1Data, MeetingsControllerUpsertAttendeeV1Responses, OrganizationsControllerCreateOrganizationV1Data, OrganizationsControllerCreateOrganizationV1Responses, OrganizationsControllerSetActiveOrganizationV1Data, OrganizationsControllerSetActiveOrganizationV1Responses, PagesControllerCreateBlockV1Data, PagesControllerCreateBlockV1Responses, PagesControllerCreatePageV1Data, PagesControllerCreatePageV1Responses, PagesControllerCreateViewV1Data, PagesControllerCreateViewV1Responses, PagesControllerDeleteBlockV1Data, PagesControllerDeleteBlockV1Responses, PagesControllerDeletePageV1Data, PagesControllerDeletePageV1Responses, PagesControllerDeleteViewV1Data, PagesControllerDeleteViewV1Responses, PagesControllerDuplicateViewV1Data, PagesControllerDuplicateViewV1Responses, PagesControllerGetPageV1Data, PagesControllerGetPageV1Responses, PagesControllerListPagesV1Data, PagesControllerListPagesV1Responses, PagesControllerRestorePageV1Data, PagesControllerRestorePageV1Responses, PagesControllerSetDefaultViewV1Data, PagesControllerSetDefaultViewV1Responses, PagesControllerSetHomePageV1Data, PagesControllerSetHomePageV1Responses, PagesControllerUpdateBlockV1Data, PagesControllerUpdateBlockV1Responses, PagesControllerUpdatePageV1Data, PagesControllerUpdatePageV1Responses, PagesControllerUpdateViewV1Data, PagesControllerUpdateViewV1Responses, SearchControllerSearchV1Data, SearchControllerSearchV1Responses, SprintsControllerAddTaskV1Data, SprintsControllerAddTaskV1Responses, SprintsControllerArchiveSprintV1Data, SprintsControllerArchiveSprintV1Responses, SprintsControllerCreateSprintV1Data, SprintsControllerCreateSprintV1Responses, SprintsControllerGetBacklogV1Data, SprintsControllerGetBacklogV1Responses, SprintsControllerGetPlanningV1Data, SprintsControllerGetPlanningV1Responses, SprintsControllerListSprintsV1Data, SprintsControllerListSprintsV1Responses, SprintsControllerRemoveTaskV1Data, SprintsControllerRemoveTaskV1Responses, SprintsControllerUpdateSprintV1Data, SprintsControllerUpdateSprintV1Responses, UsersControllerGetUserInfoV1Data, UsersControllerGetUserInfoV1Responses, WorkspaceSetupControllerRetryV1Data, WorkspaceSetupControllerRetryV1Responses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -18,11 +18,445 @@ export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends 
     meta?: Record<string, unknown>;
 };
 
+export const appControllerGetHealthV1 = <ThrowOnError extends boolean = false>(options?: Options<AppControllerGetHealthV1Data, ThrowOnError>) => (options?.client ?? client).get<AppControllerGetHealthV1Responses, unknown, ThrowOnError>({ url: '/api/v1', ...options });
+
 /**
  * Get current user information with active organization context
  */
 export const usersControllerGetUserInfoV1 = <ThrowOnError extends boolean = false>(options?: Options<UsersControllerGetUserInfoV1Data, ThrowOnError>) => (options?.client ?? client).get<UsersControllerGetUserInfoV1Responses, unknown, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/api/v1/users/me',
+    ...options
+});
+
+/**
+ * Create an organization with its first department
+ */
+export const organizationsControllerCreateOrganizationV1 = <ThrowOnError extends boolean = false>(options: Options<OrganizationsControllerCreateOrganizationV1Data, ThrowOnError>) => (options.client ?? client).post<OrganizationsControllerCreateOrganizationV1Responses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/organizations',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Set the active organization
+ */
+export const organizationsControllerSetActiveOrganizationV1 = <ThrowOnError extends boolean = false>(options: Options<OrganizationsControllerSetActiveOrganizationV1Data, ThrowOnError>) => (options.client ?? client).post<OrganizationsControllerSetActiveOrganizationV1Responses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/organizations/active',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Create a department and set it as the active department
+ */
+export const departmentsControllerCreateDepartmentV1 = <ThrowOnError extends boolean = false>(options: Options<DepartmentsControllerCreateDepartmentV1Data, ThrowOnError>) => (options.client ?? client).post<DepartmentsControllerCreateDepartmentV1Responses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/departments',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Set the active department
+ */
+export const departmentsControllerSetActiveDepartmentV1 = <ThrowOnError extends boolean = false>(options: Options<DepartmentsControllerSetActiveDepartmentV1Data, ThrowOnError>) => (options.client ?? client).post<DepartmentsControllerSetActiveDepartmentV1Responses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/departments/active',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Get the home dashboard data for the active workspace
+ */
+export const dashboardControllerGetDashboardV1 = <ThrowOnError extends boolean = false>(options?: Options<DashboardControllerGetDashboardV1Data, ThrowOnError>) => (options?.client ?? client).get<DashboardControllerGetDashboardV1Responses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/dashboard',
+    ...options
+});
+
+/**
+ * List pages in the active organization
+ */
+export const pagesControllerListPagesV1 = <ThrowOnError extends boolean = false>(options: Options<PagesControllerListPagesV1Data, ThrowOnError>) => (options.client ?? client).get<PagesControllerListPagesV1Responses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/pages',
+    ...options
+});
+
+/**
+ * Create a dynamic page
+ */
+export const pagesControllerCreatePageV1 = <ThrowOnError extends boolean = false>(options: Options<PagesControllerCreatePageV1Data, ThrowOnError>) => (options.client ?? client).post<PagesControllerCreatePageV1Responses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/pages',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+export const pagesControllerDeletePageV1 = <ThrowOnError extends boolean = false>(options: Options<PagesControllerDeletePageV1Data, ThrowOnError>) => (options.client ?? client).delete<PagesControllerDeletePageV1Responses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/pages/{pageId}',
+    ...options
+});
+
+/**
+ * Get a page with its views and active view data
+ */
+export const pagesControllerGetPageV1 = <ThrowOnError extends boolean = false>(options: Options<PagesControllerGetPageV1Data, ThrowOnError>) => (options.client ?? client).get<PagesControllerGetPageV1Responses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/pages/{pageId}',
+    ...options
+});
+
+export const pagesControllerUpdatePageV1 = <ThrowOnError extends boolean = false>(options: Options<PagesControllerUpdatePageV1Data, ThrowOnError>) => (options.client ?? client).patch<PagesControllerUpdatePageV1Responses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/pages/{pageId}',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+export const pagesControllerRestorePageV1 = <ThrowOnError extends boolean = false>(options: Options<PagesControllerRestorePageV1Data, ThrowOnError>) => (options.client ?? client).post<PagesControllerRestorePageV1Responses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/pages/{pageId}/restore',
+    ...options
+});
+
+export const pagesControllerSetHomePageV1 = <ThrowOnError extends boolean = false>(options: Options<PagesControllerSetHomePageV1Data, ThrowOnError>) => (options.client ?? client).post<PagesControllerSetHomePageV1Responses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/pages/{pageId}/home',
+    ...options
+});
+
+export const pagesControllerCreateViewV1 = <ThrowOnError extends boolean = false>(options: Options<PagesControllerCreateViewV1Data, ThrowOnError>) => (options.client ?? client).post<PagesControllerCreateViewV1Responses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/pages/{pageId}/views',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+export const pagesControllerDeleteViewV1 = <ThrowOnError extends boolean = false>(options: Options<PagesControllerDeleteViewV1Data, ThrowOnError>) => (options.client ?? client).delete<PagesControllerDeleteViewV1Responses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/pages/views/{viewId}',
+    ...options
+});
+
+export const pagesControllerUpdateViewV1 = <ThrowOnError extends boolean = false>(options: Options<PagesControllerUpdateViewV1Data, ThrowOnError>) => (options.client ?? client).patch<PagesControllerUpdateViewV1Responses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/pages/views/{viewId}',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+export const pagesControllerDuplicateViewV1 = <ThrowOnError extends boolean = false>(options: Options<PagesControllerDuplicateViewV1Data, ThrowOnError>) => (options.client ?? client).post<PagesControllerDuplicateViewV1Responses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/pages/views/{viewId}/duplicate',
+    ...options
+});
+
+export const pagesControllerSetDefaultViewV1 = <ThrowOnError extends boolean = false>(options: Options<PagesControllerSetDefaultViewV1Data, ThrowOnError>) => (options.client ?? client).post<PagesControllerSetDefaultViewV1Responses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/pages/views/{viewId}/default',
+    ...options
+});
+
+export const pagesControllerCreateBlockV1 = <ThrowOnError extends boolean = false>(options: Options<PagesControllerCreateBlockV1Data, ThrowOnError>) => (options.client ?? client).post<PagesControllerCreateBlockV1Responses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/pages/views/{viewId}/blocks',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+export const pagesControllerDeleteBlockV1 = <ThrowOnError extends boolean = false>(options: Options<PagesControllerDeleteBlockV1Data, ThrowOnError>) => (options.client ?? client).delete<PagesControllerDeleteBlockV1Responses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/pages/blocks/{blockId}',
+    ...options
+});
+
+export const pagesControllerUpdateBlockV1 = <ThrowOnError extends boolean = false>(options: Options<PagesControllerUpdateBlockV1Data, ThrowOnError>) => (options.client ?? client).patch<PagesControllerUpdateBlockV1Responses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/pages/blocks/{blockId}',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Search across the active organization
+ */
+export const searchControllerSearchV1 = <ThrowOnError extends boolean = false>(options?: Options<SearchControllerSearchV1Data, ThrowOnError>) => (options?.client ?? client).get<SearchControllerSearchV1Responses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/search',
+    ...options
+});
+
+/**
+ * Get chat channels and direct messages for the active organization
+ */
+export const inboxControllerGetInboxV1 = <ThrowOnError extends boolean = false>(options?: Options<InboxControllerGetInboxV1Data, ThrowOnError>) => (options?.client ?? client).get<InboxControllerGetInboxV1Responses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/inbox',
+    ...options
+});
+
+/**
+ * Get a chat room with members and messages
+ */
+export const inboxControllerGetRoomV1 = <ThrowOnError extends boolean = false>(options: Options<InboxControllerGetRoomV1Data, ThrowOnError>) => (options.client ?? client).get<InboxControllerGetRoomV1Responses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/inbox/{chatRoomId}',
+    ...options
+});
+
+/**
+ * Get Ask AI home data for the active organization
+ */
+export const askAiControllerGetHomeV1 = <ThrowOnError extends boolean = false>(options?: Options<AskAiControllerGetHomeV1Data, ThrowOnError>) => (options?.client ?? client).get<AskAiControllerGetHomeV1Responses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/ask-ai',
+    ...options
+});
+
+export const sprintsControllerListSprintsV1 = <ThrowOnError extends boolean = false>(options: Options<SprintsControllerListSprintsV1Data, ThrowOnError>) => (options.client ?? client).get<SprintsControllerListSprintsV1Responses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/projects/{projectId}/sprints',
+    ...options
+});
+
+export const sprintsControllerCreateSprintV1 = <ThrowOnError extends boolean = false>(options: Options<SprintsControllerCreateSprintV1Data, ThrowOnError>) => (options.client ?? client).post<SprintsControllerCreateSprintV1Responses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/projects/{projectId}/sprints',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Get project sprints and backlog for planning
+ */
+export const sprintsControllerGetPlanningV1 = <ThrowOnError extends boolean = false>(options: Options<SprintsControllerGetPlanningV1Data, ThrowOnError>) => (options.client ?? client).get<SprintsControllerGetPlanningV1Responses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/projects/{projectId}/sprint-planning',
+    ...options
+});
+
+export const sprintsControllerGetBacklogV1 = <ThrowOnError extends boolean = false>(options: Options<SprintsControllerGetBacklogV1Data, ThrowOnError>) => (options.client ?? client).get<SprintsControllerGetBacklogV1Responses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/projects/{projectId}/backlog',
+    ...options
+});
+
+export const sprintsControllerArchiveSprintV1 = <ThrowOnError extends boolean = false>(options: Options<SprintsControllerArchiveSprintV1Data, ThrowOnError>) => (options.client ?? client).delete<SprintsControllerArchiveSprintV1Responses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/projects/{projectId}/sprints/{sprintId}',
+    ...options
+});
+
+export const sprintsControllerUpdateSprintV1 = <ThrowOnError extends boolean = false>(options: Options<SprintsControllerUpdateSprintV1Data, ThrowOnError>) => (options.client ?? client).patch<SprintsControllerUpdateSprintV1Responses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/projects/{projectId}/sprints/{sprintId}',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+export const sprintsControllerAddTaskV1 = <ThrowOnError extends boolean = false>(options: Options<SprintsControllerAddTaskV1Data, ThrowOnError>) => (options.client ?? client).post<SprintsControllerAddTaskV1Responses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/projects/{projectId}/sprints/{sprintId}/tasks',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+export const sprintsControllerRemoveTaskV1 = <ThrowOnError extends boolean = false>(options: Options<SprintsControllerRemoveTaskV1Data, ThrowOnError>) => (options.client ?? client).delete<SprintsControllerRemoveTaskV1Responses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/projects/{projectId}/backlog/{taskId}/sprint',
+    ...options
+});
+
+export const customFieldsControllerListFieldsV1 = <ThrowOnError extends boolean = false>(options: Options<CustomFieldsControllerListFieldsV1Data, ThrowOnError>) => (options.client ?? client).get<CustomFieldsControllerListFieldsV1Responses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/custom-fields',
+    ...options
+});
+
+export const customFieldsControllerCreateFieldV1 = <ThrowOnError extends boolean = false>(options: Options<CustomFieldsControllerCreateFieldV1Data, ThrowOnError>) => (options.client ?? client).post<CustomFieldsControllerCreateFieldV1Responses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/custom-fields',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+export const customFieldsControllerDeleteFieldV1 = <ThrowOnError extends boolean = false>(options: Options<CustomFieldsControllerDeleteFieldV1Data, ThrowOnError>) => (options.client ?? client).delete<CustomFieldsControllerDeleteFieldV1Responses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/custom-fields/{fieldId}',
+    ...options
+});
+
+export const customFieldsControllerUpdateFieldV1 = <ThrowOnError extends boolean = false>(options: Options<CustomFieldsControllerUpdateFieldV1Data, ThrowOnError>) => (options.client ?? client).patch<CustomFieldsControllerUpdateFieldV1Responses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/custom-fields/{fieldId}',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+export const customFieldsControllerRestoreFieldV1 = <ThrowOnError extends boolean = false>(options: Options<CustomFieldsControllerRestoreFieldV1Data, ThrowOnError>) => (options.client ?? client).post<CustomFieldsControllerRestoreFieldV1Responses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/custom-fields/{fieldId}/restore',
+    ...options
+});
+
+export const customFieldsControllerUpsertValueV1 = <ThrowOnError extends boolean = false>(options: Options<CustomFieldsControllerUpsertValueV1Data, ThrowOnError>) => (options.client ?? client).put<CustomFieldsControllerUpsertValueV1Responses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/custom-fields/{fieldId}/values',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+export const docsControllerListDocsV1 = <ThrowOnError extends boolean = false>(options: Options<DocsControllerListDocsV1Data, ThrowOnError>) => (options.client ?? client).get<DocsControllerListDocsV1Responses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/docs',
+    ...options
+});
+
+export const docsControllerCreateDocV1 = <ThrowOnError extends boolean = false>(options: Options<DocsControllerCreateDocV1Data, ThrowOnError>) => (options.client ?? client).post<DocsControllerCreateDocV1Responses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/docs',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+export const docsControllerDeleteDocV1 = <ThrowOnError extends boolean = false>(options: Options<DocsControllerDeleteDocV1Data, ThrowOnError>) => (options.client ?? client).delete<DocsControllerDeleteDocV1Responses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/docs/{docId}',
+    ...options
+});
+
+export const docsControllerGetDocV1 = <ThrowOnError extends boolean = false>(options: Options<DocsControllerGetDocV1Data, ThrowOnError>) => (options.client ?? client).get<DocsControllerGetDocV1Responses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/docs/{docId}',
+    ...options
+});
+
+export const docsControllerUpdateDocV1 = <ThrowOnError extends boolean = false>(options: Options<DocsControllerUpdateDocV1Data, ThrowOnError>) => (options.client ?? client).patch<DocsControllerUpdateDocV1Responses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/docs/{docId}',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+export const meetingsControllerListMeetingsV1 = <ThrowOnError extends boolean = false>(options: Options<MeetingsControllerListMeetingsV1Data, ThrowOnError>) => (options.client ?? client).get<MeetingsControllerListMeetingsV1Responses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/meetings',
+    ...options
+});
+
+export const meetingsControllerCreateMeetingV1 = <ThrowOnError extends boolean = false>(options: Options<MeetingsControllerCreateMeetingV1Data, ThrowOnError>) => (options.client ?? client).post<MeetingsControllerCreateMeetingV1Responses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/meetings',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+export const meetingsControllerDeleteMeetingV1 = <ThrowOnError extends boolean = false>(options: Options<MeetingsControllerDeleteMeetingV1Data, ThrowOnError>) => (options.client ?? client).delete<MeetingsControllerDeleteMeetingV1Responses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/meetings/{meetingId}',
+    ...options
+});
+
+export const meetingsControllerGetMeetingV1 = <ThrowOnError extends boolean = false>(options: Options<MeetingsControllerGetMeetingV1Data, ThrowOnError>) => (options.client ?? client).get<MeetingsControllerGetMeetingV1Responses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/meetings/{meetingId}',
+    ...options
+});
+
+export const meetingsControllerUpdateMeetingV1 = <ThrowOnError extends boolean = false>(options: Options<MeetingsControllerUpdateMeetingV1Data, ThrowOnError>) => (options.client ?? client).patch<MeetingsControllerUpdateMeetingV1Responses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/meetings/{meetingId}',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+export const meetingsControllerUpsertAttendeeV1 = <ThrowOnError extends boolean = false>(options: Options<MeetingsControllerUpsertAttendeeV1Data, ThrowOnError>) => (options.client ?? client).post<MeetingsControllerUpsertAttendeeV1Responses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/meetings/{meetingId}/attendees',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+export const meetingsControllerRemoveAttendeeV1 = <ThrowOnError extends boolean = false>(options: Options<MeetingsControllerRemoveAttendeeV1Data, ThrowOnError>) => (options.client ?? client).delete<MeetingsControllerRemoveAttendeeV1Responses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/meetings/{meetingId}/attendees/{userId}',
+    ...options
+});
+
+/**
+ * Retry a failed workspace setup job
+ */
+export const workspaceSetupControllerRetryV1 = <ThrowOnError extends boolean = false>(options?: Options<WorkspaceSetupControllerRetryV1Data, ThrowOnError>) => (options?.client ?? client).post<WorkspaceSetupControllerRetryV1Responses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/workspace-setup/retry',
     ...options
 });

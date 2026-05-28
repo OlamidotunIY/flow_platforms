@@ -1,4 +1,10 @@
 import { Check, ChevronsUpDown, Plus } from "lucide-react"
+import type {
+  ActiveDepartmentResponseDto,
+  ActiveOrganizationResponseDto,
+  DepartmentSummaryResponseDto,
+  OrganizationSummaryResponseDto,
+} from "@flow/api"
 import { Button } from "@flow/ui/components/button"
 import {
   DropdownMenu,
@@ -17,11 +23,6 @@ import {
   useSidebar,
 } from "@flow/ui/components/sidebar"
 
-import type {
-  FlowDepartmentSummary,
-  FlowOrganizationSummary,
-} from "../store/userStore"
-
 export function TeamSwitcher({
   activeDepartment,
   activeOrganization,
@@ -30,20 +31,22 @@ export function TeamSwitcher({
   onOrganizationChange,
   organizations,
 }: {
-  activeDepartment: FlowDepartmentSummary
-  activeOrganization: FlowOrganizationSummary
+  activeDepartment: ActiveDepartmentResponseDto | DepartmentSummaryResponseDto | null
+  activeOrganization: ActiveOrganizationResponseDto
   onCreateDepartment: () => void
-  onDepartmentChange: (department: FlowDepartmentSummary) => void
-  onOrganizationChange: (organization: FlowOrganizationSummary) => void
-  organizations: FlowOrganizationSummary[]
+  onDepartmentChange: (department: ActiveDepartmentResponseDto | DepartmentSummaryResponseDto) => void
+  onOrganizationChange: (organization: ActiveOrganizationResponseDto | OrganizationSummaryResponseDto) => void
+  organizations: Array<ActiveOrganizationResponseDto | OrganizationSummaryResponseDto>
 }) {
   const { isMobile } = useSidebar()
 
-  function selectOrganization(organization: FlowOrganizationSummary) {
+  function selectOrganization(organization: ActiveOrganizationResponseDto | OrganizationSummaryResponseDto) {
     onOrganizationChange(organization)
 
     const nextDepartment =
-      organization.activeDepartment ?? organization.departments?.[0]
+      "activeDepartment" in organization
+        ? organization.activeDepartment ?? organization.departments?.[0]
+        : undefined
 
     if (nextDepartment) {
       onDepartmentChange(nextDepartment)
@@ -68,7 +71,9 @@ export function TeamSwitcher({
                 <span className="truncate font-medium">
                   {activeOrganization.name}
                 </span>
-                <span className="truncate text-xs">{activeDepartment.name}</span>
+                <span className="truncate text-xs">
+                  {activeDepartment?.name ?? "No department selected"}
+                </span>
               </div>
               <ChevronsUpDown className="ml-auto" />
             </SidebarMenuButton>
@@ -121,14 +126,14 @@ export function TeamSwitcher({
               </Button>
             </div>
             <DropdownMenuGroup>
-              {activeOrganization.departments?.map((department) => (
+              {activeOrganization.departments.map((department) => (
                 <DropdownMenuItem
                   key={department.id}
                   onSelect={() => onDepartmentChange(department)}
                   className="gap-2 p-2"
                 >
                   <div className="flex size-6 items-center justify-center rounded-md border">
-                    {department.id === activeDepartment.id ? <Check /> : null}
+                    {department.id === activeDepartment?.id ? <Check /> : null}
                   </div>
                   <span className="truncate">{department.name}</span>
                 </DropdownMenuItem>

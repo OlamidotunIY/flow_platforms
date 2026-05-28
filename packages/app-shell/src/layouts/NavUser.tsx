@@ -25,6 +25,9 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@flow/ui/components/sidebar"
+import { Link } from "react-router-dom"
+
+import { PATHS } from "../routing/paths"
 
 type SidebarUser = {
   name: string
@@ -101,17 +104,23 @@ export function NavUser({
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <BadgeCheck />
-                Account
+              <DropdownMenuItem asChild>
+                <Link to={PATHS.app.account}>
+                  <BadgeCheck />
+                  Account
+                </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem>
-                <CreditCard />
-                Billing
+              <DropdownMenuItem asChild>
+                <Link to={PATHS.app.billing}>
+                  <CreditCard />
+                  Billing
+                </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Bell />
-                Notifications
+              <DropdownMenuItem asChild>
+                <Link to={PATHS.app.notifications}>
+                  <Bell />
+                  Notifications
+                </Link>
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />

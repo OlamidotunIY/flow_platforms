@@ -4,6 +4,726 @@ export type ClientOptions = {
     baseUrl: string;
 };
 
+export type UserPreferenceResponseDto = {
+    id: string;
+    userId: string;
+    theme: string;
+    timezone?: {
+        [key: string]: unknown;
+    } | null;
+    language: string;
+    emailNotifications: boolean;
+    pushNotifications: boolean;
+};
+
+export type UserProfileResponseDto = {
+    id: string;
+    name?: {
+        [key: string]: unknown;
+    } | null;
+    email: string;
+    avatarUrl?: {
+        [key: string]: unknown;
+    } | null;
+    image?: {
+        [key: string]: unknown;
+    } | null;
+    status: string;
+    emailVerified: boolean;
+    createdAt: string;
+    updatedAt: string;
+    preference?: UserPreferenceResponseDto | null;
+};
+
+export type OrganizationSummaryResponseDto = {
+    id: string;
+    name: string;
+    slug: string;
+    description?: {
+        [key: string]: unknown;
+    } | null;
+    logoUrl?: {
+        [key: string]: unknown;
+    } | null;
+};
+
+export type OrganizationMemberResponseDto = {
+    id: string;
+    role: string;
+    status: string;
+    joinedAt?: {
+        [key: string]: unknown;
+    } | null;
+    createdAt: string;
+    updatedAt: string;
+};
+
+export type DepartmentSummaryResponseDto = {
+    id: string;
+    organizationId: string;
+    name: string;
+    description?: {
+        [key: string]: unknown;
+    } | null;
+    color?: {
+        [key: string]: unknown;
+    } | null;
+    createdAt: string;
+    updatedAt: string;
+};
+
+export type PageViewSummaryResponseDto = {
+    id: string;
+    pageId: string;
+    name: string;
+    type: string;
+    query?: {
+        [key: string]: unknown;
+    } | null;
+    config?: {
+        [key: string]: unknown;
+    } | null;
+    isDefault: boolean;
+    sortOrder: number;
+};
+
+export type PageSummaryResponseDto = {
+    id: string;
+    organizationId: string;
+    scope: string;
+    departmentId?: {
+        [key: string]: unknown;
+    } | null;
+    teamId?: {
+        [key: string]: unknown;
+    } | null;
+    parentPageId?: {
+        [key: string]: unknown;
+    } | null;
+    title: string;
+    icon?: {
+        [key: string]: unknown;
+    } | null;
+    cover?: {
+        [key: string]: unknown;
+    } | null;
+    isHome: boolean;
+    sortOrder: number;
+    metadata?: {
+        [key: string]: unknown;
+    } | null;
+    views: Array<PageViewSummaryResponseDto>;
+};
+
+export type TeamSummaryResponseDto = {
+    id: string;
+    organizationId: string;
+    departmentId?: {
+        [key: string]: unknown;
+    } | null;
+    name: string;
+    description?: {
+        [key: string]: unknown;
+    } | null;
+    color?: {
+        [key: string]: unknown;
+    } | null;
+    pages?: Array<PageSummaryResponseDto>;
+};
+
+export type ProjectTypeSummaryResponseDto = {
+    id: string;
+    name: string;
+    icon?: {
+        [key: string]: unknown;
+    } | null;
+    color?: {
+        [key: string]: unknown;
+    } | null;
+};
+
+export type ProjectSummaryResponseDto = {
+    id: string;
+    organizationId: string;
+    departmentId?: {
+        [key: string]: unknown;
+    } | null;
+    teamId?: {
+        [key: string]: unknown;
+    } | null;
+    projectTypeId?: {
+        [key: string]: unknown;
+    } | null;
+    name: string;
+    key?: {
+        [key: string]: unknown;
+    } | null;
+    icon?: {
+        [key: string]: unknown;
+    } | null;
+    description?: {
+        [key: string]: unknown;
+    } | null;
+    scope: string;
+    status: string;
+    updatedAt: string;
+    projectType: ProjectTypeSummaryResponseDto | null;
+    taskCount: number;
+    memberCount: number;
+};
+
+export type TeamProjectGroupResponseDto = {
+    team: TeamSummaryResponseDto;
+    projects: Array<ProjectSummaryResponseDto>;
+};
+
+export type ActiveDepartmentResponseDto = {
+    id: string;
+    organizationId: string;
+    name: string;
+    description?: {
+        [key: string]: unknown;
+    } | null;
+    color?: {
+        [key: string]: unknown;
+    } | null;
+    createdAt: string;
+    updatedAt: string;
+    pages: Array<PageSummaryResponseDto>;
+    /**
+     * Projects grouped by team for the active department.
+     */
+    projectGroups: Array<TeamProjectGroupResponseDto>;
+    /**
+     * Department projects that are not assigned to a team.
+     */
+    projects: Array<ProjectSummaryResponseDto>;
+};
+
+export type ActiveOrganizationResponseDto = {
+    id: string;
+    name: string;
+    slug: string;
+    description?: {
+        [key: string]: unknown;
+    } | null;
+    logoUrl?: {
+        [key: string]: unknown;
+    } | null;
+    metadata?: {
+        [key: string]: unknown;
+    } | null;
+    createdById?: {
+        [key: string]: unknown;
+    } | null;
+    createdAt: string;
+    updatedAt: string;
+    member: OrganizationMemberResponseDto;
+    departments: Array<DepartmentSummaryResponseDto>;
+    teams: Array<TeamSummaryResponseDto>;
+    pages: Array<PageSummaryResponseDto>;
+    customFields: {
+        [key: string]: unknown;
+    };
+    activeDepartment?: ActiveDepartmentResponseDto | null;
+    activeTeam?: TeamSummaryResponseDto | null;
+};
+
+export type UsersMeResponseDto = {
+    user: UserProfileResponseDto;
+    workspaceSetupStatus: 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED';
+    organizations: Array<OrganizationSummaryResponseDto>;
+    activeOrganization?: ActiveOrganizationResponseDto | null;
+};
+
+export type CreateOrganizationDto = {
+    name: string;
+    slug?: string;
+    description?: string;
+    /**
+     * Name for the first department. Defaults to General when omitted.
+     */
+    departmentName?: string;
+};
+
+export type SetActiveOrganizationDto = {
+    organizationId: string;
+};
+
+export type CreateDepartmentDto = {
+    /**
+     * Defaults to the currently active organization when it is omitted.
+     */
+    organizationId?: string;
+    name: string;
+    description?: string;
+    color?: string;
+};
+
+export type SetActiveDepartmentDto = {
+    departmentId: string;
+};
+
+export type DashboardMetricResponseDto = {
+    label: string;
+    value: number;
+    description?: {
+        [key: string]: unknown;
+    } | null;
+};
+
+export type DashboardTemplateResponseDto = {
+    id: string;
+    name: string;
+    description?: {
+        [key: string]: unknown;
+    } | null;
+    category?: {
+        [key: string]: unknown;
+    } | null;
+    projectCount: number;
+    departmentCount: number;
+};
+
+export type DashboardTaskResponseDto = {
+    id: string;
+    projectId: string;
+    title: string;
+    icon?: {
+        [key: string]: unknown;
+    } | null;
+    priority: string;
+    status: string;
+    updatedAt: string;
+    dueDate?: {
+        [key: string]: unknown;
+    } | null;
+    projectName: string;
+    workflowStatus?: {
+        [key: string]: unknown;
+    } | null;
+    assigneeCount: number;
+};
+
+export type DashboardActivityResponseDto = {
+    id: string;
+    action: string;
+    entityType: string;
+    entityId: string;
+    createdAt: string;
+    userName?: {
+        [key: string]: unknown;
+    } | null;
+    projectName?: {
+        [key: string]: unknown;
+    } | null;
+    taskTitle?: {
+        [key: string]: unknown;
+    } | null;
+};
+
+export type DashboardFieldResponseDto = {
+    id: string;
+    name: string;
+    key: string;
+    scope: string;
+    type: string;
+    isSystem: boolean;
+};
+
+export type DashboardResponseDto = {
+    metrics: Array<DashboardMetricResponseDto>;
+    recentProjects: Array<ProjectSummaryResponseDto>;
+    popularTemplates: Array<DashboardTemplateResponseDto>;
+    departments: Array<DepartmentSummaryResponseDto>;
+    teams: Array<TeamSummaryResponseDto>;
+    projects: Array<ProjectSummaryResponseDto>;
+    tasks: Array<DashboardTaskResponseDto>;
+    activityLogs: Array<DashboardActivityResponseDto>;
+    customFields: Array<DashboardFieldResponseDto>;
+};
+
+export type CreatePageDto = {
+    organizationId?: string;
+    scope?: string;
+    departmentId?: string;
+    teamId?: string;
+    title: string;
+    parentPageId?: string;
+    icon?: string;
+    cover?: string;
+    isHome?: boolean;
+    sortOrder?: number;
+    metadata?: {
+        [key: string]: unknown;
+    };
+};
+
+export type UpdatePageDto = {
+    title?: string;
+    parentPageId?: {
+        [key: string]: unknown;
+    };
+    scope?: string;
+    departmentId?: {
+        [key: string]: unknown;
+    };
+    teamId?: {
+        [key: string]: unknown;
+    };
+    icon?: {
+        [key: string]: unknown;
+    };
+    cover?: {
+        [key: string]: unknown;
+    };
+    sortOrder?: number;
+    metadata?: {
+        [key: string]: unknown;
+    };
+};
+
+export type PageViewQueryDto = {
+    sourceType?: string;
+    fields?: Array<string>;
+    filters?: {
+        [key: string]: unknown;
+    };
+    sort?: {
+        [key: string]: unknown;
+    };
+    group?: {
+        [key: string]: unknown;
+    };
+    limit?: number;
+    departmentId?: string;
+    teamId?: string;
+};
+
+export type CreatePageViewDto = {
+    name: string;
+    type: string;
+    query?: PageViewQueryDto;
+    config?: {
+        [key: string]: unknown;
+    };
+    isDefault?: boolean;
+    sortOrder?: number;
+};
+
+export type UpdatePageViewDto = {
+    name?: string;
+    type?: string;
+    query?: {
+        [key: string]: unknown;
+    };
+    config?: {
+        [key: string]: unknown;
+    };
+    sortOrder?: number;
+};
+
+export type CreatePageBlockDto = {
+    type: string;
+    title?: string;
+    layout?: {
+        [key: string]: unknown;
+    };
+    query?: PageViewQueryDto;
+    config?: {
+        [key: string]: unknown;
+    };
+    sortOrder?: number;
+};
+
+export type UpdatePageBlockDto = {
+    type?: string;
+    title?: {
+        [key: string]: unknown;
+    };
+    layout?: {
+        [key: string]: unknown;
+    };
+    query?: {
+        [key: string]: unknown;
+    };
+    config?: {
+        [key: string]: unknown;
+    };
+    sortOrder?: number;
+};
+
+export type SearchResultResponseDto = {
+    id: string;
+    type: string;
+    title: string;
+    description?: {
+        [key: string]: unknown;
+    } | null;
+    icon?: {
+        [key: string]: unknown;
+    } | null;
+    url?: {
+        [key: string]: unknown;
+    } | null;
+    context?: {
+        [key: string]: unknown;
+    } | null;
+    updatedAt: string;
+};
+
+export type OrganizationSearchResponseDto = {
+    query: string;
+    results: Array<SearchResultResponseDto>;
+};
+
+export type InboxMessagePreviewResponseDto = {
+    id: string;
+    content?: {
+        [key: string]: unknown;
+    } | null;
+    createdAt: string;
+    senderName?: {
+        [key: string]: unknown;
+    } | null;
+};
+
+export type InboxRoomResponseDto = {
+    id: string;
+    type: string;
+    name: string;
+    description?: {
+        [key: string]: unknown;
+    } | null;
+    context?: {
+        [key: string]: unknown;
+    } | null;
+    updatedAt: string;
+    memberCount: number;
+    lastMessage: InboxMessagePreviewResponseDto | null;
+};
+
+export type InboxDirectContactResponseDto = {
+    id: string;
+    name: string;
+    email: string;
+    avatarUrl?: {
+        [key: string]: unknown;
+    } | null;
+};
+
+export type InboxResponseDto = {
+    channels: Array<InboxRoomResponseDto>;
+    directMessages: Array<InboxRoomResponseDto>;
+    availableDirectMessageUsers: Array<InboxDirectContactResponseDto>;
+};
+
+export type InboxMessageResponseDto = {
+    id: string;
+    chatRoomId: string;
+    senderId: string;
+    content?: {
+        [key: string]: unknown;
+    } | null;
+    type: string;
+    createdAt: string;
+    updatedAt: string;
+    sender: UserProfileResponseDto;
+};
+
+export type InboxRoomDetailResponseDto = {
+    inbox: InboxResponseDto;
+    room: InboxRoomResponseDto;
+    members: Array<UserProfileResponseDto>;
+    messages: Array<InboxMessageResponseDto>;
+};
+
+export type AskAiRecentChatResponseDto = {
+    id: string;
+    title: string;
+    preview?: {
+        [key: string]: unknown;
+    } | null;
+    updatedAt: string;
+};
+
+export type AskAiSuggestionResponseDto = {
+    title: string;
+    prompt: string;
+};
+
+export type AskAiHomeResponseDto = {
+    recentChats: Array<AskAiRecentChatResponseDto>;
+    suggestions: Array<AskAiSuggestionResponseDto>;
+};
+
+export type CreateSprintDto = {
+    name: string;
+    goal?: string;
+    startDate?: string;
+    endDate?: string;
+    metadata?: {
+        [key: string]: unknown;
+    };
+};
+
+export type UpdateSprintDto = {
+    name?: string;
+    goal?: {
+        [key: string]: unknown;
+    };
+    status?: string;
+    startDate?: {
+        [key: string]: unknown;
+    };
+    endDate?: {
+        [key: string]: unknown;
+    };
+    metadata?: {
+        [key: string]: unknown;
+    };
+};
+
+export type MoveTaskToSprintDto = {
+    taskId: string;
+};
+
+export type CreateCustomFieldDto = {
+    organizationId?: string;
+    projectTypeId?: string;
+    name: string;
+    key?: string;
+    scope: string;
+    type: string;
+    description?: string;
+    isRequired?: boolean;
+    options?: {
+        [key: string]: unknown;
+    };
+    defaultValue?: {
+        [key: string]: unknown;
+    };
+    sortOrder?: number;
+};
+
+export type UpdateCustomFieldDto = {
+    name?: string;
+    key?: string;
+    type?: string;
+    description?: {
+        [key: string]: unknown;
+    };
+    isRequired?: boolean;
+    options?: {
+        [key: string]: unknown;
+    };
+    defaultValue?: {
+        [key: string]: unknown;
+    };
+    sortOrder?: number;
+};
+
+export type UpsertCustomFieldValueDto = {
+    targetType: string;
+    targetId: string;
+    value: {
+        [key: string]: unknown;
+    };
+};
+
+export type CreateDocDto = {
+    organizationId?: string;
+    departmentId?: string;
+    teamId?: string;
+    projectId?: string;
+    taskId?: string;
+    title: string;
+    icon?: string;
+    content?: {
+        [key: string]: unknown;
+    };
+    status?: string;
+    metadata?: {
+        [key: string]: unknown;
+    };
+};
+
+export type UpdateDocDto = {
+    departmentId?: {
+        [key: string]: unknown;
+    };
+    teamId?: {
+        [key: string]: unknown;
+    };
+    projectId?: {
+        [key: string]: unknown;
+    };
+    taskId?: {
+        [key: string]: unknown;
+    };
+    title?: string;
+    icon?: {
+        [key: string]: unknown;
+    };
+    content?: {
+        [key: string]: unknown;
+    };
+    status?: string;
+    metadata?: {
+        [key: string]: unknown;
+    };
+};
+
+export type CreateMeetingDto = {
+    organizationId?: string;
+    departmentId?: string;
+    teamId?: string;
+    projectId?: string;
+    title: string;
+    description?: string;
+    status?: string;
+    startsAt?: string;
+    endsAt?: string;
+    location?: string;
+    metadata?: {
+        [key: string]: unknown;
+    };
+};
+
+export type UpdateMeetingDto = {
+    departmentId?: {
+        [key: string]: unknown;
+    };
+    teamId?: {
+        [key: string]: unknown;
+    };
+    projectId?: {
+        [key: string]: unknown;
+    };
+    title?: string;
+    description?: {
+        [key: string]: unknown;
+    };
+    status?: string;
+    startsAt?: {
+        [key: string]: unknown;
+    };
+    endsAt?: {
+        [key: string]: unknown;
+    };
+    location?: {
+        [key: string]: unknown;
+    };
+    metadata?: {
+        [key: string]: unknown;
+    };
+};
+
+export type UpsertMeetingAttendeeDto = {
+    userId: string;
+    status?: string;
+};
+
 export type UserPreferenceEntity = {
     id: string;
     userId: string;
@@ -37,6 +757,24 @@ export type TeamMemberEntity = {
     createdAt: string;
     team: TeamEntity;
     user: UserEntity;
+};
+
+export type SprintEntity = {
+    id: string;
+    projectId: string;
+    name: string;
+    goal?: string | null;
+    status: 'PLANNED' | 'ACTIVE' | 'COMPLETED' | 'ARCHIVED';
+    startDate?: string | null;
+    endDate?: string | null;
+    metadata?: {
+        [key: string]: unknown;
+    } | null;
+    createdAt: string;
+    updatedAt: string;
+    deletedAt?: string | null;
+    project: ProjectEntity;
+    tasks: Array<TaskEntity>;
 };
 
 export type WorkflowEntity = {
@@ -230,6 +968,35 @@ export type TaskLabelEntity = {
     label: LabelEntity;
 };
 
+export type DocEntity = {
+    id: string;
+    organizationId: string;
+    departmentId?: string | null;
+    teamId?: string | null;
+    projectId?: string | null;
+    taskId?: string | null;
+    createdById?: string | null;
+    title: string;
+    icon?: string | null;
+    content?: {
+        [key: string]: unknown;
+    } | null;
+    status: 'DRAFT' | 'ACTIVE' | 'ARCHIVED';
+    metadata?: {
+        [key: string]: unknown;
+    } | null;
+    createdAt: string;
+    updatedAt: string;
+    deletedAt?: string | null;
+    organization: OrganizationEntity;
+    department?: DepartmentEntity | null;
+    team?: TeamEntity | null;
+    project?: ProjectEntity | null;
+    task?: TaskEntity | null;
+    createdBy?: UserEntity | null;
+    customValues: Array<CustomFieldValueEntity>;
+};
+
 export type ActivityLogEntity = {
     id: string;
     organizationId: string;
@@ -252,12 +1019,14 @@ export type ActivityLogEntity = {
 export type TaskEntity = {
     id: string;
     projectId: string;
+    sprintId?: string | null;
     parentTaskId?: string | null;
     workflowStatusId?: string | null;
     createdById: string;
     title: string;
     icon?: string | null;
     description?: string | null;
+    type: 'TASK' | 'BUG' | 'FEATURE_REQUEST';
     priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
     status: 'TODO' | 'IN_PROGRESS' | 'REVIEW' | 'DONE' | 'BLOCKED';
     startDate?: string | null;
@@ -270,6 +1039,7 @@ export type TaskEntity = {
     updatedAt: string;
     deletedAt?: string | null;
     project: ProjectEntity;
+    sprint?: SprintEntity | null;
     parentTask?: TaskEntity | null;
     subtasks: Array<TaskEntity>;
     workflowStatus?: WorkflowStatusEntity | null;
@@ -278,9 +1048,49 @@ export type TaskEntity = {
     comments: Array<TaskCommentEntity>;
     labels: Array<TaskLabelEntity>;
     customValues: Array<CustomFieldValueEntity>;
+    docs: Array<DocEntity>;
     files: Array<FileEntity>;
     chatRooms: Array<ChatRoomEntity>;
     activityLogs: Array<ActivityLogEntity>;
+};
+
+export type MeetingAttendeeEntity = {
+    id: string;
+    meetingId: string;
+    userId: string;
+    status: 'INVITED' | 'ACCEPTED' | 'DECLINED' | 'TENTATIVE';
+    createdAt: string;
+    updatedAt: string;
+    meeting: MeetingEntity;
+    user: UserEntity;
+};
+
+export type MeetingEntity = {
+    id: string;
+    organizationId: string;
+    departmentId?: string | null;
+    teamId?: string | null;
+    projectId?: string | null;
+    createdById?: string | null;
+    title: string;
+    description?: string | null;
+    status: 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
+    startsAt?: string | null;
+    endsAt?: string | null;
+    location?: string | null;
+    metadata?: {
+        [key: string]: unknown;
+    } | null;
+    createdAt: string;
+    updatedAt: string;
+    deletedAt?: string | null;
+    organization: OrganizationEntity;
+    department?: DepartmentEntity | null;
+    team?: TeamEntity | null;
+    project?: ProjectEntity | null;
+    createdBy?: UserEntity | null;
+    attendees: Array<MeetingAttendeeEntity>;
+    customValues: Array<CustomFieldValueEntity>;
 };
 
 export type CustomFieldValueEntity = {
@@ -288,6 +1098,10 @@ export type CustomFieldValueEntity = {
     fieldId: string;
     projectId?: string | null;
     taskId?: string | null;
+    departmentId?: string | null;
+    teamId?: string | null;
+    docId?: string | null;
+    meetingId?: string | null;
     valueText?: string | null;
     valueNumber?: number | null;
     valueBoolean?: boolean | null;
@@ -300,6 +1114,10 @@ export type CustomFieldValueEntity = {
     field: CustomFieldEntity;
     project?: ProjectEntity | null;
     task?: TaskEntity | null;
+    department?: DepartmentEntity | null;
+    team?: TeamEntity | null;
+    doc?: DocEntity | null;
+    meeting?: MeetingEntity | null;
 };
 
 export type CustomFieldEntity = {
@@ -308,7 +1126,7 @@ export type CustomFieldEntity = {
     projectTypeId?: string | null;
     name: string;
     key: string;
-    scope: 'PROJECT' | 'TASK';
+    scope: 'DEPARTMENT' | 'TEAM' | 'PROJECT' | 'TASK' | 'DOC' | 'MEETING';
     type: 'TEXT' | 'LONG_TEXT' | 'NUMBER' | 'BOOLEAN' | 'DATE' | 'SINGLE_SELECT' | 'MULTI_SELECT' | 'USER' | 'USERS' | 'URL' | 'FILE' | 'JSON';
     description?: string | null;
     isRequired: boolean;
@@ -333,7 +1151,7 @@ export type ProjectViewEntity = {
     projectId?: string | null;
     projectTypeId?: string | null;
     name: string;
-    type: 'KANBAN' | 'SCRUM' | 'LIST' | 'TABLE' | 'CALENDAR' | 'TIMELINE';
+    type: 'BOARD' | 'LIST' | 'TABLE' | 'CALENDAR' | 'TIMELINE' | 'DASHBOARD';
     config?: {
         [key: string]: unknown;
     } | null;
@@ -352,7 +1170,7 @@ export type ProjectTypeEntity = {
     description?: string | null;
     icon?: string | null;
     color?: string | null;
-    defaultView: 'KANBAN' | 'SCRUM' | 'LIST' | 'TABLE' | 'CALENDAR' | 'TIMELINE';
+    defaultView: 'BOARD' | 'LIST' | 'TABLE' | 'CALENDAR' | 'TIMELINE' | 'DASHBOARD';
     config?: {
         [key: string]: unknown;
     } | null;
@@ -417,11 +1235,83 @@ export type ProjectEntity = {
     members: Array<ProjectMemberEntity>;
     participants: Array<ProjectParticipantEntity>;
     tasks: Array<TaskEntity>;
+    sprints: Array<SprintEntity>;
     views: Array<ProjectViewEntity>;
     customValues: Array<CustomFieldValueEntity>;
+    docs: Array<DocEntity>;
+    meetings: Array<MeetingEntity>;
     chatRooms: Array<ChatRoomEntity>;
     files: Array<FileEntity>;
     activityLogs: Array<ActivityLogEntity>;
+};
+
+export type PageBlockEntity = {
+    id: string;
+    pageViewId: string;
+    type: 'TABLE' | 'BOARD' | 'LIST' | 'TIMELINE' | 'CALENDAR' | 'CHART' | 'CARD' | 'TEXT';
+    title?: string | null;
+    layout?: {
+        [key: string]: unknown;
+    } | null;
+    query?: {
+        [key: string]: unknown;
+    } | null;
+    config?: {
+        [key: string]: unknown;
+    } | null;
+    sortOrder: number;
+    createdAt: string;
+    updatedAt: string;
+    deletedAt?: string | null;
+    pageView: PageViewEntity;
+};
+
+export type PageViewEntity = {
+    id: string;
+    pageId: string;
+    name: string;
+    type: 'TABLE' | 'BOARD' | 'LIST' | 'TIMELINE' | 'CALENDAR' | 'DASHBOARD';
+    query?: {
+        [key: string]: unknown;
+    } | null;
+    config?: {
+        [key: string]: unknown;
+    } | null;
+    isDefault: boolean;
+    sortOrder: number;
+    createdAt: string;
+    updatedAt: string;
+    deletedAt?: string | null;
+    page: PageEntity;
+    blocks: Array<PageBlockEntity>;
+};
+
+export type PageEntity = {
+    id: string;
+    organizationId: string;
+    departmentId?: string | null;
+    teamId?: string | null;
+    parentPageId?: string | null;
+    createdById?: string | null;
+    scope: 'ORGANIZATION' | 'DEPARTMENT' | 'TEAM';
+    title: string;
+    icon?: string | null;
+    cover?: string | null;
+    isHome: boolean;
+    sortOrder: number;
+    metadata?: {
+        [key: string]: unknown;
+    } | null;
+    createdAt: string;
+    updatedAt: string;
+    deletedAt?: string | null;
+    organization: OrganizationEntity;
+    department?: DepartmentEntity | null;
+    team?: TeamEntity | null;
+    parentPage?: PageEntity | null;
+    childPages: Array<PageEntity>;
+    createdBy?: UserEntity | null;
+    views: Array<PageViewEntity>;
 };
 
 export type TeamEntity = {
@@ -439,6 +1329,10 @@ export type TeamEntity = {
     members: Array<TeamMemberEntity>;
     projects: Array<ProjectEntity>;
     chatRooms: Array<ChatRoomEntity>;
+    customValues: Array<CustomFieldValueEntity>;
+    pages: Array<PageEntity>;
+    docs: Array<DocEntity>;
+    meetings: Array<MeetingEntity>;
 };
 
 export type DepartmentEntity = {
@@ -455,6 +1349,10 @@ export type DepartmentEntity = {
     teams: Array<TeamEntity>;
     projects: Array<ProjectEntity>;
     chatRooms: Array<ChatRoomEntity>;
+    customValues: Array<CustomFieldValueEntity>;
+    pages: Array<PageEntity>;
+    docs: Array<DocEntity>;
+    meetings: Array<MeetingEntity>;
 };
 
 export type DepartmentMemberEntity = {
@@ -506,46 +1404,13 @@ export type NotificationEntity = {
     user: UserEntity;
 };
 
-export type TemplateTeamEntity = {
-    id: string;
-    departmentId?: string | null;
-    templateId: string;
-    name: string;
-    description?: string | null;
-    color?: string | null;
-    sortOrder: number;
-    template: OrganizationTemplateEntity;
-    department?: TemplateDepartmentEntity | null;
-};
-
-export type TemplateDepartmentEntity = {
-    id: string;
-    templateId: string;
-    name: string;
-    description?: string | null;
-    color?: string | null;
-    sortOrder: number;
-    template: OrganizationTemplateEntity;
-    teams: Array<TemplateTeamEntity>;
-};
-
-export type TemplateRoleEntity = {
-    id: string;
-    templateId: string;
-    name: string;
-    description?: string | null;
-    permissions?: {
-        [key: string]: unknown;
-    } | null;
-    isSystem: boolean;
-    template: OrganizationTemplateEntity;
-};
-
 export type TemplateCustomFieldEntity = {
     id: string;
-    templateProjectTypeId: string;
+    templateId?: string | null;
+    templateProjectTypeId?: string | null;
     name: string;
     key: string;
+    scope: 'DEPARTMENT' | 'TEAM' | 'PROJECT' | 'TASK' | 'DOC' | 'MEETING';
     type: 'TEXT' | 'LONG_TEXT' | 'NUMBER' | 'BOOLEAN' | 'DATE' | 'SINGLE_SELECT' | 'MULTI_SELECT' | 'USER' | 'USERS' | 'URL' | 'FILE' | 'JSON';
     description?: string | null;
     isRequired: boolean;
@@ -557,7 +1422,51 @@ export type TemplateCustomFieldEntity = {
         [key: string]: unknown;
     } | null;
     sortOrder: number;
-    projectType: TemplateProjectTypeEntity;
+    template?: OrganizationTemplateEntity | null;
+    projectType?: TemplateProjectTypeEntity | null;
+};
+
+export type TemplateChatRoomEntity = {
+    id: string;
+    templateId: string;
+    templateDepartmentId?: string | null;
+    templateTeamId?: string | null;
+    templateProjectId?: string | null;
+    templateTaskId?: string | null;
+    name: string;
+    description?: string | null;
+    type: 'ORGANIZATION' | 'DEPARTMENT' | 'TEAM' | 'PROJECT' | 'TASK' | 'DIRECT' | 'GROUP';
+    isDefault: boolean;
+    metadata?: {
+        [key: string]: unknown;
+    } | null;
+    sortOrder: number;
+    template: OrganizationTemplateEntity;
+    department?: TemplateDepartmentEntity | null;
+    team?: TemplateTeamEntity | null;
+    project?: TemplateProjectEntity | null;
+    task?: TemplateTaskEntity | null;
+};
+
+export type TemplateTaskEntity = {
+    id: string;
+    templateProjectId: string;
+    parentTemplateTaskId?: string | null;
+    templateWorkflowStatusId?: string | null;
+    title: string;
+    icon?: string | null;
+    description?: string | null;
+    priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
+    status: 'TODO' | 'IN_PROGRESS' | 'REVIEW' | 'DONE' | 'BLOCKED';
+    sortOrder: number;
+    metadata?: {
+        [key: string]: unknown;
+    } | null;
+    project: TemplateProjectEntity;
+    parentTask?: TemplateTaskEntity | null;
+    subtasks: Array<TemplateTaskEntity>;
+    workflowStatus?: TemplateWorkflowStatusEntity | null;
+    chatRooms: Array<TemplateChatRoomEntity>;
 };
 
 export type TemplateWorkflowStatusEntity = {
@@ -569,6 +1478,7 @@ export type TemplateWorkflowStatusEntity = {
     sortOrder: number;
     isDone: boolean;
     workflow: TemplateWorkflowEntity;
+    tasks: Array<TemplateTaskEntity>;
 };
 
 export type TemplateWorkflowEntity = {
@@ -585,7 +1495,7 @@ export type TemplateProjectViewEntity = {
     id: string;
     templateProjectTypeId: string;
     name: string;
-    type: 'KANBAN' | 'SCRUM' | 'LIST' | 'TABLE' | 'CALENDAR' | 'TIMELINE';
+    type: 'BOARD' | 'LIST' | 'TABLE' | 'CALENDAR' | 'TIMELINE' | 'DASHBOARD';
     config?: {
         [key: string]: unknown;
     } | null;
@@ -601,7 +1511,7 @@ export type TemplateProjectTypeEntity = {
     description?: string | null;
     icon?: string | null;
     color?: string | null;
-    defaultView: 'KANBAN' | 'SCRUM' | 'LIST' | 'TABLE' | 'CALENDAR' | 'TIMELINE';
+    defaultView: 'BOARD' | 'LIST' | 'TABLE' | 'CALENDAR' | 'TIMELINE' | 'DASHBOARD';
     config?: {
         [key: string]: unknown;
     } | null;
@@ -609,15 +1519,78 @@ export type TemplateProjectTypeEntity = {
     fields: Array<TemplateCustomFieldEntity>;
     workflows: Array<TemplateWorkflowEntity>;
     views: Array<TemplateProjectViewEntity>;
+    projects: Array<TemplateProjectEntity>;
 };
 
-export type TemplateChatRoomEntity = {
+export type TemplateProjectEntity = {
+    id: string;
+    templateId: string;
+    templateDepartmentId?: string | null;
+    templateTeamId?: string | null;
+    templateProjectTypeId?: string | null;
+    name: string;
+    key?: string | null;
+    icon?: string | null;
+    description?: string | null;
+    scope: 'ORGANIZATION' | 'DEPARTMENT' | 'TEAM' | 'CROSS_FUNCTIONAL';
+    status: 'PLANNING' | 'ACTIVE' | 'ON_HOLD' | 'COMPLETED' | 'ARCHIVED';
+    sortOrder: number;
+    metadata?: {
+        [key: string]: unknown;
+    } | null;
+    template: OrganizationTemplateEntity;
+    department?: TemplateDepartmentEntity | null;
+    team?: TemplateTeamEntity | null;
+    projectType?: TemplateProjectTypeEntity | null;
+    tasks: Array<TemplateTaskEntity>;
+    chatRooms: Array<TemplateChatRoomEntity>;
+};
+
+export type TemplateTeamEntity = {
+    id: string;
+    departmentId?: string | null;
+    templateId: string;
+    name: string;
+    description?: string | null;
+    color?: string | null;
+    sortOrder: number;
+    template: OrganizationTemplateEntity;
+    department?: TemplateDepartmentEntity | null;
+    projects: Array<TemplateProjectEntity>;
+    chatRooms: Array<TemplateChatRoomEntity>;
+};
+
+export type TemplateDepartmentEntity = {
     id: string;
     templateId: string;
     name: string;
     description?: string | null;
-    type: 'ORGANIZATION' | 'DEPARTMENT' | 'TEAM' | 'PROJECT' | 'TASK' | 'DIRECT' | 'GROUP';
-    isDefault: boolean;
+    color?: string | null;
+    sortOrder: number;
+    template: OrganizationTemplateEntity;
+    teams: Array<TemplateTeamEntity>;
+    projects: Array<TemplateProjectEntity>;
+    chatRooms: Array<TemplateChatRoomEntity>;
+};
+
+export type TemplateRoleEntity = {
+    id: string;
+    templateId: string;
+    name: string;
+    description?: string | null;
+    permissions?: {
+        [key: string]: unknown;
+    } | null;
+    isSystem: boolean;
+    template: OrganizationTemplateEntity;
+};
+
+export type TemplateLabelEntity = {
+    id: string;
+    templateId: string;
+    name: string;
+    color?: string | null;
+    sortOrder: number;
     template: OrganizationTemplateEntity;
 };
 
@@ -640,8 +1613,25 @@ export type OrganizationTemplateEntity = {
     departments: Array<TemplateDepartmentEntity>;
     teams: Array<TemplateTeamEntity>;
     roles: Array<TemplateRoleEntity>;
+    labels: Array<TemplateLabelEntity>;
+    customFields: Array<TemplateCustomFieldEntity>;
     projectTypes: Array<TemplateProjectTypeEntity>;
+    projects: Array<TemplateProjectEntity>;
     chatRooms: Array<TemplateChatRoomEntity>;
+};
+
+export type WorkspaceSetupEntity = {
+    id: string;
+    userId: string;
+    status: 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED';
+    jobId?: string | null;
+    errorMessage?: string | null;
+    startedAt?: string | null;
+    completedAt?: string | null;
+    failedAt?: string | null;
+    createdAt: string;
+    updatedAt: string;
+    user: UserEntity;
 };
 
 export type SessionEntity = {
@@ -695,6 +1685,9 @@ export type UserEntity = {
     createdOrganizations: Array<OrganizationEntity>;
     createdProjects: Array<ProjectEntity>;
     createdTasks: Array<TaskEntity>;
+    createdDocs: Array<DocEntity>;
+    createdMeetings: Array<MeetingEntity>;
+    meetingAttendees: Array<MeetingAttendeeEntity>;
     sentInvitations: Array<InvitationEntity>;
     betterAuthSentInvitations: Array<InvitationEntity>;
     acceptedInvitations: Array<InvitationEntity>;
@@ -709,6 +1702,8 @@ export type UserEntity = {
     notifications: Array<NotificationEntity>;
     activityLogs: Array<ActivityLogEntity>;
     createdTemplates: Array<OrganizationTemplateEntity>;
+    createdPages: Array<PageEntity>;
+    workspaceSetups: Array<WorkspaceSetupEntity>;
     sessions: Array<SessionEntity>;
     accounts: Array<AccountEntity>;
 };
@@ -756,6 +1751,9 @@ export type OrganizationEntity = {
     projects: Array<ProjectEntity>;
     projectTypes: Array<ProjectTypeEntity>;
     customFields: Array<CustomFieldEntity>;
+    pages: Array<PageEntity>;
+    docs: Array<DocEntity>;
+    meetings: Array<MeetingEntity>;
     workflows: Array<WorkflowEntity>;
     chatRooms: Array<ChatRoomEntity>;
     files: Array<FileEntity>;
@@ -791,6 +1789,17 @@ export type PasswordResetTokenEntity = {
     createdAt: string;
 };
 
+export type AppControllerGetHealthV1Data = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1';
+};
+
+export type AppControllerGetHealthV1Responses = {
+    200: unknown;
+};
+
 export type UsersControllerGetUserInfoV1Data = {
     body?: never;
     path?: never;
@@ -799,5 +1808,677 @@ export type UsersControllerGetUserInfoV1Data = {
 };
 
 export type UsersControllerGetUserInfoV1Responses = {
+    200: UsersMeResponseDto;
+};
+
+export type UsersControllerGetUserInfoV1Response = UsersControllerGetUserInfoV1Responses[keyof UsersControllerGetUserInfoV1Responses];
+
+export type OrganizationsControllerCreateOrganizationV1Data = {
+    body: CreateOrganizationDto;
+    path?: never;
+    query?: never;
+    url: '/api/v1/organizations';
+};
+
+export type OrganizationsControllerCreateOrganizationV1Responses = {
+    201: UsersMeResponseDto;
+};
+
+export type OrganizationsControllerCreateOrganizationV1Response = OrganizationsControllerCreateOrganizationV1Responses[keyof OrganizationsControllerCreateOrganizationV1Responses];
+
+export type OrganizationsControllerSetActiveOrganizationV1Data = {
+    body: SetActiveOrganizationDto;
+    path?: never;
+    query?: never;
+    url: '/api/v1/organizations/active';
+};
+
+export type OrganizationsControllerSetActiveOrganizationV1Responses = {
+    200: UsersMeResponseDto;
+};
+
+export type OrganizationsControllerSetActiveOrganizationV1Response = OrganizationsControllerSetActiveOrganizationV1Responses[keyof OrganizationsControllerSetActiveOrganizationV1Responses];
+
+export type DepartmentsControllerCreateDepartmentV1Data = {
+    body: CreateDepartmentDto;
+    path?: never;
+    query?: never;
+    url: '/api/v1/departments';
+};
+
+export type DepartmentsControllerCreateDepartmentV1Responses = {
+    201: UsersMeResponseDto;
+};
+
+export type DepartmentsControllerCreateDepartmentV1Response = DepartmentsControllerCreateDepartmentV1Responses[keyof DepartmentsControllerCreateDepartmentV1Responses];
+
+export type DepartmentsControllerSetActiveDepartmentV1Data = {
+    body: SetActiveDepartmentDto;
+    path?: never;
+    query?: never;
+    url: '/api/v1/departments/active';
+};
+
+export type DepartmentsControllerSetActiveDepartmentV1Responses = {
+    200: UsersMeResponseDto;
+};
+
+export type DepartmentsControllerSetActiveDepartmentV1Response = DepartmentsControllerSetActiveDepartmentV1Responses[keyof DepartmentsControllerSetActiveDepartmentV1Responses];
+
+export type DashboardControllerGetDashboardV1Data = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/dashboard';
+};
+
+export type DashboardControllerGetDashboardV1Responses = {
+    200: DashboardResponseDto;
+};
+
+export type DashboardControllerGetDashboardV1Response = DashboardControllerGetDashboardV1Responses[keyof DashboardControllerGetDashboardV1Responses];
+
+export type PagesControllerListPagesV1Data = {
+    body?: never;
+    path?: never;
+    query: {
+        scope: string;
+        departmentId: string;
+        teamId: string;
+    };
+    url: '/api/v1/pages';
+};
+
+export type PagesControllerListPagesV1Responses = {
     200: unknown;
+};
+
+export type PagesControllerCreatePageV1Data = {
+    body: CreatePageDto;
+    path?: never;
+    query?: never;
+    url: '/api/v1/pages';
+};
+
+export type PagesControllerCreatePageV1Responses = {
+    201: unknown;
+};
+
+export type PagesControllerDeletePageV1Data = {
+    body?: never;
+    path: {
+        pageId: string;
+    };
+    query?: never;
+    url: '/api/v1/pages/{pageId}';
+};
+
+export type PagesControllerDeletePageV1Responses = {
+    200: unknown;
+};
+
+export type PagesControllerGetPageV1Data = {
+    body?: never;
+    path: {
+        pageId: string;
+    };
+    query: {
+        viewId: string;
+    };
+    url: '/api/v1/pages/{pageId}';
+};
+
+export type PagesControllerGetPageV1Responses = {
+    200: unknown;
+};
+
+export type PagesControllerUpdatePageV1Data = {
+    body: UpdatePageDto;
+    path: {
+        pageId: string;
+    };
+    query?: never;
+    url: '/api/v1/pages/{pageId}';
+};
+
+export type PagesControllerUpdatePageV1Responses = {
+    200: unknown;
+};
+
+export type PagesControllerRestorePageV1Data = {
+    body?: never;
+    path: {
+        pageId: string;
+    };
+    query?: never;
+    url: '/api/v1/pages/{pageId}/restore';
+};
+
+export type PagesControllerRestorePageV1Responses = {
+    201: unknown;
+};
+
+export type PagesControllerSetHomePageV1Data = {
+    body?: never;
+    path: {
+        pageId: string;
+    };
+    query?: never;
+    url: '/api/v1/pages/{pageId}/home';
+};
+
+export type PagesControllerSetHomePageV1Responses = {
+    201: unknown;
+};
+
+export type PagesControllerCreateViewV1Data = {
+    body: CreatePageViewDto;
+    path: {
+        pageId: string;
+    };
+    query?: never;
+    url: '/api/v1/pages/{pageId}/views';
+};
+
+export type PagesControllerCreateViewV1Responses = {
+    201: unknown;
+};
+
+export type PagesControllerDeleteViewV1Data = {
+    body?: never;
+    path: {
+        viewId: string;
+    };
+    query?: never;
+    url: '/api/v1/pages/views/{viewId}';
+};
+
+export type PagesControllerDeleteViewV1Responses = {
+    200: unknown;
+};
+
+export type PagesControllerUpdateViewV1Data = {
+    body: UpdatePageViewDto;
+    path: {
+        viewId: string;
+    };
+    query?: never;
+    url: '/api/v1/pages/views/{viewId}';
+};
+
+export type PagesControllerUpdateViewV1Responses = {
+    200: unknown;
+};
+
+export type PagesControllerDuplicateViewV1Data = {
+    body?: never;
+    path: {
+        viewId: string;
+    };
+    query?: never;
+    url: '/api/v1/pages/views/{viewId}/duplicate';
+};
+
+export type PagesControllerDuplicateViewV1Responses = {
+    201: unknown;
+};
+
+export type PagesControllerSetDefaultViewV1Data = {
+    body?: never;
+    path: {
+        viewId: string;
+    };
+    query?: never;
+    url: '/api/v1/pages/views/{viewId}/default';
+};
+
+export type PagesControllerSetDefaultViewV1Responses = {
+    201: unknown;
+};
+
+export type PagesControllerCreateBlockV1Data = {
+    body: CreatePageBlockDto;
+    path: {
+        viewId: string;
+    };
+    query?: never;
+    url: '/api/v1/pages/views/{viewId}/blocks';
+};
+
+export type PagesControllerCreateBlockV1Responses = {
+    201: unknown;
+};
+
+export type PagesControllerDeleteBlockV1Data = {
+    body?: never;
+    path: {
+        blockId: string;
+    };
+    query?: never;
+    url: '/api/v1/pages/blocks/{blockId}';
+};
+
+export type PagesControllerDeleteBlockV1Responses = {
+    200: unknown;
+};
+
+export type PagesControllerUpdateBlockV1Data = {
+    body: UpdatePageBlockDto;
+    path: {
+        blockId: string;
+    };
+    query?: never;
+    url: '/api/v1/pages/blocks/{blockId}';
+};
+
+export type PagesControllerUpdateBlockV1Responses = {
+    200: unknown;
+};
+
+export type SearchControllerSearchV1Data = {
+    body?: never;
+    path?: never;
+    query?: {
+        q?: string;
+    };
+    url: '/api/v1/search';
+};
+
+export type SearchControllerSearchV1Responses = {
+    200: OrganizationSearchResponseDto;
+};
+
+export type SearchControllerSearchV1Response = SearchControllerSearchV1Responses[keyof SearchControllerSearchV1Responses];
+
+export type InboxControllerGetInboxV1Data = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/inbox';
+};
+
+export type InboxControllerGetInboxV1Responses = {
+    200: InboxResponseDto;
+};
+
+export type InboxControllerGetInboxV1Response = InboxControllerGetInboxV1Responses[keyof InboxControllerGetInboxV1Responses];
+
+export type InboxControllerGetRoomV1Data = {
+    body?: never;
+    path: {
+        chatRoomId: string;
+    };
+    query?: never;
+    url: '/api/v1/inbox/{chatRoomId}';
+};
+
+export type InboxControllerGetRoomV1Responses = {
+    200: InboxRoomDetailResponseDto;
+};
+
+export type InboxControllerGetRoomV1Response = InboxControllerGetRoomV1Responses[keyof InboxControllerGetRoomV1Responses];
+
+export type AskAiControllerGetHomeV1Data = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/ask-ai';
+};
+
+export type AskAiControllerGetHomeV1Responses = {
+    200: AskAiHomeResponseDto;
+};
+
+export type AskAiControllerGetHomeV1Response = AskAiControllerGetHomeV1Responses[keyof AskAiControllerGetHomeV1Responses];
+
+export type SprintsControllerListSprintsV1Data = {
+    body?: never;
+    path: {
+        projectId: string;
+    };
+    query?: never;
+    url: '/api/v1/projects/{projectId}/sprints';
+};
+
+export type SprintsControllerListSprintsV1Responses = {
+    200: unknown;
+};
+
+export type SprintsControllerCreateSprintV1Data = {
+    body: CreateSprintDto;
+    path: {
+        projectId: string;
+    };
+    query?: never;
+    url: '/api/v1/projects/{projectId}/sprints';
+};
+
+export type SprintsControllerCreateSprintV1Responses = {
+    201: unknown;
+};
+
+export type SprintsControllerGetPlanningV1Data = {
+    body?: never;
+    path: {
+        projectId: string;
+    };
+    query?: never;
+    url: '/api/v1/projects/{projectId}/sprint-planning';
+};
+
+export type SprintsControllerGetPlanningV1Responses = {
+    200: unknown;
+};
+
+export type SprintsControllerGetBacklogV1Data = {
+    body?: never;
+    path: {
+        projectId: string;
+    };
+    query?: never;
+    url: '/api/v1/projects/{projectId}/backlog';
+};
+
+export type SprintsControllerGetBacklogV1Responses = {
+    200: unknown;
+};
+
+export type SprintsControllerArchiveSprintV1Data = {
+    body?: never;
+    path: {
+        sprintId: string;
+    };
+    query?: never;
+    url: '/api/v1/projects/{projectId}/sprints/{sprintId}';
+};
+
+export type SprintsControllerArchiveSprintV1Responses = {
+    200: unknown;
+};
+
+export type SprintsControllerUpdateSprintV1Data = {
+    body: UpdateSprintDto;
+    path: {
+        sprintId: string;
+    };
+    query?: never;
+    url: '/api/v1/projects/{projectId}/sprints/{sprintId}';
+};
+
+export type SprintsControllerUpdateSprintV1Responses = {
+    200: unknown;
+};
+
+export type SprintsControllerAddTaskV1Data = {
+    body: MoveTaskToSprintDto;
+    path: {
+        sprintId: string;
+    };
+    query?: never;
+    url: '/api/v1/projects/{projectId}/sprints/{sprintId}/tasks';
+};
+
+export type SprintsControllerAddTaskV1Responses = {
+    201: unknown;
+};
+
+export type SprintsControllerRemoveTaskV1Data = {
+    body?: never;
+    path: {
+        projectId: string;
+        taskId: string;
+    };
+    query?: never;
+    url: '/api/v1/projects/{projectId}/backlog/{taskId}/sprint';
+};
+
+export type SprintsControllerRemoveTaskV1Responses = {
+    200: unknown;
+};
+
+export type CustomFieldsControllerListFieldsV1Data = {
+    body?: never;
+    path?: never;
+    query: {
+        scope: string;
+    };
+    url: '/api/v1/custom-fields';
+};
+
+export type CustomFieldsControllerListFieldsV1Responses = {
+    200: unknown;
+};
+
+export type CustomFieldsControllerCreateFieldV1Data = {
+    body: CreateCustomFieldDto;
+    path?: never;
+    query?: never;
+    url: '/api/v1/custom-fields';
+};
+
+export type CustomFieldsControllerCreateFieldV1Responses = {
+    201: unknown;
+};
+
+export type CustomFieldsControllerDeleteFieldV1Data = {
+    body?: never;
+    path: {
+        fieldId: string;
+    };
+    query?: never;
+    url: '/api/v1/custom-fields/{fieldId}';
+};
+
+export type CustomFieldsControllerDeleteFieldV1Responses = {
+    200: unknown;
+};
+
+export type CustomFieldsControllerUpdateFieldV1Data = {
+    body: UpdateCustomFieldDto;
+    path: {
+        fieldId: string;
+    };
+    query?: never;
+    url: '/api/v1/custom-fields/{fieldId}';
+};
+
+export type CustomFieldsControllerUpdateFieldV1Responses = {
+    200: unknown;
+};
+
+export type CustomFieldsControllerRestoreFieldV1Data = {
+    body?: never;
+    path: {
+        fieldId: string;
+    };
+    query?: never;
+    url: '/api/v1/custom-fields/{fieldId}/restore';
+};
+
+export type CustomFieldsControllerRestoreFieldV1Responses = {
+    201: unknown;
+};
+
+export type CustomFieldsControllerUpsertValueV1Data = {
+    body: UpsertCustomFieldValueDto;
+    path: {
+        fieldId: string;
+    };
+    query?: never;
+    url: '/api/v1/custom-fields/{fieldId}/values';
+};
+
+export type CustomFieldsControllerUpsertValueV1Responses = {
+    200: unknown;
+};
+
+export type DocsControllerListDocsV1Data = {
+    body?: never;
+    path?: never;
+    query: {
+        departmentId: string;
+        teamId: string;
+        projectId: string;
+    };
+    url: '/api/v1/docs';
+};
+
+export type DocsControllerListDocsV1Responses = {
+    200: unknown;
+};
+
+export type DocsControllerCreateDocV1Data = {
+    body: CreateDocDto;
+    path?: never;
+    query?: never;
+    url: '/api/v1/docs';
+};
+
+export type DocsControllerCreateDocV1Responses = {
+    201: unknown;
+};
+
+export type DocsControllerDeleteDocV1Data = {
+    body?: never;
+    path: {
+        docId: string;
+    };
+    query?: never;
+    url: '/api/v1/docs/{docId}';
+};
+
+export type DocsControllerDeleteDocV1Responses = {
+    200: unknown;
+};
+
+export type DocsControllerGetDocV1Data = {
+    body?: never;
+    path: {
+        docId: string;
+    };
+    query?: never;
+    url: '/api/v1/docs/{docId}';
+};
+
+export type DocsControllerGetDocV1Responses = {
+    200: unknown;
+};
+
+export type DocsControllerUpdateDocV1Data = {
+    body: UpdateDocDto;
+    path: {
+        docId: string;
+    };
+    query?: never;
+    url: '/api/v1/docs/{docId}';
+};
+
+export type DocsControllerUpdateDocV1Responses = {
+    200: unknown;
+};
+
+export type MeetingsControllerListMeetingsV1Data = {
+    body?: never;
+    path?: never;
+    query: {
+        departmentId: string;
+        teamId: string;
+        projectId: string;
+    };
+    url: '/api/v1/meetings';
+};
+
+export type MeetingsControllerListMeetingsV1Responses = {
+    200: unknown;
+};
+
+export type MeetingsControllerCreateMeetingV1Data = {
+    body: CreateMeetingDto;
+    path?: never;
+    query?: never;
+    url: '/api/v1/meetings';
+};
+
+export type MeetingsControllerCreateMeetingV1Responses = {
+    201: unknown;
+};
+
+export type MeetingsControllerDeleteMeetingV1Data = {
+    body?: never;
+    path: {
+        meetingId: string;
+    };
+    query?: never;
+    url: '/api/v1/meetings/{meetingId}';
+};
+
+export type MeetingsControllerDeleteMeetingV1Responses = {
+    200: unknown;
+};
+
+export type MeetingsControllerGetMeetingV1Data = {
+    body?: never;
+    path: {
+        meetingId: string;
+    };
+    query?: never;
+    url: '/api/v1/meetings/{meetingId}';
+};
+
+export type MeetingsControllerGetMeetingV1Responses = {
+    200: unknown;
+};
+
+export type MeetingsControllerUpdateMeetingV1Data = {
+    body: UpdateMeetingDto;
+    path: {
+        meetingId: string;
+    };
+    query?: never;
+    url: '/api/v1/meetings/{meetingId}';
+};
+
+export type MeetingsControllerUpdateMeetingV1Responses = {
+    200: unknown;
+};
+
+export type MeetingsControllerUpsertAttendeeV1Data = {
+    body: UpsertMeetingAttendeeDto;
+    path: {
+        meetingId: string;
+    };
+    query?: never;
+    url: '/api/v1/meetings/{meetingId}/attendees';
+};
+
+export type MeetingsControllerUpsertAttendeeV1Responses = {
+    201: unknown;
+};
+
+export type MeetingsControllerRemoveAttendeeV1Data = {
+    body?: never;
+    path: {
+        meetingId: string;
+        userId: string;
+    };
+    query?: never;
+    url: '/api/v1/meetings/{meetingId}/attendees/{userId}';
+};
+
+export type MeetingsControllerRemoveAttendeeV1Responses = {
+    200: unknown;
+};
+
+export type WorkspaceSetupControllerRetryV1Data = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/workspace-setup/retry';
+};
+
+export type WorkspaceSetupControllerRetryV1Responses = {
+    /**
+     * Workspace setup retry was queued.
+     */
+    201: unknown;
 };

@@ -8,12 +8,30 @@ export const PATHS = {
     resetPassword: "/auth/reset-password",
     verifyEmail: "/verify-email",
   },
-  messages: {
-    root: "/messages",
+  app: {
+    account: "/account",
+    askAi: "/ask-ai",
+    billing: "/billing",
+    calendar: "/calendar",
+    help: "/help",
+    home: "/",
+    inbox: "/inbox",
+    notifications: "/notifications",
+    search: "/search",
+    settings: "/settings",
+    templates: "/templates",
+    trash: "/trash",
   },
   projects: {
     root: "/projects",
     detail: (projectId: string) => `/projects/${projectId}`,
+  },
+  pages: {
+    detail: (pageId: string) => `/pages/${pageId}`,
+    view: (pageId: string, viewId: string) => `/pages/${pageId}/views/${viewId}`,
+  },
+  inbox: {
+    detail: (chatRoomId: string) => `/inbox/${chatRoomId}`,
   },
   error: {
     root: "/error",

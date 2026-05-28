@@ -1,3 +1,5 @@
+/// <reference path="./types/desktop-window.d.ts" />
+
 export type FlowPlatform = "web" | "desktop"
 
 export type FlowClientConfig = {

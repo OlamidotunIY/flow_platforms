@@ -2,7 +2,11 @@ import { createBrowserRouter, Navigate } from "react-router-dom"
 
 import { Error404Page, Error500Page } from "../features/errors"
 import { ForgotPasswordPage, LoginPage, RequireAuth, ResetPasswordPage, SignUpPage, VerifyEmailPage } from "../features/auth"
-import { MessagesPage } from "../features/messages"
+import { AskAiPage } from "../features/ask-ai"
+import { HomePageRedirect, PageViewPage } from "../features/pages"
+import { InboxPage, InboxRoomPage } from "../features/inbox"
+import { SearchPage } from "../features/search"
+import { UnderDevelopmentPage } from "../features/under-development"
 import { AuthLayout } from "../layouts/AuthLayout"
 import { ErrorsLayout } from "../layouts/errors"
 import { MainLayout } from "../layouts/mainLayout"
@@ -49,11 +53,71 @@ export const router = createBrowserRouter([
             children: [
               {
                 index: true,
-                element: <MessagesPage />,
+                element: <HomePageRedirect />,
               },
               {
-                path: PATHS.messages.root,
-                element: <MessagesPage />,
+                path: "/pages/:pageId",
+                element: <PageViewPage />,
+              },
+              {
+                path: "/pages/:pageId/views/:viewId",
+                element: <PageViewPage />,
+              },
+              {
+                path: PATHS.app.search,
+                element: <SearchPage />,
+              },
+              {
+                path: PATHS.app.askAi,
+                element: <AskAiPage />,
+              },
+              {
+                path: PATHS.app.inbox,
+                element: <InboxPage />,
+              },
+              {
+                path: "/inbox/:chatRoomId",
+                element: <InboxRoomPage />,
+              },
+              {
+                path: PATHS.app.calendar,
+                element: <UnderDevelopmentPage title="Calendar" />,
+              },
+              {
+                path: PATHS.app.settings,
+                element: <UnderDevelopmentPage title="Settings" />,
+              },
+              {
+                path: PATHS.app.templates,
+                element: <UnderDevelopmentPage title="Templates" />,
+              },
+              {
+                path: PATHS.app.trash,
+                element: <UnderDevelopmentPage title="Trash" />,
+              },
+              {
+                path: PATHS.app.help,
+                element: <UnderDevelopmentPage title="Help" />,
+              },
+              {
+                path: PATHS.app.account,
+                element: <UnderDevelopmentPage title="Account" />,
+              },
+              {
+                path: PATHS.app.billing,
+                element: <UnderDevelopmentPage title="Billing" />,
+              },
+              {
+                path: PATHS.app.notifications,
+                element: <UnderDevelopmentPage title="Notifications" />,
+              },
+              {
+                path: PATHS.projects.root,
+                element: <UnderDevelopmentPage title="Projects" />,
+              },
+              {
+                path: "/projects/:projectId",
+                element: <UnderDevelopmentPage title="Project" />,
               },
             ],
           }

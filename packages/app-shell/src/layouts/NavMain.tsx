@@ -25,7 +25,7 @@ export function NavMain({ items }: { items: NavMainItem[] }) {
       <SidebarGroupContent>
         <SidebarMenu>
           {items.map((item) => {
-            const isActive = item.isActive || item.url === location.pathname
+        const isActive = item.url === location.pathname
 
             return (
               <SidebarMenuItem key={item.title}>
