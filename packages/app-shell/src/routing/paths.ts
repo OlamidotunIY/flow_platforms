@@ -27,8 +27,8 @@ export const PATHS = {
     detail: (projectId: string) => `/projects/${projectId}`,
   },
   pages: {
-    detail: (pageId: string) => `/pages/${pageId}`,
-    view: (pageId: string, viewId: string) => `/pages/${pageId}/views/${viewId}`,
+    detail: (pageId: string) => `/p/${pageId}`,
+    view: (pageId: string) => `/p/${pageId}`,
   },
   inbox: {
     detail: (chatRoomId: string) => `/inbox/${chatRoomId}`,

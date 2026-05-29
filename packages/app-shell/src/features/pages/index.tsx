@@ -1,17 +1,26 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react"
-import { Navigate, useParams } from "react-router-dom"
+import { Link, Navigate, useLocation, useParams } from "react-router-dom"
 import {
+  ArrowUpDown,
   Calendar,
   CheckSquare,
   Columns3,
+  Filter,
   FileText,
   LayoutDashboard,
   List,
+  Plus,
   Rows3,
+  Search,
+  Settings2,
   TimerReset,
 } from "lucide-react"
-import { pagesControllerGetPageV1, type PageSummaryResponseDto } from "@flow/api"
+import {
+  pagesControllerGetPageV1,
+  type PageSummaryResponseDto,
+} from "@flow/api"
 import { Badge } from "@flow/ui/components/badge"
+import { Button } from "@flow/ui/components/button"
 
 import {
   CustomDataTable,
@@ -66,10 +75,10 @@ const sourceLabels: Record<string, string> = {
 function isPageResponse(value: unknown): value is DynamicPageResponse {
   return Boolean(
     value &&
-      typeof value === "object" &&
-      "page" in value &&
-      "views" in value &&
-      "activeView" in value
+    typeof value === "object" &&
+    "page" in value &&
+    "views" in value &&
+    "activeView" in value
   )
 }
 
@@ -102,7 +111,12 @@ function nativeColumns(sourceType: string): DataTableColumn<SourceRow>[] {
   const nameColumn: DataTableColumn<SourceRow> = {
     id: "name",
     header: sourceType === "TASK" ? "Task name" : "Name",
-    icon: sourceType === "DOC" ? <FileText className="size-3.5" /> : <Rows3 className="size-3.5" />,
+    icon:
+      sourceType === "DOC" ? (
+        <FileText className="size-3.5" />
+      ) : (
+        <Rows3 className="size-3.5" />
+      ),
     accessor: (row) => row.name ?? row.title,
     render: (row) => (
       <span className="inline-flex min-w-0 items-center gap-2 font-medium">
@@ -168,7 +182,8 @@ function nativeColumns(sourceType: string): DataTableColumn<SourceRow>[] {
         id: "dates",
         header: "Dates",
         icon: <TimerReset className="size-3.5" />,
-        accessor: (row) => `${dateValue(row.startDate)} - ${dateValue(row.endDate)}`,
+        accessor: (row) =>
+          `${dateValue(row.startDate)} - ${dateValue(row.endDate)}`,
         width: "22%",
       },
     ]
@@ -187,7 +202,10 @@ function nativeColumns(sourceType: string): DataTableColumn<SourceRow>[] {
   ]
 }
 
-function customFieldsForSource(userInfo: ReturnType<typeof useUserStore.getState>["userInfo"], sourceType: string) {
+function customFieldsForSource(
+  userInfo: ReturnType<typeof useUserStore.getState>["userInfo"],
+  sourceType: string
+) {
   const grouped = userInfo?.activeOrganization?.customFields
   if (!grouped || typeof grouped !== "object") return []
   const fields = (grouped as Record<string, unknown>)[sourceType]
@@ -195,21 +213,27 @@ function customFieldsForSource(userInfo: ReturnType<typeof useUserStore.getState
 }
 
 function ViewBadge({ type }: { type: string }) {
-  const icon: Record<string, ReactNode> = {
-    TABLE: <Rows3 className="size-3.5" />,
-    BOARD: <Columns3 className="size-3.5" />,
-    LIST: <List className="size-3.5" />,
-    TIMELINE: <TimerReset className="size-3.5" />,
-    CALENDAR: <Calendar className="size-3.5" />,
-    DASHBOARD: <LayoutDashboard className="size-3.5" />,
-  }
+  const Icon = viewIcon(type)
 
   return (
     <Badge className="gap-1 rounded-md" variant="outline">
-      {icon[type] ?? <Rows3 className="size-3.5" />}
+      <Icon className="size-3.5" />
       {type.toLowerCase()}
     </Badge>
   )
+}
+
+function viewIcon(type: string) {
+  const icons = {
+    TABLE: Rows3,
+    BOARD: Columns3,
+    LIST: List,
+    TIMELINE: TimerReset,
+    CALENDAR: Calendar,
+    DASHBOARD: LayoutDashboard,
+  }
+
+  return icons[type as keyof typeof icons] ?? Rows3
 }
 
 function DataView({
@@ -246,7 +270,8 @@ function DataView({
         <div>
           <h2 className="font-heading text-base font-semibold">{title}</h2>
           <p className="text-xs text-muted-foreground">
-            {rows.length} records rendered from this saved {type.toLowerCase()} view.
+            {rows.length} records rendered from this saved {type.toLowerCase()}{" "}
+            view.
           </p>
         </div>
         <ViewBadge type={type} />
@@ -254,8 +279,13 @@ function DataView({
       {rows.length ? (
         <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-3">
           {rows.map((row, index) => (
-            <div className="rounded-lg border bg-background/45 p-3" key={String(row.id ?? index)}>
-              <div className="truncate font-medium">{stringValue(row.name ?? row.title)}</div>
+            <div
+              className="rounded-lg border bg-background/45 p-3"
+              key={String(row.id ?? index)}
+            >
+              <div className="truncate font-medium">
+                {stringValue(row.name ?? row.title)}
+              </div>
               <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
                 <span>{stringValue(row.status, "No status")}</span>
                 <span>{dateValue(row.updatedAt ?? row.startsAt)}</span>
@@ -275,7 +305,18 @@ function DataView({
 
 function DashboardView({ data }: { data: unknown }) {
   const blocks = Array.isArray((data as { blocks?: unknown[] })?.blocks)
-    ? ((data as { blocks: Array<{ block?: { title?: string; type?: string; query?: { sourceType?: string } }; data?: unknown }> }).blocks)
+    ? (
+        data as {
+          blocks: Array<{
+            block?: {
+              title?: string
+              type?: string
+              query?: { sourceType?: string }
+            }
+            data?: unknown
+          }>
+        }
+      ).blocks
     : []
 
   if (!blocks.length) {
@@ -291,7 +332,8 @@ function DashboardView({ data }: { data: unknown }) {
     <div className="flex flex-col gap-5">
       {blocks.map((block, index) => {
         const sourceType = block.block?.query?.sourceType ?? "PROJECT"
-        const title = block.block?.title ?? sourceLabels[sourceType] ?? sourceType
+        const title =
+          block.block?.title ?? sourceLabels[sourceType] ?? sourceType
         return (
           <DataView
             data={block.data}
@@ -306,18 +348,119 @@ function DashboardView({ data }: { data: unknown }) {
   )
 }
 
+function DynamicPageShell({
+  activeView,
+  children,
+  page,
+  views,
+}: {
+  activeView: NonNullable<DynamicPageResponse["activeView"]>
+  children: ReactNode
+  page: PageSummaryResponseDto
+  views: DynamicPageResponse["views"]
+}) {
+  return (
+    <div className="flex min-h-[calc(100svh-7rem)] flex-col gap-5">
+      <header className="border-b pb-3">
+        <div className="mb-4 flex items-end justify-between gap-4">
+          <div className="flex min-w-0 items-center gap-3">
+            <span className="grid size-8 shrink-0 place-items-center rounded-md border bg-muted text-muted-foreground">
+              <FileText className="size-5" />
+            </span>
+            <h1 className="truncate font-heading text-3xl font-semibold tracking-tight">
+              {page.title}
+            </h1>
+          </div>
+          <div className="flex shrink-0 items-center gap-1">
+            <Button
+              aria-label="Filter"
+              size="icon-sm"
+              type="button"
+              variant="ghost"
+            >
+              <Filter className="size-4" />
+            </Button>
+            <Button
+              aria-label="Sort"
+              size="icon-sm"
+              type="button"
+              variant="ghost"
+            >
+              <ArrowUpDown className="size-4" />
+            </Button>
+            <Button
+              aria-label="Search"
+              size="icon-sm"
+              type="button"
+              variant="ghost"
+            >
+              <Search className="size-4" />
+            </Button>
+            <Button
+              aria-label="View settings"
+              size="icon-sm"
+              type="button"
+              variant="ghost"
+            >
+              <Settings2 className="size-4" />
+            </Button>
+            <Button className="h-8 gap-1.5" size="sm" type="button">
+              <Plus className="size-4" />
+              New
+            </Button>
+          </div>
+        </div>
+        <div className="flex items-center gap-1 overflow-x-auto">
+          {views.map((view) => {
+            const isActive = view.id === activeView.id
+            const ViewIcon = viewIcon(view.type)
+            return (
+              <Link
+                className={`inline-flex h-8 shrink-0 items-center gap-2 rounded-full px-3 text-sm font-medium transition ${
+                  isActive
+                    ? "bg-muted text-foreground"
+                    : "text-muted-foreground hover:bg-muted/70 hover:text-foreground"
+                }`}
+                key={view.id}
+                state={{ viewId: view.id }}
+                to={PATHS.pages.view(page.id)}
+              >
+                <ViewIcon className="size-3.5" />
+                <span>{view.name}</span>
+              </Link>
+            )
+          })}
+        </div>
+      </header>
+      {children}
+    </div>
+  )
+}
+
 export function PageViewPage() {
-  const { pageId, viewId } = useParams()
+  const { pageId } = useParams()
+  const location = useLocation()
+  const routeViewId =
+    typeof (location.state as { viewId?: unknown } | null)?.viewId === "string"
+      ? String((location.state as { viewId: string }).viewId)
+      : ""
+  const storedViewId = pageId
+    ? (window.localStorage.getItem(`flow.page.${pageId}.view`) ?? "")
+    : ""
+  const viewId = routeViewId || storedViewId
   const [pageData, setPageData] = useState<DynamicPageResponse | null>(null)
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading")
 
   useEffect(() => {
     if (!pageId) return
+    if (routeViewId) {
+      window.localStorage.setItem(`flow.page.${pageId}.view`, routeViewId)
+    }
     let mounted = true
     setStatus("loading")
     pagesControllerGetPageV1({
       path: { pageId },
-      query: { viewId: viewId ?? "" },
+      query: { viewId },
     }).then((result) => {
       if (!mounted) return
       if (result.error || !isPageResponse(result.data)) {
@@ -330,7 +473,7 @@ export function PageViewPage() {
     return () => {
       mounted = false
     }
-  }, [pageId, viewId])
+  }, [pageId, routeViewId, viewId])
 
   const activeView = pageData?.activeView ?? null
   const sourceType = sourceFromView(activeView)
@@ -342,11 +485,10 @@ export function PageViewPage() {
   }
 
   return (
-    <PageFrame
-      action={<ViewBadge type={activeView.type} />}
-      description={`${activeView.name} view from ${pageData.page.title}.`}
-      eyebrow="Dynamic page"
-      title={pageData.page.title}
+    <DynamicPageShell
+      activeView={activeView}
+      page={pageData.page}
+      views={pageData.views}
     >
       {activeView.type === "DASHBOARD" ? (
         <DashboardView data={pageData.data} />
@@ -358,7 +500,7 @@ export function PageViewPage() {
           type={activeView.type}
         />
       )}
-    </PageFrame>
+    </DynamicPageShell>
   )
 }
 
@@ -368,11 +510,8 @@ export function HomePageRedirect() {
     const organization = userInfo?.activeOrganization
     return (
       organization?.activeTeam?.pages?.find((page) => page.isHome) ??
-      organization?.activeDepartment?.pages?.find((page) => page.isHome) ??
-      organization?.pages?.find((page) => page.isHome) ??
       organization?.activeTeam?.pages?.[0] ??
-      organization?.activeDepartment?.pages?.[0] ??
-      organization?.pages?.[0] ??
+      organization?.teams?.flatMap((team) => team.pages ?? [])?.[0] ??
       null
     )
   }, [userInfo])
@@ -388,11 +527,17 @@ export function HomePageRedirect() {
     )
   }
 
-  const defaultView = homePage.views.find((view) => view.isDefault) ?? homePage.views[0]
+  const defaultView =
+    homePage.views.find((view) => view.isDefault) ?? homePage.views[0]
   return (
     <Navigate
       replace
-      to={defaultView ? PATHS.pages.view(homePage.id, defaultView.id) : PATHS.pages.detail(homePage.id)}
+      state={defaultView ? { viewId: defaultView.id } : undefined}
+      to={
+        defaultView
+          ? PATHS.pages.view(homePage.id)
+          : PATHS.pages.detail(homePage.id)
+      }
     />
   )
 }

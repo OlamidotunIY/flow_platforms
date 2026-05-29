@@ -1,13 +1,12 @@
 import type { LucideIcon } from "lucide-react"
 import {
   Blocks,
-  Calendar,
+  CalendarClock,
   Home,
   Inbox,
   MessageCircleQuestion,
-  Search,
+  MessagesSquare,
   Settings2,
-  Sparkles,
   Trash2,
 } from "lucide-react"
 
@@ -29,20 +28,15 @@ export type SidebarProjectGroup = {
 
 export const sidebarNavMain = [
   {
-    title: "Search",
-    url: PATHS.app.search,
-    icon: Search,
-  },
-  {
-    title: "Ask AI",
-    url: PATHS.app.askAi,
-    icon: Sparkles,
-  },
-  {
     title: "Home",
     url: PATHS.root,
     icon: Home,
     isActive: true,
+  },
+  {
+    title: "Chat",
+    url: PATHS.app.askAi,
+    icon: MessagesSquare,
   },
   {
     title: "Inbox",
@@ -50,13 +44,18 @@ export const sidebarNavMain = [
     icon: Inbox,
     badge: "10",
   },
+  {
+    title: "Meetings",
+    url: PATHS.app.calendar,
+    icon: CalendarClock,
+  },
 ]
 
 export const sidebarNavSecondary = [
   {
     title: "Calendar",
     url: PATHS.app.calendar,
-    icon: Calendar,
+    icon: CalendarClock,
   },
   {
     title: "Settings",

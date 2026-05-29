@@ -1,13 +1,13 @@
 import { Link, useLocation } from "react-router-dom"
-import { type LucideIcon } from "lucide-react"
+import { Search, type LucideIcon } from "lucide-react"
 import {
   SidebarGroup,
   SidebarGroupContent,
   SidebarMenu,
-  SidebarMenuBadge,
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@flow/ui/components/sidebar"
+import { Button } from "@flow/ui/components/button"
 
 type NavMainItem = {
   title: string
@@ -21,32 +21,48 @@ export function NavMain({ items }: { items: NavMainItem[] }) {
   const location = useLocation()
 
   return (
-    <SidebarGroup>
+    <SidebarGroup className="py-1">
       <SidebarGroupContent>
-        <SidebarMenu>
+        <SidebarMenu className="flex-row items-center gap-1 px-1">
           {items.map((item) => {
-        const isActive = item.url === location.pathname
+            const isActive =
+              item.url === PATHS_ROOT
+                ? location.pathname === item.url
+                : location.pathname.startsWith(item.url)
 
             return (
-              <SidebarMenuItem key={item.title}>
+              <SidebarMenuItem className="min-w-0" key={item.title}>
                 <SidebarMenuButton
                   asChild
+                  className={`h-9 rounded-full px-2.5 ${
+                    isActive ? "bg-sidebar-accent" : ""
+                  }`}
                   isActive={isActive}
                   tooltip={item.title}
                 >
                   <Link to={item.url}>
-                    <item.icon />
-                    <span>{item.title}</span>
+                    <item.icon className="size-4" />
+                    {isActive ? <span>{item.title}</span> : null}
                   </Link>
                 </SidebarMenuButton>
-                {item.badge ? (
-                  <SidebarMenuBadge>{item.badge}</SidebarMenuBadge>
-                ) : null}
               </SidebarMenuItem>
             )
           })}
+          <SidebarMenuItem className="ml-auto">
+            <Button
+              aria-label="Search workspace"
+              className="size-9 rounded-full text-sidebar-foreground/70"
+              size="icon"
+              type="button"
+              variant="ghost"
+            >
+              <Search className="size-4" />
+            </Button>
+          </SidebarMenuItem>
         </SidebarMenu>
       </SidebarGroupContent>
     </SidebarGroup>
   )
 }
+
+const PATHS_ROOT = "/"

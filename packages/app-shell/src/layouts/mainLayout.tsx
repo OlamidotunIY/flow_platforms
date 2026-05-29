@@ -71,13 +71,22 @@ function getLocationKey(location: ReturnType<typeof useLocation>) {
 }
 
 type WorkspaceHeaderProps = {
-  activeDepartment: ActiveDepartmentResponseDto | DepartmentSummaryResponseDto | null
+  activeDepartment:
+    | ActiveDepartmentResponseDto
+    | DepartmentSummaryResponseDto
+    | null
   activeOrganization: ActiveOrganizationResponseDto | null
   isDesktop: boolean
   onCreateDepartment: () => void
-  onDepartmentChange: (department: ActiveDepartmentResponseDto | DepartmentSummaryResponseDto) => void
-  onOrganizationChange: (organization: ActiveOrganizationResponseDto | OrganizationSummaryResponseDto) => void
-  organizations: Array<ActiveOrganizationResponseDto | OrganizationSummaryResponseDto>
+  onDepartmentChange: (
+    department: ActiveDepartmentResponseDto | DepartmentSummaryResponseDto
+  ) => void
+  onOrganizationChange: (
+    organization: ActiveOrganizationResponseDto | OrganizationSummaryResponseDto
+  ) => void
+  organizations: Array<
+    ActiveOrganizationResponseDto | OrganizationSummaryResponseDto
+  >
   pageTitle: string
 }
 
@@ -91,9 +100,9 @@ function WorkspaceHeader({
   organizations,
   pageTitle,
 }: WorkspaceHeaderProps) {
-  const [openMenu, setOpenMenu] = useState<"organization" | "department" | null>(
-    null
-  )
+  const [openMenu, setOpenMenu] = useState<
+    "organization" | "department" | null
+  >(null)
 
   useEffect(() => {
     function closeMenu() {
@@ -130,7 +139,7 @@ function WorkspaceHeader({
               </Button>
               {openMenu === "organization" ? (
                 <div
-                  className="absolute left-0 top-[calc(100%+0.5rem)] z-[300] min-w-72 rounded-lg bg-popover p-1 text-popover-foreground shadow-lg ring-1 ring-border"
+                  className="absolute top-[calc(100%+0.5rem)] left-0 z-[300] min-w-72 rounded-lg bg-popover p-1 text-popover-foreground shadow-lg ring-1 ring-border"
                   onClick={(event) => event.stopPropagation()}
                 >
                   <div className="px-2 py-1.5 text-sm text-muted-foreground">
@@ -178,7 +187,7 @@ function WorkspaceHeader({
               </Button>
               {openMenu === "department" ? (
                 <div
-                  className="absolute left-0 top-[calc(100%+0.5rem)] z-[300] min-w-64 rounded-lg bg-popover p-1 text-popover-foreground shadow-lg ring-1 ring-border"
+                  className="absolute top-[calc(100%+0.5rem)] left-0 z-[300] min-w-64 rounded-lg bg-popover p-1 text-popover-foreground shadow-lg ring-1 ring-border"
                   onClick={(event) => event.stopPropagation()}
                 >
                   <div className="px-2 py-1.5 text-sm text-muted-foreground">
@@ -227,7 +236,12 @@ function WorkspaceHeader({
         </Breadcrumb>
       </div>
       <div className="flex shrink-0 items-center gap-1">
-        <Button aria-label="Search" size="icon-sm" type="button" variant="ghost">
+        <Button
+          aria-label="Search"
+          size="icon-sm"
+          type="button"
+          variant="ghost"
+        >
           <Search />
         </Button>
         <Button
@@ -280,8 +294,7 @@ export function MainLayout() {
   const isInboxRoute =
     location.pathname === PATHS.app.inbox ||
     location.pathname.startsWith(`${PATHS.app.inbox}/`)
-  const canGoBack =
-    routeHistoryIndex > 0 && currentLocationKey !== PATHS.root
+  const canGoBack = routeHistoryIndex > 0 && currentLocationKey !== PATHS.root
   const canGoForward = routeHistoryIndex < routeHistory.length - 1
 
   useEffect(() => {
@@ -447,11 +460,9 @@ export function MainLayout() {
             <AppSidebar
               activeDepartment={activeDepartment}
               activeOrganizationId={activeOrganization?.id}
-              className={
-                isDesktop
-                  ? "top-24 h-[calc(100svh-6rem)]"
-                  : "top-14 h-[calc(100svh-3.5rem)]"
-              }
+              className="top-0 h-svh"
+              onDepartmentChange={changeDepartment}
+              onOrganizationChange={changeOrganization}
               onSignOut={() => {
                 void signOut()
               }}

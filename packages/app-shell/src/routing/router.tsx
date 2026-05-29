@@ -1,11 +1,17 @@
 import { createBrowserRouter, Navigate } from "react-router-dom"
 
 import { Error404Page, Error500Page } from "../features/errors"
-import { ForgotPasswordPage, LoginPage, RequireAuth, ResetPasswordPage, SignUpPage, VerifyEmailPage } from "../features/auth"
+import {
+  ForgotPasswordPage,
+  LoginPage,
+  RequireAuth,
+  ResetPasswordPage,
+  SignUpPage,
+  VerifyEmailPage,
+} from "../features/auth"
 import { AskAiPage } from "../features/ask-ai"
 import { HomePageRedirect, PageViewPage } from "../features/pages"
 import { InboxPage, InboxRoomPage } from "../features/inbox"
-import { SearchPage } from "../features/search"
 import { UnderDevelopmentPage } from "../features/under-development"
 import { AuthLayout } from "../layouts/AuthLayout"
 import { ErrorsLayout } from "../layouts/errors"
@@ -41,8 +47,8 @@ export const router = createBrowserRouter([
         ],
       },
       {
-            path: PATHS.auth.verifyEmail,
-            element: <VerifyEmailPage />,
+        path: PATHS.auth.verifyEmail,
+        element: <VerifyEmailPage />,
       },
       {
         path: PATHS.root,
@@ -56,16 +62,8 @@ export const router = createBrowserRouter([
                 element: <HomePageRedirect />,
               },
               {
-                path: "/pages/:pageId",
+                path: "/p/:pageId",
                 element: <PageViewPage />,
-              },
-              {
-                path: "/pages/:pageId/views/:viewId",
-                element: <PageViewPage />,
-              },
-              {
-                path: PATHS.app.search,
-                element: <SearchPage />,
               },
               {
                 path: PATHS.app.askAi,
@@ -120,7 +118,7 @@ export const router = createBrowserRouter([
                 element: <UnderDevelopmentPage title="Project" />,
               },
             ],
-          }
+          },
         ],
       },
       {

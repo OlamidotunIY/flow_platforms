@@ -128,7 +128,7 @@ export function LoginForm({
           </div>
         ) : null}
         <CardHeader
-          className={cn("text-center", isDesktop && "px-8 pt-10 pb-5")}
+          className={cn("text-center px-8 pt-10 pb-5")}
         >
           <FlowLogo
             title="Welcome back"
@@ -136,14 +136,14 @@ export function LoginForm({
           />
         </CardHeader>
         <CardContent
-          className={cn(isDesktop && "px-8 pb-0 [-webkit-app-region:no-drag]")}
+          className={cn("px-8 pb-0 [-webkit-app-region:no-drag]")}
         >
           <form onSubmit={signInWithEmail}>
-            <FieldGroup className={cn(isDesktop && "gap-4")}>
-              <Field className={cn(isDesktop && "gap-2.5")}>
+            <FieldGroup className={cn("gap-4")}>
+              <Field className={cn("gap-2.5")}>
                 {showApple ? (
                   <Button
-                    className={cn(isDesktop && "h-10 text-[0.8125rem]")}
+                    className={cn("h-10 text-[0.8125rem]")}
                     variant="outline"
                     type="button"
                     disabled={isBusy}
@@ -158,7 +158,7 @@ export function LoginForm({
                   </Button>
                 ) : null}
                 <Button
-                  className={cn(isDesktop && "h-10 text-[0.8125rem]")}
+                  className={cn("h-10 text-[0.8125rem]")}
                   variant="outline"
                   type="button"
                   disabled={isBusy}
@@ -196,15 +196,15 @@ export function LoginForm({
                     disabled={isBusy}
                     onChange={(event) => setEmail(event.target.value)}
                     className={cn(
-                      isDesktop && "h-10 rounded-lg px-3 text-[0.875rem]"
+                      "h-10 rounded-lg px-3 text-[0.875rem]"
                     )}
                   />
                 </Field>
               ) : (
-                <Field className={cn(isDesktop && "gap-2")}>
+                <Field className={cn( "gap-2")}>
                   <div className="flex items-center">
                     <FieldLabel
-                      className={cn(isDesktop && "text-[0.8125rem]")}
+                      className={cn( "text-[0.8125rem]")}
                       htmlFor="password"
                     >
                       Password
@@ -212,8 +212,8 @@ export function LoginForm({
                     <Link
                       to={PATHS.auth.forgotPassword}
                       className={cn(
-                        "ml-auto underline-offset-4 hover:underline",
-                        isDesktop ? "text-xs" : "text-sm"
+                        "ml-auto underline-offset-4 hover:underline text-xs",
+
                       )}
                     >
                       Forgot your password?
@@ -228,7 +228,7 @@ export function LoginForm({
                     disabled={isBusy}
                     onChange={(event) => setPassword(event.target.value)}
                     className={cn(
-                      isDesktop && "h-10 rounded-lg px-3 text-[0.875rem]"
+                      "h-10 rounded-lg px-3 text-[0.875rem]"
                     )}
                   />
                   <button
@@ -252,7 +252,7 @@ export function LoginForm({
               ) : null}
               <Field>
                 <Button
-                  className={cn(isDesktop && "h-10 text-[0.8125rem]")}
+                  className={cn("h-10 text-[0.8125rem]")}
                   type="submit"
                   disabled={isBusy}
                 >

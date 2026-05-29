@@ -1,6 +1,9 @@
 import { Navigate, Outlet, useNavigate } from "react-router-dom"
 import { useEffect, useRef, useState } from "react"
-import { usersControllerGetUserInfoV1, workspaceSetupControllerRetryV1 } from "@flow/api"
+import {
+  usersControllerGetUserInfoV1,
+  workspaceSetupControllerRetryV1,
+} from "@flow/api"
 import { Skeleton } from "@flow/ui/components/skeleton"
 import { Button } from "@flow/ui/components/button"
 
@@ -8,7 +11,7 @@ import { getFlowAuthClient } from "../../auth"
 import { getDesktopWindowControls, isDesktopPlatform } from "../../config"
 import { PATHS } from "../../routing/paths"
 import { type FlowUserInfo, useUserStore } from "../../store/userStore"
-import { PageError, PageLoader } from "../../components/page-state"
+import { PageError } from "../../components/page-state"
 import { connectWorkspaceSetupSocket } from "../../workspace-socket"
 
 function isFlowUserInfo(value: unknown): value is FlowUserInfo {
@@ -28,12 +31,23 @@ export function RequireAuth() {
   const windowControls = getDesktopWindowControls()
   const activeRequestUserId = useRef<string | null>(null)
   const [setupError, setSetupError] = useState<string | null>(null)
-  const replaceUserInfoFromSetup = useUserStore((state) => state.replaceUserInfoFromSetup)
+  const replaceUserInfoFromSetup = useUserStore(
+    (state) => state.replaceUserInfoFromSetup
+  )
   const setUserInfo = useUserStore((state) => state.setUserInfo)
   const setUserInfoStatus = useUserStore((state) => state.setUserInfoStatus)
   const userInfo = useUserStore((state) => state.userInfo)
   const userInfoStatus = useUserStore((state) => state.userInfoStatus)
-  const workspaceSetupStatus = useUserStore((state) => state.workspaceSetupStatus)
+  const workspaceSetupStatus = useUserStore(
+    (state) => state.workspaceSetupStatus
+  )
+  const isSettingUp =
+    Boolean(session.data) &&
+    (workspaceSetupStatus === "PENDING" ||
+      workspaceSetupStatus === "PROCESSING" ||
+      (userInfo?.workspaceSetupStatus
+        ? ["PENDING", "PROCESSING"].includes(userInfo.workspaceSetupStatus)
+        : false))
 
   useEffect(() => {
     if (!isDesktopPlatform() || session.isPending) {
@@ -67,7 +81,10 @@ export function RequireAuth() {
       return
     }
 
-    if (activeRequestUserId.current === userId && userInfoStatus === "loading") {
+    if (
+      activeRequestUserId.current === userId &&
+      userInfoStatus === "loading"
+    ) {
       return
     }
 
@@ -98,40 +115,83 @@ export function RequireAuth() {
   ])
 
   useEffect(() => {
-    if (
-      !session.data ||
-      !userInfo ||
-      !["PENDING", "PROCESSING"].includes(userInfo.workspaceSetupStatus)
-    ) {
+    if (!isSettingUp) {
       return
     }
 
     let cleanup: (() => void) | undefined
+    let cancelled = false
 
     connectWorkspaceSetupSocket({
       onCompleted: (payload) => {
+        if (cancelled) {
+          return
+        }
         replaceUserInfoFromSetup(payload)
         setSetupError(null)
         navigate(PATHS.root, { replace: true })
       },
       onFailed: (payload) => {
+        if (cancelled) {
+          return
+        }
         setSetupError(payload.errorMessage ?? "Workspace setup failed.")
       },
     }).then((disconnect) => {
+      if (cancelled) {
+        disconnect()
+        return
+      }
       cleanup = disconnect
     })
 
     return () => {
+      cancelled = true
       cleanup?.()
     }
-  }, [navigate, replaceUserInfoFromSetup, session.data, userInfo])
+  }, [isSettingUp, navigate, replaceUserInfoFromSetup])
 
-  const isSettingUp =
-    session.data &&
-    (workspaceSetupStatus === "PENDING" ||
-      workspaceSetupStatus === "PROCESSING" ||
-      (userInfo?.workspaceSetupStatus &&
-        ["PENDING", "PROCESSING"].includes(userInfo.workspaceSetupStatus)))
+  useEffect(() => {
+    if (!isSettingUp) {
+      return
+    }
+
+    let cancelled = false
+
+    async function refreshSetupState() {
+      const result = await usersControllerGetUserInfoV1()
+
+      if (cancelled || result.error || !isFlowUserInfo(result.data)) {
+        return
+      }
+
+      setUserInfo(result.data)
+
+      if (
+        result.data.workspaceSetupStatus === "COMPLETED" &&
+        result.data.activeOrganization
+      ) {
+        replaceUserInfoFromSetup(result.data)
+        setSetupError(null)
+        navigate(PATHS.root, { replace: true })
+        return
+      }
+
+      if (result.data.workspaceSetupStatus === "FAILED") {
+        setSetupError("Workspace setup failed.")
+      }
+    }
+
+    void refreshSetupState()
+    const intervalId = window.setInterval(() => {
+      void refreshSetupState()
+    }, 2500)
+
+    return () => {
+      cancelled = true
+      window.clearInterval(intervalId)
+    }
+  }, [isSettingUp, navigate, replaceUserInfoFromSetup, setUserInfo])
 
   if (session.data && userInfoStatus === "error") {
     return (
@@ -146,12 +206,14 @@ export function RequireAuth() {
 
   if (isSettingUp) {
     return (
-      <WorkspaceSetupLoading
+      <WorkspaceLoadingShell
+        description="We are creating your organization pages, views, teams, docs, meetings, and default fields."
         error={setupError}
         onRetry={() => {
           setSetupError(null)
           void workspaceSetupControllerRetryV1()
         }}
+        title="Setting up workspace"
       />
     )
   }
@@ -162,9 +224,10 @@ export function RequireAuth() {
       (userInfoStatus === "idle" || userInfoStatus === "loading"))
   ) {
     return (
-      <main className="min-h-svh bg-background p-6 text-foreground">
-        <PageLoader label="Loading your workspace" />
-      </main>
+      <WorkspaceLoadingShell
+        description="Preparing your sidebar, dashboard, and workspace context."
+        title="Loading workspace"
+      />
     )
   }
 
@@ -179,12 +242,16 @@ export function RequireAuth() {
   return <Outlet />
 }
 
-function WorkspaceSetupLoading({
+function WorkspaceLoadingShell({
+  description,
   error,
   onRetry,
+  title,
 }: {
+  description: string
   error?: string | null
-  onRetry: () => void
+  onRetry?: () => void
+  title: string
 }) {
   return (
     <main className="relative min-h-svh overflow-hidden bg-background text-foreground">
@@ -208,18 +275,18 @@ function WorkspaceSetupLoading({
       <div className="absolute inset-0 grid place-items-center bg-background/45 backdrop-blur-sm">
         <div className="w-full max-w-sm rounded-2xl border bg-card/95 p-6 text-center shadow-2xl">
           <div className="mx-auto mb-4 size-10 animate-pulse rounded-xl bg-primary/20" />
-          <h1 className="font-heading text-xl font-semibold">Setting up workspace</h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            We are creating your organization pages, views, teams, docs, meetings, and default fields.
-          </p>
+          <h1 className="font-heading text-xl font-semibold">{title}</h1>
+          <p className="mt-2 text-sm text-muted-foreground">{description}</p>
           {error ? (
             <>
               <p className="mt-4 rounded-lg border border-destructive/20 bg-destructive/10 p-3 text-sm text-destructive">
                 {error}
               </p>
-              <Button className="mt-4" onClick={onRetry} type="button">
-                Retry setup
-              </Button>
+              {onRetry ? (
+                <Button className="mt-4" onClick={onRetry} type="button">
+                  Retry setup
+                </Button>
+              ) : null}
             </>
           ) : null}
         </div>

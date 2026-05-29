@@ -1,3 +1,4 @@
+import { useState } from "react"
 import { Link } from "react-router-dom"
 import {
   CalendarDays,
@@ -5,6 +6,7 @@ import {
   ChevronRight,
   Columns3,
   FileText,
+  Home,
   LayoutDashboard,
   List,
   MoreHorizontal,
@@ -12,12 +14,12 @@ import {
   Rows3,
   Target,
   TimerReset,
+  Users,
   type LucideIcon,
 } from "lucide-react"
 import {
   Collapsible,
   CollapsibleContent,
-  CollapsibleTrigger,
 } from "@flow/ui/components/collapsible"
 import {
   SidebarGroup,
@@ -40,25 +42,39 @@ export type SidebarPage = {
   id: string
   title: string
   icon?: unknown
+  isHome?: boolean
+  scope?: string
+  teamId?: string | null
   views?: SidebarPageView[]
 }
 
 export type SidebarPageTeam = {
+  icon?: unknown
   id: string
   name: string
   pages: SidebarPage[]
 }
 
-function pageIcon(value: unknown): LucideIcon {
+function iconFromValue(value: unknown, fallback: LucideIcon): LucideIcon {
   const key = typeof value === "string" ? value : ""
   const icons: Record<string, LucideIcon> = {
     "calendar-days": CalendarDays,
     "check-square": CheckSquare,
     "file-text": FileText,
+    home: Home,
     repeat: Repeat,
     target: Target,
+    users: Users,
   }
-  return icons[key] ?? FileText
+  return icons[key] ?? fallback
+}
+
+function pageIcon(value: unknown): LucideIcon {
+  return iconFromValue(value, FileText)
+}
+
+function teamIcon(value: unknown): LucideIcon {
+  return iconFromValue(value, Users)
 }
 
 function viewIcon(type: string): LucideIcon {
@@ -74,47 +90,81 @@ function viewIcon(type: string): LucideIcon {
 }
 
 function defaultPageUrl(page: SidebarPage) {
-  const defaultView = page.views?.find((view) => view.isDefault) ?? page.views?.[0]
-  return defaultView ? PATHS.pages.view(page.id, defaultView.id) : PATHS.pages.detail(page.id)
+  return PATHS.pages.detail(page.id)
+}
+
+function defaultPageState(page: SidebarPage) {
+  const defaultView =
+    page.views?.find((view) => view.isDefault) ?? page.views?.[0]
+  return defaultView ? { viewId: defaultView.id } : undefined
 }
 
 function PageNode({ page }: { page: SidebarPage }) {
+  const [open, setOpen] = useState(false)
   const PageIcon = pageIcon(page.icon)
   const hasViews = Boolean(page.views?.length)
 
   return (
-    <Collapsible defaultOpen={false}>
+    <Collapsible onOpenChange={setOpen} open={open}>
       <SidebarMenuItem>
-        <div className="group/page relative">
-          <SidebarMenuButton asChild>
-            <Link to={defaultPageUrl(page)}>
-              <span className="relative grid size-4 place-items-center">
-                <PageIcon className="absolute size-4 transition-opacity group-hover/page:opacity-0 group-focus-within/page:opacity-0" />
-                <ChevronRight className="absolute size-4 opacity-0 transition-opacity group-hover/page:opacity-100 group-focus-within/page:opacity-100" />
-              </span>
-              <span>{page.title}</span>
-            </Link>
-          </SidebarMenuButton>
-          {hasViews ? (
-            <CollapsibleTrigger asChild>
+        <SidebarMenuButton asChild>
+          <div className="group/page-row h-8 px-1.5">
+            {hasViews ? (
               <button
-                aria-label={`Show ${page.title} views`}
-                className="absolute right-1 top-1 grid size-6 place-items-center rounded-md text-sidebar-foreground/55 opacity-0 transition hover:bg-sidebar-accent hover:text-sidebar-accent-foreground group-hover/page:opacity-100 group-focus-within/page:opacity-100"
+                aria-expanded={open}
+                aria-label={`${open ? "Hide" : "Show"} ${page.title} views`}
+                className="relative grid size-5 shrink-0 place-items-center rounded-md text-sidebar-foreground/65 transition hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                onClick={(event) => {
+                  event.preventDefault()
+                  event.stopPropagation()
+                  setOpen((current) => !current)
+                }}
                 type="button"
               >
-                <ChevronRight className="size-4 transition-transform data-[state=open]:rotate-90" />
+                <PageIcon
+                  className={`absolute size-4 transition-opacity ${
+                    open
+                      ? "opacity-0"
+                      : "opacity-100 group-focus-within/page-row:opacity-0 group-hover/page-row:opacity-0"
+                  }`}
+                />
+                <ChevronRight
+                  className={`absolute size-4 transition ${
+                    open
+                      ? "rotate-90 opacity-100"
+                      : "opacity-0 group-focus-within/page-row:opacity-100 group-hover/page-row:opacity-100"
+                  }`}
+                />
               </button>
-            </CollapsibleTrigger>
-          ) : null}
-        </div>
+            ) : (
+              <span className="grid size-5 shrink-0 place-items-center text-sidebar-foreground/65">
+                <PageIcon className="size-4" />
+              </span>
+            )}
+            <Link
+              className="min-w-0 flex-1 truncate"
+              state={defaultPageState(page)}
+              to={defaultPageUrl(page)}
+            >
+              {page.title}
+            </Link>
+          </div>
+        </SidebarMenuButton>
         {hasViews ? (
           <CollapsibleContent>
-            <div className="ml-4 mt-1 border-l border-sidebar-border pl-2">
+            <div className="mt-1 ml-5 border-l border-sidebar-border/80 pl-2">
               {page.views?.map((view) => {
                 const ViewIcon = viewIcon(view.type)
                 return (
-                  <SidebarMenuButton asChild className="h-7 text-xs" key={view.id}>
-                    <Link to={PATHS.pages.view(page.id, view.id)}>
+                  <SidebarMenuButton
+                    asChild
+                    className="h-7 text-xs text-sidebar-foreground/70"
+                    key={view.id}
+                  >
+                    <Link
+                      state={{ viewId: view.id }}
+                      to={PATHS.pages.view(page.id)}
+                    >
                       <ViewIcon className="size-3.5" />
                       <span>{view.name}</span>
                     </Link>
@@ -129,59 +179,74 @@ function PageNode({ page }: { page: SidebarPage }) {
   )
 }
 
-export function NavPages({
-  pages,
-  teams,
-}: {
-  pages: SidebarPage[]
-  teams: SidebarPageTeam[]
-}) {
-  return (
-    <>
-      <SidebarGroup className="group-data-[collapsible=icon]:hidden">
-        <SidebarGroupLabel className="text-[0.7rem] uppercase tracking-wide text-sidebar-foreground/50">
-          Pages
-        </SidebarGroupLabel>
-        <SidebarMenu>
-          {pages.map((page) => (
-            <PageNode key={page.id} page={page} />
-          ))}
-          {!pages.length ? (
-            <SidebarMenuItem>
-              <SidebarMenuButton disabled>
-                <MoreHorizontal />
-                <span>No shared pages</span>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          ) : null}
-        </SidebarMenu>
-      </SidebarGroup>
+function TeamNode({ team }: { team: SidebarPageTeam }) {
+  const [open, setOpen] = useState(true)
+  const TeamIcon = teamIcon(team.icon)
 
-      <SidebarGroup className="group-data-[collapsible=icon]:hidden">
-        <SidebarGroupLabel className="text-[0.7rem] uppercase tracking-wide text-sidebar-foreground/50">
-          Teams
-        </SidebarGroupLabel>
-        <SidebarMenu>
-          {teams.map((team) => (
-            <SidebarMenuItem key={team.id}>
-              <div className="px-2 py-1 text-xs font-medium text-sidebar-foreground/60">
-                {team.name}
-              </div>
-              {team.pages.map((page) => (
-                <PageNode key={page.id} page={page} />
-              ))}
-            </SidebarMenuItem>
-          ))}
-          {!teams.length ? (
-            <SidebarMenuItem>
-              <SidebarMenuButton disabled>
-                <MoreHorizontal />
-                <span>No teams yet</span>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          ) : null}
-        </SidebarMenu>
-      </SidebarGroup>
-    </>
+  return (
+    <Collapsible onOpenChange={setOpen} open={open}>
+      <SidebarMenuItem>
+        <SidebarMenuButton
+          className="group/team-row h-8 px-1.5 text-sidebar-foreground/85"
+          onClick={() => setOpen((current) => !current)}
+          type="button"
+        >
+          <span className="relative grid size-5 shrink-0 place-items-center rounded-md text-sidebar-foreground/65 transition group-hover/team-row:bg-sidebar-accent group-hover/team-row:text-sidebar-accent-foreground group-focus-visible/team-row:bg-sidebar-accent">
+            <TeamIcon
+              className={`absolute size-4 transition-opacity ${
+                open
+                  ? "opacity-0"
+                  : "opacity-100 group-hover/team-row:opacity-0 group-focus-visible/team-row:opacity-0"
+              }`}
+            />
+            <ChevronRight
+              className={`absolute size-4 transition ${
+                open
+                  ? "rotate-90 opacity-100"
+                  : "opacity-0 group-hover/team-row:opacity-100 group-focus-visible/team-row:opacity-100"
+              }`}
+            />
+          </span>
+          <span className="min-w-0 flex-1 truncate text-sm font-medium">
+            {team.name}
+          </span>
+          <span className="rounded-md px-1.5 py-0.5 text-[0.65rem] font-medium text-sidebar-foreground/45">
+            {team.pages.length}
+          </span>
+        </SidebarMenuButton>
+        <CollapsibleContent>
+          <div className="mt-1 ml-5 border-l border-sidebar-border/70 pl-2">
+            {team.pages.map((page) => (
+              <PageNode key={page.id} page={page} />
+            ))}
+          </div>
+        </CollapsibleContent>
+      </SidebarMenuItem>
+    </Collapsible>
+  )
+}
+
+export function NavPages({ teams }: { teams: SidebarPageTeam[] }) {
+  const teamsWithPages = teams.filter((team) => team.pages.length)
+
+  return (
+    <SidebarGroup className="group-data-[collapsible=icon]:hidden">
+      <SidebarGroupLabel className="text-[0.7rem] tracking-wide text-sidebar-foreground/50 uppercase">
+        Teams
+      </SidebarGroupLabel>
+      <SidebarMenu>
+        {teamsWithPages.map((team) => (
+          <TeamNode key={team.id} team={team} />
+        ))}
+        {!teamsWithPages.length ? (
+          <SidebarMenuItem>
+            <SidebarMenuButton disabled>
+              <MoreHorizontal />
+              <span>No team pages yet</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        ) : null}
+      </SidebarMenu>
+    </SidebarGroup>
   )
 }
