@@ -34,7 +34,7 @@ export const sidebarNavMain = [
     isActive: true,
   },
   {
-    title: "Chat",
+    title: "Message",
     url: PATHS.app.askAi,
     icon: MessagesSquare,
   },
@@ -45,8 +45,8 @@ export const sidebarNavMain = [
     badge: "10",
   },
   {
-    title: "Meetings",
-    url: PATHS.app.calendar,
+    title: "Meeting",
+    url: PATHS.app.meetings,
     icon: CalendarClock,
   },
 ]

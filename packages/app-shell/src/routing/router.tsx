@@ -79,7 +79,11 @@ export const router = createBrowserRouter([
               },
               {
                 path: PATHS.app.calendar,
-                element: <UnderDevelopmentPage title="Calendar" />,
+                element: <Navigate to={PATHS.app.meetings} replace />,
+              },
+              {
+                path: PATHS.app.meetings,
+                element: <UnderDevelopmentPage title="Meeting" />,
               },
               {
                 path: PATHS.app.settings,

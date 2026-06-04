@@ -10,16 +10,29 @@ import { Button } from "@flow/ui/components/button"
 import { getFlowAuthClient } from "../../auth"
 import { getDesktopWindowControls, isDesktopPlatform } from "../../config"
 import { PATHS } from "../../routing/paths"
-import { type FlowUserInfo, useUserStore } from "../../store/userStore"
+import {
+  type WorkspaceContext,
+  type FlowUser,
+  useUserStore,
+} from "../../store/userStore"
 import { PageError } from "../../components/page-state"
 import { connectWorkspaceSetupSocket } from "../../workspace-socket"
+import { getWorkspaceSidebar } from "../../workspace-context"
 
-function isFlowUserInfo(value: unknown): value is FlowUserInfo {
+function isMeResponse(value: unknown): value is { user: FlowUser } {
   return (
     typeof value === "object" &&
     value !== null &&
     "user" in value &&
-    typeof (value as { user?: unknown }).user === "object" &&
+    typeof (value as { user?: unknown }).user === "object"
+  )
+}
+
+function isWorkspaceContext(value: unknown): value is WorkspaceContext {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "workspaceSetupStatus" in value &&
     "activeOrganization" in value
   )
 }
@@ -34,7 +47,8 @@ export function RequireAuth() {
   const replaceUserInfoFromSetup = useUserStore(
     (state) => state.replaceUserInfoFromSetup
   )
-  const setUserInfo = useUserStore((state) => state.setUserInfo)
+  const setUser = useUserStore((state) => state.setUser)
+  const setWorkspaceContext = useUserStore((state) => state.setWorkspaceContext)
   const setUserInfoStatus = useUserStore((state) => state.setUserInfoStatus)
   const userInfo = useUserStore((state) => state.userInfo)
   const userInfoStatus = useUserStore((state) => state.userInfoStatus)
@@ -68,7 +82,7 @@ export function RequireAuth() {
 
     if (!session.data) {
       activeRequestUserId.current = null
-      setUserInfo(null)
+      setWorkspaceContext(null)
       return
     }
 
@@ -92,15 +106,27 @@ export function RequireAuth() {
     setUserInfoStatus("loading")
 
     usersControllerGetUserInfoV1()
-      .then((result) => {
-        if (result.error || !isFlowUserInfo(result.data)) {
+      .then(async (result) => {
+        if (result.error || !isMeResponse(result.data)) {
+          activeRequestUserId.current = null
+          setUserInfoStatus("error")
+          return
+        }
+
+        setUser(result.data.user)
+        const contextResult = await getWorkspaceSidebar("home")
+
+        if (
+          contextResult.error ||
+          !isWorkspaceContext(contextResult.data)
+        ) {
           activeRequestUserId.current = null
           setUserInfoStatus("error")
           return
         }
 
         setSetupError(null)
-        setUserInfo(result.data)
+        setWorkspaceContext(contextResult.data)
       })
       .catch(() => {
         activeRequestUserId.current = null
@@ -109,8 +135,9 @@ export function RequireAuth() {
   }, [
     session.data,
     session.isPending,
-    setUserInfo,
+    setUser,
     setUserInfoStatus,
+    setWorkspaceContext,
     userInfoStatus,
   ])
 
@@ -161,23 +188,33 @@ export function RequireAuth() {
     async function refreshSetupState() {
       const result = await usersControllerGetUserInfoV1()
 
-      if (cancelled || result.error || !isFlowUserInfo(result.data)) {
+      if (cancelled || result.error || !isMeResponse(result.data)) {
         return
       }
 
-      setUserInfo(result.data)
+      setUser(result.data.user)
+      const contextResult = await getWorkspaceSidebar("home")
+      if (
+        cancelled ||
+        contextResult.error ||
+        !isWorkspaceContext(contextResult.data)
+      ) {
+        return
+      }
+
+      setWorkspaceContext(contextResult.data)
 
       if (
-        result.data.workspaceSetupStatus === "COMPLETED" &&
-        result.data.activeOrganization
+        contextResult.data.workspaceSetupStatus === "COMPLETED" &&
+        contextResult.data.activeOrganization
       ) {
-        replaceUserInfoFromSetup(result.data)
+        replaceUserInfoFromSetup(contextResult.data)
         setSetupError(null)
         navigate(PATHS.root, { replace: true })
         return
       }
 
-      if (result.data.workspaceSetupStatus === "FAILED") {
+      if (contextResult.data.workspaceSetupStatus === "FAILED") {
         setSetupError("Workspace setup failed.")
       }
     }
@@ -191,7 +228,13 @@ export function RequireAuth() {
       cancelled = true
       window.clearInterval(intervalId)
     }
-  }, [isSettingUp, navigate, replaceUserInfoFromSetup, setUserInfo])
+  }, [
+    isSettingUp,
+    navigate,
+    replaceUserInfoFromSetup,
+    setUser,
+    setWorkspaceContext,
+  ])
 
   if (session.data && userInfoStatus === "error") {
     return (

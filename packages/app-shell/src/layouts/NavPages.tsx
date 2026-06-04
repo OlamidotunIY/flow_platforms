@@ -55,6 +55,17 @@ export type SidebarPageTeam = {
   pages: SidebarPage[]
 }
 
+export type SidebarPageDepartment = {
+  color?: unknown
+  createdAt: string
+  description?: unknown
+  id: string
+  name: string
+  organizationId: string
+  pages: SidebarPage[]
+  updatedAt: string
+}
+
 function iconFromValue(value: unknown, fallback: LucideIcon): LucideIcon {
   const key = typeof value === "string" ? value : ""
   const icons: Record<string, LucideIcon> = {
@@ -243,6 +254,105 @@ export function NavPages({ teams }: { teams: SidebarPageTeam[] }) {
             <SidebarMenuButton disabled>
               <MoreHorizontal />
               <span>No team pages yet</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        ) : null}
+      </SidebarMenu>
+    </SidebarGroup>
+  )
+}
+
+function DepartmentNode({
+  department,
+  isActive,
+  onDepartmentChange,
+}: {
+  department: SidebarPageDepartment
+  isActive: boolean
+  onDepartmentChange: (department: SidebarPageDepartment) => void
+}) {
+  const [open, setOpen] = useState(isActive)
+  const hasPages = department.pages.length > 0
+
+  return (
+    <Collapsible onOpenChange={setOpen} open={open}>
+      <SidebarMenuItem>
+        <SidebarMenuButton
+          className="group/department-row h-8 px-1.5 text-sidebar-foreground/85"
+          isActive={isActive}
+          onClick={() => {
+            onDepartmentChange(department)
+            if (hasPages) {
+              setOpen((current) => !current)
+            }
+          }}
+          type="button"
+        >
+          <span className="relative grid size-5 shrink-0 place-items-center rounded-md text-sidebar-foreground/65 transition group-hover/department-row:bg-sidebar-accent group-hover/department-row:text-sidebar-accent-foreground group-focus-visible/department-row:bg-sidebar-accent">
+            <Users
+              className={`absolute size-4 transition-opacity ${
+                open && hasPages
+                  ? "opacity-0"
+                  : "opacity-100 group-hover/department-row:opacity-0 group-focus-visible/department-row:opacity-0"
+              }`}
+            />
+            <ChevronRight
+              className={`absolute size-4 transition ${
+                open && hasPages
+                  ? "rotate-90 opacity-100"
+                  : "opacity-0 group-hover/department-row:opacity-100 group-focus-visible/department-row:opacity-100"
+              }`}
+            />
+          </span>
+          <span className="min-w-0 flex-1 truncate text-sm font-medium">
+            {department.name}
+          </span>
+          <span className="rounded-md px-1.5 py-0.5 text-[0.65rem] font-medium text-sidebar-foreground/45">
+            {department.pages.length}
+          </span>
+        </SidebarMenuButton>
+        {hasPages ? (
+          <CollapsibleContent>
+            <div className="mt-1 ml-5 border-l border-sidebar-border/70 pl-2">
+              {department.pages.map((page) => (
+                <PageNode key={page.id} page={page} />
+              ))}
+            </div>
+          </CollapsibleContent>
+        ) : null}
+      </SidebarMenuItem>
+    </Collapsible>
+  )
+}
+
+export function NavDepartments({
+  activeDepartmentId,
+  departments,
+  onDepartmentChange,
+}: {
+  activeDepartmentId?: string | null
+  departments: SidebarPageDepartment[]
+  onDepartmentChange: (department: SidebarPageDepartment) => void
+}) {
+  return (
+    <SidebarGroup className="group-data-[collapsible=icon]:hidden">
+      <SidebarGroupLabel className="text-[0.7rem] tracking-wide text-sidebar-foreground/50 uppercase">
+        Departments
+      </SidebarGroupLabel>
+      <SidebarMenu>
+        {departments.map((department) => (
+          <DepartmentNode
+            department={department}
+            isActive={department.id === activeDepartmentId}
+            key={department.id}
+            onDepartmentChange={onDepartmentChange}
+          />
+        ))}
+        {!departments.length ? (
+          <SidebarMenuItem>
+            <SidebarMenuButton disabled>
+              <MoreHorizontal />
+              <span>No departments yet</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         ) : null}

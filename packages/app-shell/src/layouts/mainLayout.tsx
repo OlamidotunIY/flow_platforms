@@ -1,4 +1,10 @@
-import { useCallback, useEffect, useRef, useState } from "react"
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+} from "react"
 import { Outlet, useLocation, useNavigate } from "react-router-dom"
 import {
   ArrowLeft,
@@ -6,40 +12,45 @@ import {
   Bell,
   Check,
   ChevronsUpDown,
+  FileText,
+  Home,
+  Link as LinkIcon,
+  Menu,
+  MoreHorizontal,
   Plus,
   Search,
+  Star,
   Users,
 } from "lucide-react"
 import {
   departmentsControllerCreateDepartmentV1,
   departmentsControllerSetActiveDepartmentV1,
   organizationsControllerSetActiveOrganizationV1,
-  usersControllerGetUserInfoV1,
-  type ActiveDepartmentResponseDto,
-  type ActiveOrganizationResponseDto,
   type DepartmentSummaryResponseDto,
   type OrganizationSummaryResponseDto,
 } from "@flow/api"
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@flow/ui/components/breadcrumb"
 import { Button } from "@flow/ui/components/button"
 import {
   SidebarInset,
   SidebarProvider,
   SidebarTrigger,
+  useSidebar,
 } from "@flow/ui/components/sidebar"
 import { TooltipProvider } from "@flow/ui/components/tooltip"
 import { WindowTitleBar } from "@flow/ui/components/window-controls"
+import { cn } from "@flow/ui/lib/utils"
 
 import { clearFlowAuthState, getFlowAuthClient } from "../auth"
 import { getDesktopWindowControls, isDesktopPlatform } from "../config"
 import { PATHS } from "../routing/paths"
-import { useUserStore } from "../store/userStore"
+import {
+  type FlowUserInfo,
+  type WorkspaceContext,
+  type WorkspaceSidebarDepartment,
+  type WorkspaceSidebarTab,
+  useUserStore,
+} from "../store/userStore"
+import { getWorkspaceSidebar } from "../workspace-context"
 import { AppSidebar } from "./AppSidebar"
 
 function getBreadcrumbPage(pathname: string) {
@@ -48,6 +59,7 @@ function getBreadcrumbPage(pathname: string) {
     [PATHS.app.askAi]: "Ask AI",
     [PATHS.app.billing]: "Billing",
     [PATHS.app.calendar]: "Calendar",
+    [PATHS.app.meetings]: "Meeting",
     [PATHS.app.help]: "Help",
     [PATHS.app.home]: "Home",
     [PATHS.app.inbox]: "Inbox",
@@ -70,24 +82,44 @@ function getLocationKey(location: ReturnType<typeof useLocation>) {
   return `${location.pathname}${location.search}${location.hash}`
 }
 
+function getSidebarTab(pathname: string): WorkspaceSidebarTab {
+  if (
+    pathname === PATHS.app.inbox ||
+    pathname.startsWith(`${PATHS.app.inbox}/`)
+  ) {
+    return "inbox"
+  }
+
+  if (pathname === PATHS.app.askAi) {
+    return "message"
+  }
+
+  if (pathname === PATHS.app.meetings || pathname === PATHS.app.calendar) {
+    return "meeting"
+  }
+
+  return "home"
+}
+
 type WorkspaceHeaderProps = {
-  activeDepartment:
-    | ActiveDepartmentResponseDto
-    | DepartmentSummaryResponseDto
-    | null
-  activeOrganization: ActiveOrganizationResponseDto | null
+  activeDepartment: WorkspaceSidebarDepartment | DepartmentSummaryResponseDto | null
+  activeOrganization: FlowUserInfo["activeOrganization"]
   isDesktop: boolean
   onCreateDepartment: () => void
   onDepartmentChange: (
-    department: ActiveDepartmentResponseDto | DepartmentSummaryResponseDto
+    department: WorkspaceSidebarDepartment | DepartmentSummaryResponseDto
   ) => void
   onOrganizationChange: (
-    organization: ActiveOrganizationResponseDto | OrganizationSummaryResponseDto
+    organization:
+      | NonNullable<FlowUserInfo["activeOrganization"]>
+      | OrganizationSummaryResponseDto
   ) => void
   organizations: Array<
-    ActiveOrganizationResponseDto | OrganizationSummaryResponseDto
+    NonNullable<FlowUserInfo["activeOrganization"]> | OrganizationSummaryResponseDto
   >
+  pageIcon?: string | null
   pageTitle: string
+  sidebarOffset: string
 }
 
 function WorkspaceHeader({
@@ -98,7 +130,9 @@ function WorkspaceHeader({
   onDepartmentChange,
   onOrganizationChange,
   organizations,
+  pageIcon,
   pageTitle,
+  sidebarOffset,
 }: WorkspaceHeaderProps) {
   const [openMenu, setOpenMenu] = useState<
     "organization" | "department" | null
@@ -114,63 +148,75 @@ function WorkspaceHeader({
   }, [])
 
   return (
-    <header className="relative z-30 flex h-14 w-full shrink-0 items-center justify-between gap-4 border-b bg-background px-4">
-      <div className="flex min-w-0 items-center gap-3">
-        {!isDesktop ? <SidebarTrigger className="-ml-1" /> : null}
-        <Breadcrumb className="min-w-0">
-          <BreadcrumbList className="flex-nowrap text-base text-muted-foreground">
-            <BreadcrumbItem className="relative">
-              <Button
-                aria-expanded={openMenu === "organization"}
-                className="h-8 max-w-64 justify-start gap-2 px-2 text-base"
-                onClick={(event) => {
-                  event.stopPropagation()
-                  setOpenMenu((current) =>
-                    current === "organization" ? null : "organization"
-                  )
-                }}
-                type="button"
-                variant="ghost"
-              >
-                <span className="truncate">
-                  {activeOrganization?.name ?? "Organization"}
-                </span>
-                <ChevronsUpDown className="size-4 text-muted-foreground" />
-              </Button>
-              {openMenu === "organization" ? (
-                <div
-                  className="absolute top-[calc(100%+0.5rem)] left-0 z-[300] min-w-72 rounded-lg bg-popover p-1 text-popover-foreground shadow-lg ring-1 ring-border"
-                  onClick={(event) => event.stopPropagation()}
+    <header
+      className={cn(
+        "relative z-30 flex h-11 w-full shrink-0 items-center justify-between gap-4 border-b bg-background px-3",
+        "transition-[margin,width] duration-200 ease-linear md:ml-(--workspace-header-sidebar-offset) md:w-[calc(100%-var(--workspace-header-sidebar-offset))]"
+      )}
+      style={
+        {
+          "--workspace-header-sidebar-offset": sidebarOffset,
+        } as CSSProperties
+      }
+    >
+      <div className="flex min-w-0 items-center gap-1.5">
+        {!isDesktop ? <HeaderSidebarToggle /> : null}
+        <div className="relative">
+          <Button
+            aria-expanded={openMenu === "organization"}
+            className="h-8 max-w-56 justify-start gap-1.5 px-2 text-sm font-medium"
+            onClick={(event) => {
+              event.stopPropagation()
+              setOpenMenu((current) =>
+                current === "organization" ? null : "organization"
+              )
+            }}
+            type="button"
+            variant="ghost"
+          >
+            <span className="grid size-5 shrink-0 place-items-center rounded bg-amber-600/80 text-[0.65rem] font-semibold text-white">
+              {activeOrganization?.name?.charAt(0)?.toUpperCase() ?? "O"}
+            </span>
+            <span className="truncate">
+              {activeOrganization?.name ?? "Organization"}
+            </span>
+          </Button>
+          {openMenu === "organization" ? (
+            <div
+              className="absolute top-[calc(100%+0.5rem)] left-0 z-[300] min-w-72 rounded-lg bg-popover p-1 text-popover-foreground shadow-lg ring-1 ring-border"
+              onClick={(event) => event.stopPropagation()}
+            >
+              <div className="px-2 py-1.5 text-sm text-muted-foreground">
+                Organizations
+              </div>
+              {organizations.map((organization) => (
+                <button
+                  className="flex min-h-9 w-full items-center gap-2 rounded-md px-2 py-1 text-left text-sm hover:bg-muted"
+                  key={organization.id}
+                  onClick={() => {
+                    setOpenMenu(null)
+                    onOrganizationChange(organization)
+                  }}
+                  type="button"
                 >
-                  <div className="px-2 py-1.5 text-sm text-muted-foreground">
-                    Organizations
-                  </div>
-                  {organizations.map((organization) => (
-                    <button
-                      className="flex min-h-9 w-full items-center gap-2 rounded-md px-2 py-1 text-left text-sm hover:bg-muted"
-                      key={organization.id}
-                      onClick={() => {
-                        setOpenMenu(null)
-                        onOrganizationChange(organization)
-                      }}
-                      type="button"
-                    >
-                      <span className="min-w-0 flex-1 truncate">
-                        {organization.name}
-                      </span>
-                      {organization.id === activeOrganization?.id ? (
-                        <Check className="size-4 text-muted-foreground" />
-                      ) : null}
-                    </button>
-                  ))}
-                </div>
-              ) : null}
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem className="relative">
+                  <span className="min-w-0 flex-1 truncate">
+                    {organization.name}
+                  </span>
+                  {organization.id === activeOrganization?.id ? (
+                    <Check className="size-4 text-muted-foreground" />
+                  ) : null}
+                </button>
+              ))}
+            </div>
+          ) : null}
+        </div>
+        {activeDepartment ? (
+          <>
+            <span className="text-muted-foreground/60">/</span>
+            <div className="relative">
               <Button
                 aria-expanded={openMenu === "department"}
-                className="h-8 max-w-56 justify-start gap-2 px-2 text-base"
+                className="h-8 max-w-48 justify-start gap-1.5 px-2 text-sm font-medium"
                 onClick={(event) => {
                   event.stopPropagation()
                   setOpenMenu((current) =>
@@ -180,10 +226,12 @@ function WorkspaceHeader({
                 type="button"
                 variant="ghost"
               >
+                <span className="grid size-5 shrink-0 place-items-center rounded border text-[0.65rem] text-muted-foreground">
+                  {activeDepartment.name?.charAt(0)?.toUpperCase() ?? "D"}
+                </span>
                 <span className="truncate">
                   {activeDepartment?.name ?? "Department"}
                 </span>
-                <ChevronsUpDown className="size-4 text-muted-foreground" />
               </Button>
               {openMenu === "department" ? (
                 <div
@@ -225,17 +273,34 @@ function WorkspaceHeader({
                   </button>
                 </div>
               ) : null}
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbPage className="text-base font-medium">
-                {pageTitle}
-              </BreadcrumbPage>
-            </BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
+            </div>
+          </>
+        ) : null}
+        <span className="text-muted-foreground/60">/</span>
+        <div className="flex min-w-0 items-center gap-1.5 rounded-md px-2 py-1 text-sm font-semibold">
+          <span className="grid size-5 shrink-0 place-items-center rounded border bg-muted/40 text-muted-foreground">
+            {pageIcon === "home" ? (
+              <Home className="size-3.5" />
+            ) : (
+              <FileText className="size-3.5" />
+            )}
+          </span>
+          <span className="truncate">{pageTitle}</span>
+        </div>
       </div>
       <div className="flex shrink-0 items-center gap-1">
+        <span className="mr-2 hidden text-xs text-muted-foreground md:inline">
+          Edited 1d ago
+        </span>
+        <Button
+          className="hidden h-8 gap-1.5 md:inline-flex"
+          size="sm"
+          type="button"
+          variant="outline"
+        >
+          Share
+          <ChevronsUpDown className="size-3.5" />
+        </Button>
         <Button
           aria-label="Search"
           size="icon-sm"
@@ -260,8 +325,96 @@ function WorkspaceHeader({
         >
           <Bell />
         </Button>
+        <Button
+          aria-label="Copy link"
+          size="icon-sm"
+          type="button"
+          variant="ghost"
+        >
+          <LinkIcon className="size-4" />
+        </Button>
+        <Button
+          aria-label="Favorite"
+          size="icon-sm"
+          type="button"
+          variant="ghost"
+        >
+          <Star className="size-4" />
+        </Button>
+        <Button
+          aria-label="More actions"
+          size="icon-sm"
+          type="button"
+          variant="ghost"
+        >
+          <MoreHorizontal className="size-4" />
+        </Button>
       </div>
     </header>
+  )
+}
+
+function HeaderSidebarToggle() {
+  const { state, toggleSidebar } = useSidebar()
+
+  if (state !== "collapsed") {
+    return null
+  }
+
+  return (
+    <Button
+      aria-label="Expand sidebar"
+      onClick={toggleSidebar}
+      size="icon-sm"
+      type="button"
+      variant="ghost"
+    >
+      <Menu className="size-4" />
+    </Button>
+  )
+}
+
+function DesktopNavigationControls({
+  canGoBack,
+  canGoForward,
+  onBack,
+  onForward,
+}: {
+  canGoBack: boolean
+  canGoForward: boolean
+  onBack: () => void
+  onForward: () => void
+}) {
+  const { state } = useSidebar()
+
+  return (
+    <div className="flex items-center gap-1 [-webkit-app-region:no-drag]">
+      {state === "collapsed" ? (
+        <SidebarTrigger className="[-webkit-app-region:no-drag]" />
+      ) : null}
+      <Button
+        aria-label="Go back"
+        className="[-webkit-app-region:no-drag]"
+        disabled={!canGoBack}
+        onClick={onBack}
+        size="icon-sm"
+        type="button"
+        variant="ghost"
+      >
+        <ArrowLeft />
+      </Button>
+      <Button
+        aria-label="Go forward"
+        className="[-webkit-app-region:no-drag]"
+        disabled={!canGoForward}
+        onClick={onForward}
+        size="icon-sm"
+        type="button"
+        variant="ghost"
+      >
+        <ArrowRight />
+      </Button>
+    </div>
   )
 }
 
@@ -269,7 +422,7 @@ export function MainLayout() {
   const authClient = getFlowAuthClient()
   const windowControls = getDesktopWindowControls()
   const userInfo = useUserStore((state) => state.userInfo)
-  const setUserInfo = useUserStore((state) => state.setUserInfo)
+  const setWorkspaceContext = useUserStore((state) => state.setWorkspaceContext)
   const location = useLocation()
   const navigate = useNavigate()
   const isDesktop = isDesktopPlatform()
@@ -280,7 +433,7 @@ export function MainLayout() {
   const [routeHistoryIndex, setRouteHistoryIndex] = useState(0)
   const navigationIntent = useRef<"back" | "forward" | null>(null)
   const currentLocationKey = getLocationKey(location)
-  const pageTitle = getBreadcrumbPage(location.pathname)
+  const activeSidebarTab = getSidebarTab(location.pathname)
   const activeOrganization = userInfo?.activeOrganization ?? null
   const organizations = userInfo?.activeOrganization
     ? [
@@ -291,9 +444,23 @@ export function MainLayout() {
       ]
     : []
   const activeDepartment = activeOrganization?.activeDepartment ?? null
-  const isInboxRoute =
-    location.pathname === PATHS.app.inbox ||
-    location.pathname.startsWith(`${PATHS.app.inbox}/`)
+  const hasSidebar = Boolean(userInfo && activeOrganization?.id)
+  const currentPage = [
+    ...(activeOrganization?.departments?.flatMap(
+      (department) => department.pages ?? []
+    ) ?? []),
+    ...(activeOrganization?.teams?.flatMap((team) => team.pages ?? []) ?? []),
+    ...(activeOrganization?.pages ?? []),
+  ]
+    .find((page) => location.pathname === PATHS.pages.detail(page.id))
+  const pageTitle = currentPage?.title ?? getBreadcrumbPage(location.pathname)
+  const pageIcon =
+    typeof currentPage?.icon === "string" ? currentPage.icon : null
+  const sidebarOffset = !hasSidebar
+    ? "0px"
+    : sidebarOpen
+      ? "var(--sidebar-width)"
+      : "0px"
   const canGoBack = routeHistoryIndex > 0 && currentLocationKey !== PATHS.root
   const canGoForward = routeHistoryIndex < routeHistory.length - 1
 
@@ -317,6 +484,26 @@ export function MainLayout() {
       return nextHistory
     })
   }, [currentLocationKey, routeHistoryIndex])
+
+  useEffect(() => {
+    if (!userInfo?.user) {
+      return
+    }
+
+    let mounted = true
+
+    getWorkspaceSidebar(activeSidebarTab).then((result) => {
+      if (!mounted || result.error || !result.data) {
+        return
+      }
+
+      setWorkspaceContext(result.data as WorkspaceContext)
+    })
+
+    return () => {
+      mounted = false
+    }
+  }, [activeSidebarTab, setWorkspaceContext, userInfo?.user])
 
   function goBack() {
     if (!canGoBack) {
@@ -352,30 +539,54 @@ export function MainLayout() {
     window.location.assign(PATHS.auth.login)
   }, [authClient, windowControls])
 
-  async function refreshUserInfo() {
-    const result = await usersControllerGetUserInfoV1()
+  async function refreshWorkspaceContext(tab: WorkspaceSidebarTab = activeSidebarTab) {
+    const result = await getWorkspaceSidebar(tab)
 
     if (!result.error && result.data) {
-      setUserInfo(result.data)
+      setWorkspaceContext(result.data as WorkspaceContext)
     }
   }
 
   async function changeOrganization(
-    organization: ActiveOrganizationResponseDto | OrganizationSummaryResponseDto
+    organization:
+      | NonNullable<FlowUserInfo["activeOrganization"]>
+      | OrganizationSummaryResponseDto
   ) {
-    await organizationsControllerSetActiveOrganizationV1({
+    const result = await organizationsControllerSetActiveOrganizationV1({
       body: { organizationId: organization.id },
     })
-    await refreshUserInfo()
+    if (!result.error && result.data) {
+      setWorkspaceContext(result.data as unknown as WorkspaceContext)
+    } else {
+      await refreshWorkspaceContext("home")
+    }
+    navigate(PATHS.root)
   }
 
   async function changeDepartment(
-    department: ActiveDepartmentResponseDto | DepartmentSummaryResponseDto
+    department: WorkspaceSidebarDepartment | DepartmentSummaryResponseDto
   ) {
-    await departmentsControllerSetActiveDepartmentV1({
+    const result = await departmentsControllerSetActiveDepartmentV1({
       body: { departmentId: department.id },
     })
-    await refreshUserInfo()
+    if (!result.error && result.data) {
+      setWorkspaceContext(result.data as unknown as WorkspaceContext)
+    } else {
+      await refreshWorkspaceContext("home")
+    }
+    navigate(PATHS.root)
+  }
+
+  async function clearDepartment() {
+    const result = await departmentsControllerSetActiveDepartmentV1({
+      body: { departmentId: null as unknown as string },
+    })
+    if (!result.error && result.data) {
+      setWorkspaceContext(result.data as unknown as WorkspaceContext)
+    } else {
+      await refreshWorkspaceContext("home")
+    }
+    navigate(PATHS.root)
   }
 
   async function createDepartment() {
@@ -396,8 +607,10 @@ export function MainLayout() {
       },
     })
 
-    if (!result.error) {
-      await refreshUserInfo()
+    if (!result.error && result.data) {
+      setWorkspaceContext(result.data as unknown as WorkspaceContext)
+    } else {
+      await refreshWorkspaceContext("home")
     }
   }
 
@@ -406,12 +619,8 @@ export function MainLayout() {
       <TooltipProvider>
         <SidebarProvider
           className="min-h-svh flex-col bg-background"
-          onOpenChange={(open) => {
-            if (!isInboxRoute) {
-              setSidebarOpen(open)
-            }
-          }}
-          open={isInboxRoute ? false : sidebarOpen}
+          onOpenChange={setSidebarOpen}
+          open={sidebarOpen}
         >
           {isDesktop ? (
             <WindowTitleBar
@@ -419,31 +628,12 @@ export function MainLayout() {
               onMaximize={windowControls?.toggleMaximize}
               onMinimize={windowControls?.minimize}
             >
-              <div className="flex items-center gap-1 [-webkit-app-region:no-drag]">
-                <SidebarTrigger className="[-webkit-app-region:no-drag]" />
-                <Button
-                  aria-label="Go back"
-                  className="[-webkit-app-region:no-drag]"
-                  disabled={!canGoBack}
-                  onClick={goBack}
-                  size="icon-sm"
-                  type="button"
-                  variant="ghost"
-                >
-                  <ArrowLeft />
-                </Button>
-                <Button
-                  aria-label="Go forward"
-                  className="[-webkit-app-region:no-drag]"
-                  disabled={!canGoForward}
-                  onClick={goForward}
-                  size="icon-sm"
-                  type="button"
-                  variant="ghost"
-                >
-                  <ArrowRight />
-                </Button>
-              </div>
+              <DesktopNavigationControls
+                canGoBack={canGoBack}
+                canGoForward={canGoForward}
+                onBack={goBack}
+                onForward={goForward}
+              />
             </WindowTitleBar>
           ) : null}
           <WorkspaceHeader
@@ -454,7 +644,9 @@ export function MainLayout() {
             onDepartmentChange={changeDepartment}
             onOrganizationChange={changeOrganization}
             organizations={organizations}
+            pageIcon={pageIcon}
             pageTitle={pageTitle}
+            sidebarOffset={sidebarOffset}
           />
           <div className="relative flex flex-1">
             <AppSidebar
@@ -462,6 +654,7 @@ export function MainLayout() {
               activeOrganizationId={activeOrganization?.id}
               className="top-0 h-svh"
               onDepartmentChange={changeDepartment}
+              onDepartmentClear={clearDepartment}
               onOrganizationChange={changeOrganization}
               onSignOut={() => {
                 void signOut()

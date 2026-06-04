@@ -16,6 +16,7 @@ export const PATHS = {
     help: "/help",
     home: "/",
     inbox: "/inbox",
+    meetings: "/meetings",
     notifications: "/notifications",
     search: "/search",
     settings: "/settings",

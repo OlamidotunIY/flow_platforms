@@ -3,10 +3,10 @@ import { io, type Socket } from "socket.io-client"
 import { getApiAccessToken } from "@flow/api"
 
 import { getFlowConfig } from "./config"
-import type { FlowUserInfo } from "./store/userStore"
+import type { WorkspaceContext } from "./store/userStore"
 
 type WorkspaceSocketHandlers = {
-  onCompleted: (payload: FlowUserInfo) => void
+  onCompleted: (payload: WorkspaceContext) => void
   onFailed: (payload: { errorMessage?: string }) => void
 }
 

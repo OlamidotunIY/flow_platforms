@@ -508,10 +508,14 @@ export function HomePageRedirect() {
   const userInfo = useUserStore((state) => state.userInfo)
   const homePage = useMemo(() => {
     const organization = userInfo?.activeOrganization
+    const departmentPages =
+      organization?.departments?.flatMap((department) => department.pages ?? []) ??
+      []
+
     return (
-      organization?.activeTeam?.pages?.find((page) => page.isHome) ??
-      organization?.activeTeam?.pages?.[0] ??
-      organization?.teams?.flatMap((team) => team.pages ?? [])?.[0] ??
+      userInfo?.home.defaultPage ??
+      departmentPages.find((page) => page.isHome) ??
+      departmentPages[0] ??
       null
     )
   }, [userInfo])
