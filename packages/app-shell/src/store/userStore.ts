@@ -1,101 +1,25 @@
 import { create } from "zustand"
 import type {
   FlowAuthClient,
-  OrganizationSummaryResponseDto,
-  PageSummaryResponseDto,
-  TeamSummaryResponseDto,
   UserProfileResponseDto,
+  WorkspaceSidebarDepartmentDto,
+  WorkspaceSidebarMeetingDto,
+  WorkspaceSidebarRecentAiChatDto,
+  WorkspaceSidebarResponseDto,
+  WorkspaceSidebarRoomDto,
+  WorkspaceSidebarTeamDto,
 } from "@flow/api"
 
 type AuthSession = ReturnType<FlowAuthClient["useSession"]>["data"]
 type FlowSessionUser = NonNullable<AuthSession>["user"]
 export type FlowUser = FlowSessionUser | UserProfileResponseDto
-export type WorkspaceSidebarTab = "home" | "inbox" | "message" | "meeting"
-
-export type WorkspaceSidebarDepartment = {
-  id: string
-  organizationId: string
-  name: string
-  description?: unknown
-  color?: unknown
-  createdAt: string
-  updatedAt: string
-  pages: PageSummaryResponseDto[]
-}
-
-export type WorkspaceSidebarTeam = Omit<
-  TeamSummaryResponseDto,
-  "departmentId"
-> & {
-  departmentId?: string | null
-  pages?: PageSummaryResponseDto[]
-}
-
-export type WorkspaceSidebarRoom = {
-  id: string
-  type: string
-  name: string
-  description?: string | null
-  context?: string | null
-  updatedAt: string
-  memberCount: number
-  lastMessage?: {
-    id: string
-    content?: string | null
-    createdAt: string
-    senderName?: string | null
-  } | null
-}
-
-export type WorkspaceSidebarRecentAiChat = {
-  id: string
-  title: string
-  preview?: string | null
-  updatedAt: string
-}
-
-export type WorkspaceSidebarMeeting = {
-  id: string
-  title: string
-  status: string
-  startsAt?: string | null
-  endsAt?: string | null
-  location?: string | null
-  departmentName?: string | null
-  teamName?: string | null
-  projectName?: string | null
-}
-
-export type WorkspaceContext = {
-  workspaceSetupStatus: "PENDING" | "PROCESSING" | "COMPLETED" | "FAILED"
-  activeTab: WorkspaceSidebarTab
-  organizations: OrganizationSummaryResponseDto[]
-  activeOrganization:
-    | (OrganizationSummaryResponseDto & {
-        member?: unknown
-        departments: WorkspaceSidebarDepartment[]
-        teams: WorkspaceSidebarTeam[]
-        pages: PageSummaryResponseDto[]
-        customFields: Record<string, unknown[]>
-        activeDepartment: WorkspaceSidebarDepartment | null
-        activeTeam?: WorkspaceSidebarTeam | null
-      })
-    | null
-  home: {
-    view: "WORKSPACE" | "DEPARTMENT"
-    defaultPage: PageSummaryResponseDto | null
-  }
-  inbox?: {
-    channels: WorkspaceSidebarRoom[]
-    directMessages: WorkspaceSidebarRoom[]
-  } | null
-  message?: {
-    recentChats: WorkspaceSidebarRecentAiChat[]
-  } | null
-  meeting?: {
-    upcomingMeetings: WorkspaceSidebarMeeting[]
-  } | null
-}
+export type WorkspaceContext = WorkspaceSidebarResponseDto
+export type WorkspaceSidebarTab = WorkspaceContext["activeTab"]
+export type WorkspaceSidebarDepartment = WorkspaceSidebarDepartmentDto
+export type WorkspaceSidebarTeam = WorkspaceSidebarTeamDto
+export type WorkspaceSidebarRoom = WorkspaceSidebarRoomDto
+export type WorkspaceSidebarRecentAiChat = WorkspaceSidebarRecentAiChatDto
+export type WorkspaceSidebarMeeting = WorkspaceSidebarMeetingDto
 
 export type FlowUserInfo = WorkspaceContext & {
   user: FlowUser

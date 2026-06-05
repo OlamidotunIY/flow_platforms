@@ -29,13 +29,13 @@ export {
   getSocketClientConfig,
   workspaceSetupCompletedEvent,
   workspaceSetupFailedEvent,
-} from "./socket"
+} from "./sockets"
 export type {
   ConnectFlowSocketOptions,
   ConfigureSocketClientOptions,
   FlowSocketConnection,
   WorkspaceSocketHandlers,
-} from "./socket"
+} from "./sockets"
 
 export * from "./generated/index"
 export type {

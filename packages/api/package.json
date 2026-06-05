@@ -25,7 +25,7 @@
     "./client": "./src/client.ts",
     "./generated": "./src/generated/index.ts",
     "./sdk": "./src/generated/sdk.gen.ts",
-    "./socket": "./src/socket.ts",
+    "./socket": "./src/sockets/index.ts",
     "./types": "./src/generated/types.gen.ts"
   }
 }

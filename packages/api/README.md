@@ -44,21 +44,36 @@ configureFlowClients({
 })
 ```
 
-Use generated REST operations directly from `@flow/api`, or use `restApiClient`
-for custom endpoints that are not in the OpenAPI schema yet.
+## REST API
 
-Use `connectFlowSocket` for realtime events. Consumers provide the event map
-they need, and the API package handles the Socket.IO URL, credentials, and
-bearer-token auth:
+Use generated REST operations directly from `@flow/api`. They are grouped by the
+OpenAPI schema during code generation, so we do not need hand-written REST
+domain files unless an endpoint needs app-specific orchestration.
+
+Use `restApiClient` only for custom endpoints that are not in the OpenAPI schema
+yet.
+
+## Socket API
+
+Socket code lives in `src/sockets`:
+
+- `client.ts` owns the Socket.IO connection setup, credentials, namespace, and
+  lifecycle.
+- `workspace.socket.ts` owns workspace realtime events such as workspace setup.
+- `index.ts` is the public socket barrel used by `@flow/api` and
+  `@flow/api/socket`.
+
+Use domain socket helpers from `@flow/api` when they exist:
 
 ```ts
-const connection = await connectFlowSocket({
-  events: {
-    "workspace.setup.completed": (payload) => {
-      // update app state
-    },
+const disconnect = await connectWorkspaceSetupSocket({
+  onCompleted: (payload) => {
+    // update workspace state
+  },
+  onFailed: (payload) => {
+    // show setup error
   },
 })
 
-connection.disconnect()
+disconnect()
 ```

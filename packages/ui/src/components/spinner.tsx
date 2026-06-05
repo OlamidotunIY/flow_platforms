@@ -1,18 +1,9 @@
-import { cn } from "@flow/ui/lib/utils"
+import { cn } from "@workspace/ui/lib/utils"
+import { Loader2Icon } from "lucide-react"
 
-function Spinner({
-  className,
-  ...props
-}: React.ComponentPropsWithoutRef<"span">) {
+function Spinner({ className, ...props }: React.ComponentProps<"svg">) {
   return (
-    <span
-      aria-hidden="true"
-      className={cn(
-        "inline-block size-3.5 animate-spin rounded-full border-2 border-current/30 border-t-current",
-        className
-      )}
-      {...props}
-    />
+    <Loader2Icon role="status" aria-label="Loading" className={cn("size-4 animate-spin", className)} {...props} />
   )
 }
 

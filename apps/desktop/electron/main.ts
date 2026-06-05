@@ -104,12 +104,12 @@ function openAuthWindow() {
   }
 
   authWindow = createBaseWindow({
-    width: 500,
-    height: 620,
-    resizable: false,
-    transparent: true,
+    width: 1180,
+    height: 760,
+    resizable: true,
     title: "Flow Desktop",
   })
+  authWindow.setMinimumSize(960, 640)
   loadRenderer(authWindow, "auth")
 }
 

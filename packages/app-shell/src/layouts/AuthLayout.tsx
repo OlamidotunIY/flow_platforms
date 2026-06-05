@@ -1,42 +1,32 @@
+import { GalleryVerticalEnd } from "lucide-react"
 import { Outlet } from "react-router-dom"
-import { useEffect } from "react"
-
-import { isDesktopPlatform } from "../util/config"
 
 export function AuthLayout()
 {
-  const isDesktop = isDesktopPlatform()
-  useEffect(() =>
-  {
-    if (!isDesktop)
-    {
-      return
-    }
-
-    document.documentElement.classList.add("flow-transparent-window")
-
-    return () =>
-    {
-      document.documentElement.classList.remove("flow-transparent-window")
-    }
-  }, [isDesktop])
-
-  if (isDesktop)
-  {
-    return (
-      <main className="h-svh max-h-svh w-screen overflow-hidden bg-transparent p-3 text-foreground">
-        <div className="h-full w-full overflow-hidden">
-          <Outlet />
-        </div>
-      </main>
-    )
-  }
-
   return (
-    <main className="grid min-h-svh place-items-center bg-background px-4 py-8 text-foreground">
-      <div className="w-full max-w-md">
-        <Outlet />
+    <div className="grid min-h-svh lg:grid-cols-2">
+      <div className="flex flex-col gap-4 p-6 md:p-10">
+        <div className="flex justify-center gap-2 md:justify-start">
+          <a href="#" className="flex items-center gap-2 font-medium">
+            <div className="flex size-6 items-center justify-center rounded-md bg-primary text-primary-foreground">
+              <GalleryVerticalEnd className="size-4" />
+            </div>
+            Acme Inc.
+          </a>
+        </div>
+        <div className="flex flex-1 items-center justify-center">
+          <div className="w-full max-w-xs">
+            <Outlet />
+          </div>
+        </div>
       </div>
-    </main>
+      <div className="relative hidden bg-muted lg:block">
+        <img
+          src="/placeholder.svg"
+          alt="Image"
+          className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
+        />
+      </div>
+    </div>
   )
 }

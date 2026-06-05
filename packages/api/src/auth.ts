@@ -10,7 +10,7 @@ import {
 import {
   configureSocketClient,
   type ConfigureSocketClientOptions,
-} from "./socket"
+} from "./sockets"
 
 const bearerTokenKey = "flow.better-auth.bearer-token"
 const betterAuthBasePath = "/api/v1/auth"

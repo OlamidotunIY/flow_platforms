@@ -88,6 +88,11 @@ function formatMeetingTime(value: unknown)
   }).format(date)
 }
 
+function stringValue(value: unknown)
+{
+  return typeof value === "string" ? value : undefined
+}
+
 function SidebarPanel({
   children,
   title,
@@ -274,7 +279,7 @@ export function AppSidebar({
     }))
     const visibleTeams = activeDepartment
       ? (organization?.teams ?? []).filter(
-        (team) => team.departmentId === activeDepartment.id
+        (team) => stringValue(team.departmentId) === activeDepartment.id
       )
       : (organization?.teams ?? [])
     const teamPages: SidebarPageTeam[] = visibleTeams

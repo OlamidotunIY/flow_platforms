@@ -27,6 +27,14 @@ export const PATHS = {
     root: "/projects",
     detail: (projectId: string) => `/projects/${projectId}`,
   },
+  workspace: {
+    root: "/workspace",
+    create: "/workspace/create",
+    department: "/workspace/department",
+    teams: "/workspace/teams",
+    plans: "/workspace/plans",
+    members: "/workspace/members",
+  },
   pages: {
     detail: (pageId: string) => `/p/${pageId}`,
     view: (pageId: string) => `/p/${pageId}`,

@@ -5,16 +5,13 @@ import {
   type SocketOptions,
 } from "socket.io-client"
 
-import { getApiAccessToken, type ApiAccessTokenStorage } from "./client"
+import { getApiAccessToken, type ApiAccessTokenStorage } from "../client"
 
 type SocketIoOptions = Partial<ManagerOptions & SocketOptions>
 type FlowSocketEventHandler = (...args: any[]) => void
 type FlowSocketEventMap<TEvents> = {
   [TEventName in keyof TEvents]: FlowSocketEventHandler
 }
-
-export const workspaceSetupCompletedEvent = "workspace.setup.completed"
-export const workspaceSetupFailedEvent = "workspace.setup.failed"
 
 export type ConfigureSocketClientOptions = {
   baseUrl: string
@@ -36,21 +33,9 @@ export type FlowSocketConnection = {
   disconnect: () => void
 }
 
-export type WorkspaceSocketHandlers<TCompleted, TFailed> = {
-  onCompleted: (payload: TCompleted) => void
-  onFailed: (payload: TFailed) => void
-}
-
-type WorkspaceSetupSocketEvents<TCompleted, TFailed> = {
-  [workspaceSetupCompletedEvent]: (payload: TCompleted) => void
-  [workspaceSetupFailedEvent]: (payload: TFailed) => void
-}
-
 let socketClientConfig: ConfigureSocketClientOptions = {
   baseUrl: "http://localhost:3000",
 }
-
-let workspaceSetupSocket: Socket | null = null
 
 function getSocketBaseUrl(baseUrl: string, namespace = "") {
   const url = new URL(baseUrl)
@@ -129,30 +114,4 @@ export async function connectFlowSocket<
       socket.disconnect()
     },
   } satisfies FlowSocketConnection
-}
-
-export async function connectWorkspaceSetupSocket<TCompleted, TFailed>({
-  onCompleted,
-  onFailed,
-}: WorkspaceSocketHandlers<TCompleted, TFailed>) {
-  workspaceSetupSocket?.disconnect()
-
-  const connection = await connectFlowSocket<
-    WorkspaceSetupSocketEvents<TCompleted, TFailed>
-  >({
-    events: {
-      [workspaceSetupCompletedEvent]: onCompleted,
-      [workspaceSetupFailedEvent]: onFailed,
-    },
-  })
-
-  workspaceSetupSocket = connection.socket
-
-  return () => {
-    connection.disconnect()
-
-    if (workspaceSetupSocket === connection.socket) {
-      workspaceSetupSocket = null
-    }
-  }
 }
