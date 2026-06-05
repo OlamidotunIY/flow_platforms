@@ -1,66 +1,73 @@
-import { organizationClient } from "better-auth/client/plugins";
-import { createAuthClient } from "better-auth/react";
+import { organizationClient } from "better-auth/client/plugins"
+import { createAuthClient } from "better-auth/react"
 
 import {
   clearApiAccessToken,
-  configureApiClient,
+  configureRestApiClient,
   setApiAccessToken,
   type ApiAccessTokenStorage,
-} from "./client";
+} from "./client"
+import {
+  configureSocketClient,
+  type ConfigureSocketClientOptions,
+} from "./socket"
 
-const bearerTokenKey = "flow.better-auth.bearer-token";
-const betterAuthBasePath = "/api/v1/auth";
+const bearerTokenKey = "flow.better-auth.bearer-token"
+const betterAuthBasePath = "/api/v1/auth"
 
 export type FlowClientConfig = {
-  apiBaseUrl: string;
-  authBaseUrl: string;
-  tokenStorage?: ApiAccessTokenStorage;
-};
+  apiBaseUrl: string
+  authBaseUrl: string
+  socketBaseUrl?: string
+  socketPath?: string
+  socketOptions?: ConfigureSocketClientOptions["socketOptions"]
+  tokenStorage?: ApiAccessTokenStorage
+}
 
-export type FlowAuthClient = ReturnType<typeof createFlowAuthClient>;
+export type FlowAuthClient = ReturnType<typeof createFlowAuthClient>
 
-let authClient: FlowAuthClient | undefined;
+let authClient: FlowAuthClient | undefined
 let flowClientConfig: Required<
   Pick<FlowClientConfig, "apiBaseUrl" | "authBaseUrl">
 > = {
   apiBaseUrl: "http://localhost:3000",
   authBaseUrl: "http://localhost:3000",
-};
+}
 
 const browserTokenStorage: ApiAccessTokenStorage = {
   get: () => globalThis.localStorage?.getItem(bearerTokenKey) ?? undefined,
   set: (token: string) => {
-    globalThis.localStorage?.setItem(bearerTokenKey, token);
+    globalThis.localStorage?.setItem(bearerTokenKey, token)
   },
   clear: () => {
-    globalThis.localStorage?.removeItem(bearerTokenKey);
+    globalThis.localStorage?.removeItem(bearerTokenKey)
   },
-};
+}
 
 function getBetterAuthBaseUrl(authBaseUrl: string) {
-  const url = new URL(authBaseUrl);
-  const path = url.pathname.replace(/\/+$/, "");
+  const url = new URL(authBaseUrl)
+  const path = url.pathname.replace(/\/+$/, "")
 
   if (!path) {
-    url.pathname = betterAuthBasePath;
+    url.pathname = betterAuthBasePath
   }
 
-  return url.toString().replace(/\/+$/, "");
+  return url.toString().replace(/\/+$/, "")
 }
 
 export function getFlowClientConfig() {
-  return flowClientConfig;
+  return flowClientConfig
 }
 
 export function getFlowAuthEndpointUrl(path = "") {
-  const baseUrl = getBetterAuthBaseUrl(flowClientConfig.authBaseUrl);
-  const normalizedPath = path ? `/${path.replace(/^\/+/, "")}` : "";
+  const baseUrl = getBetterAuthBaseUrl(flowClientConfig.authBaseUrl)
+  const normalizedPath = path ? `/${path.replace(/^\/+/, "")}` : ""
 
-  return `${baseUrl}${normalizedPath}`;
+  return `${baseUrl}${normalizedPath}`
 }
 
 export function createFlowAuthClient(config: FlowClientConfig) {
-  const tokenStorage = config.tokenStorage ?? browserTokenStorage;
+  const tokenStorage = config.tokenStorage ?? browserTokenStorage
 
   return createAuthClient({
     baseURL: config.authBaseUrl,
@@ -71,46 +78,53 @@ export function createFlowAuthClient(config: FlowClientConfig) {
         type: "Bearer",
       },
       onSuccess: async (ctx) => {
-        const token = ctx.response.headers.get("set-auth-token");
+        const token = ctx.response.headers.get("set-auth-token")
 
         if (token) {
-          await setApiAccessToken(token);
+          await setApiAccessToken(token)
         }
       },
     },
     plugins: [organizationClient()],
-  });
+  })
 }
 
 export function configureFlowClients(config: FlowClientConfig) {
-  const tokenStorage = config.tokenStorage ?? browserTokenStorage;
+  const tokenStorage = config.tokenStorage ?? browserTokenStorage
 
   flowClientConfig = {
     apiBaseUrl: config.apiBaseUrl,
     authBaseUrl: config.authBaseUrl,
-  };
+  }
 
-  configureApiClient({
+  configureRestApiClient({
     baseUrl: config.apiBaseUrl,
     tokenStorage,
-  });
+  })
+
+  configureSocketClient({
+    baseUrl: config.socketBaseUrl ?? config.apiBaseUrl,
+    path: config.socketPath,
+    socketOptions: config.socketOptions,
+    tokenStorage,
+  })
 
   authClient = createFlowAuthClient({
     ...config,
     tokenStorage,
-  });
+  })
 
-  return authClient;
+  return authClient
 }
 
 export function getFlowAuthClient() {
   if (!authClient) {
-    throw new Error("Flow auth client has not been configured.");
+    throw new Error("Flow auth client has not been configured.")
   }
 
-  return authClient;
+  return authClient
 }
 
 export async function clearFlowAuthState() {
-  await clearApiAccessToken();
+  await clearApiAccessToken()
 }

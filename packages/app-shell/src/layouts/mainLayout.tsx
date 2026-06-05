@@ -31,6 +31,7 @@ import
   organizationsControllerSetActiveOrganizationV1,
   type DepartmentSummaryResponseDto,
   type OrganizationSummaryResponseDto,
+  type SetActiveDepartmentDto,
 } from "@flow/api"
 import { Button } from "@flow/ui/components/button"
 import
@@ -612,7 +613,7 @@ export function MainLayout()
   )
   {
     const result = await departmentsControllerSetActiveDepartmentV1({
-      body: { departmentId: department.id },
+      body: { departmentId: department.id } as unknown as SetActiveDepartmentDto,
     })
     if (!result.error && result.data)
     {
@@ -627,7 +628,7 @@ export function MainLayout()
   async function clearDepartment()
   {
     const result = await departmentsControllerSetActiveDepartmentV1({
-      body: { departmentId: null as unknown as string },
+      body: { departmentId: null } as unknown as SetActiveDepartmentDto,
     })
     if (!result.error && result.data)
     {

@@ -35,6 +35,10 @@ export type UserProfileResponseDto = {
     preference?: UserPreferenceResponseDto | null;
 };
 
+export type UsersMeResponseDto = {
+    user: UserProfileResponseDto;
+};
+
 export type OrganizationSummaryResponseDto = {
     id: string;
     name: string;
@@ -52,20 +56,6 @@ export type OrganizationMemberResponseDto = {
     role: string;
     status: string;
     joinedAt?: {
-        [key: string]: unknown;
-    } | null;
-    createdAt: string;
-    updatedAt: string;
-};
-
-export type DepartmentSummaryResponseDto = {
-    id: string;
-    organizationId: string;
-    name: string;
-    description?: {
-        [key: string]: unknown;
-    } | null;
-    color?: {
         [key: string]: unknown;
     } | null;
     createdAt: string;
@@ -115,7 +105,22 @@ export type PageSummaryResponseDto = {
     views: Array<PageViewSummaryResponseDto>;
 };
 
-export type TeamSummaryResponseDto = {
+export type WorkspaceSidebarDepartmentDto = {
+    id: string;
+    organizationId: string;
+    name: string;
+    description?: {
+        [key: string]: unknown;
+    } | null;
+    color?: {
+        [key: string]: unknown;
+    } | null;
+    createdAt: string;
+    updatedAt: string;
+    pages: Array<PageSummaryResponseDto>;
+};
+
+export type WorkspaceSidebarTeamDto = {
     id: string;
     organizationId: string;
     departmentId?: {
@@ -128,7 +133,153 @@ export type TeamSummaryResponseDto = {
     color?: {
         [key: string]: unknown;
     } | null;
-    pages?: Array<PageSummaryResponseDto>;
+    pages: Array<PageSummaryResponseDto>;
+};
+
+export type WorkspaceSidebarActiveOrganizationDto = {
+    id: string;
+    name: string;
+    slug: string;
+    description?: {
+        [key: string]: unknown;
+    } | null;
+    logoUrl?: {
+        [key: string]: unknown;
+    } | null;
+    member: OrganizationMemberResponseDto;
+    departments: Array<WorkspaceSidebarDepartmentDto>;
+    teams: Array<WorkspaceSidebarTeamDto>;
+    pages: Array<PageSummaryResponseDto>;
+    customFields: {
+        [key: string]: unknown;
+    };
+    activeDepartment?: WorkspaceSidebarDepartmentDto | null;
+};
+
+export type WorkspaceSidebarHomeDto = {
+    view: 'WORKSPACE' | 'DEPARTMENT';
+    defaultPage?: PageSummaryResponseDto | null;
+};
+
+export type WorkspaceSidebarRoomMessageDto = {
+    id: string;
+    content?: {
+        [key: string]: unknown;
+    } | null;
+    createdAt: string;
+    senderName?: {
+        [key: string]: unknown;
+    } | null;
+};
+
+export type WorkspaceSidebarRoomDto = {
+    id: string;
+    type: string;
+    name: string;
+    description?: {
+        [key: string]: unknown;
+    } | null;
+    context?: {
+        [key: string]: unknown;
+    } | null;
+    updatedAt: string;
+    memberCount: number;
+    lastMessage?: WorkspaceSidebarRoomMessageDto | null;
+};
+
+export type WorkspaceSidebarInboxDto = {
+    channels: Array<WorkspaceSidebarRoomDto>;
+    directMessages: Array<WorkspaceSidebarRoomDto>;
+};
+
+export type WorkspaceSidebarRecentAiChatDto = {
+    id: string;
+    title: string;
+    preview?: {
+        [key: string]: unknown;
+    } | null;
+    updatedAt: string;
+};
+
+export type WorkspaceSidebarMessagesDto = {
+    recentChats: Array<WorkspaceSidebarRecentAiChatDto>;
+};
+
+export type WorkspaceSidebarMeetingDto = {
+    id: string;
+    title: string;
+    status: string;
+    startsAt?: {
+        [key: string]: unknown;
+    } | null;
+    endsAt?: {
+        [key: string]: unknown;
+    } | null;
+    location?: {
+        [key: string]: unknown;
+    } | null;
+    departmentName?: {
+        [key: string]: unknown;
+    } | null;
+    teamName?: {
+        [key: string]: unknown;
+    } | null;
+    projectName?: {
+        [key: string]: unknown;
+    } | null;
+};
+
+export type WorkspaceSidebarMeetingsDto = {
+    upcomingMeetings: Array<WorkspaceSidebarMeetingDto>;
+};
+
+export type WorkspaceSidebarResponseDto = {
+    workspaceSetupStatus: 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED';
+    activeTab: 'home' | 'inbox' | 'message' | 'meeting';
+    organizations: Array<OrganizationSummaryResponseDto>;
+    activeOrganization?: WorkspaceSidebarActiveOrganizationDto | null;
+    home: WorkspaceSidebarHomeDto;
+    inbox?: WorkspaceSidebarInboxDto | null;
+    message?: WorkspaceSidebarMessagesDto | null;
+    meeting?: WorkspaceSidebarMeetingsDto | null;
+};
+
+export type CreateOrganizationDto = {
+    name: string;
+    slug?: string;
+    description?: string;
+    /**
+     * Name for the first department. Defaults to General when omitted.
+     */
+    departmentName?: string;
+};
+
+export type SetActiveOrganizationDto = {
+    organizationId: string;
+};
+
+export type CreateDepartmentDto = {
+    /**
+     * Defaults to the currently active organization when it is omitted.
+     */
+    organizationId?: string;
+    name: string;
+    description?: string;
+    color?: string;
+};
+
+export type SetActiveDepartmentDto = {
+    departmentId: {
+        [key: string]: unknown;
+    } | null;
+};
+
+export type DashboardMetricResponseDto = {
+    label: string;
+    value: number;
+    description?: {
+        [key: string]: unknown;
+    } | null;
 };
 
 export type ProjectTypeSummaryResponseDto = {
@@ -172,12 +323,20 @@ export type ProjectSummaryResponseDto = {
     memberCount: number;
 };
 
-export type TeamProjectGroupResponseDto = {
-    team: TeamSummaryResponseDto;
-    projects: Array<ProjectSummaryResponseDto>;
+export type DashboardTemplateResponseDto = {
+    id: string;
+    name: string;
+    description?: {
+        [key: string]: unknown;
+    } | null;
+    category?: {
+        [key: string]: unknown;
+    } | null;
+    projectCount: number;
+    departmentCount: number;
 };
 
-export type ActiveDepartmentResponseDto = {
+export type DepartmentSummaryResponseDto = {
     id: string;
     organizationId: string;
     name: string;
@@ -190,99 +349,22 @@ export type ActiveDepartmentResponseDto = {
     createdAt: string;
     updatedAt: string;
     pages: Array<PageSummaryResponseDto>;
-    /**
-     * Projects grouped by team for the active department.
-     */
-    projectGroups: Array<TeamProjectGroupResponseDto>;
-    /**
-     * Department projects that are not assigned to a team.
-     */
-    projects: Array<ProjectSummaryResponseDto>;
 };
 
-export type ActiveOrganizationResponseDto = {
+export type TeamSummaryResponseDto = {
     id: string;
-    name: string;
-    slug: string;
-    description?: {
-        [key: string]: unknown;
-    } | null;
-    logoUrl?: {
-        [key: string]: unknown;
-    } | null;
-    metadata?: {
-        [key: string]: unknown;
-    } | null;
-    createdById?: {
-        [key: string]: unknown;
-    } | null;
-    createdAt: string;
-    updatedAt: string;
-    member: OrganizationMemberResponseDto;
-    departments: Array<DepartmentSummaryResponseDto>;
-    teams: Array<TeamSummaryResponseDto>;
-    pages: Array<PageSummaryResponseDto>;
-    customFields: {
-        [key: string]: unknown;
-    };
-    activeDepartment?: ActiveDepartmentResponseDto | null;
-    activeTeam?: TeamSummaryResponseDto | null;
-};
-
-export type UsersMeResponseDto = {
-    user: UserProfileResponseDto;
-    workspaceSetupStatus: 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED';
-    organizations: Array<OrganizationSummaryResponseDto>;
-    activeOrganization?: ActiveOrganizationResponseDto | null;
-};
-
-export type CreateOrganizationDto = {
-    name: string;
-    slug?: string;
-    description?: string;
-    /**
-     * Name for the first department. Defaults to General when omitted.
-     */
-    departmentName?: string;
-};
-
-export type SetActiveOrganizationDto = {
     organizationId: string;
-};
-
-export type CreateDepartmentDto = {
-    /**
-     * Defaults to the currently active organization when it is omitted.
-     */
-    organizationId?: string;
-    name: string;
-    description?: string;
-    color?: string;
-};
-
-export type SetActiveDepartmentDto = {
-    departmentId: string;
-};
-
-export type DashboardMetricResponseDto = {
-    label: string;
-    value: number;
-    description?: {
+    departmentId?: {
         [key: string]: unknown;
     } | null;
-};
-
-export type DashboardTemplateResponseDto = {
-    id: string;
     name: string;
     description?: {
         [key: string]: unknown;
     } | null;
-    category?: {
+    color?: {
         [key: string]: unknown;
     } | null;
-    projectCount: number;
-    departmentCount: number;
+    pages?: Array<PageSummaryResponseDto>;
 };
 
 export type DashboardTaskResponseDto = {
@@ -1813,6 +1895,21 @@ export type UsersControllerGetUserInfoV1Responses = {
 
 export type UsersControllerGetUserInfoV1Response = UsersControllerGetUserInfoV1Responses[keyof UsersControllerGetUserInfoV1Responses];
 
+export type WorkspaceControllerGetSidebarV1Data = {
+    body?: never;
+    path?: never;
+    query: {
+        tab: string;
+    };
+    url: '/api/v1/workspace/sidebar';
+};
+
+export type WorkspaceControllerGetSidebarV1Responses = {
+    200: WorkspaceSidebarResponseDto;
+};
+
+export type WorkspaceControllerGetSidebarV1Response = WorkspaceControllerGetSidebarV1Responses[keyof WorkspaceControllerGetSidebarV1Responses];
+
 export type OrganizationsControllerCreateOrganizationV1Data = {
     body: CreateOrganizationDto;
     path?: never;
@@ -1821,7 +1918,7 @@ export type OrganizationsControllerCreateOrganizationV1Data = {
 };
 
 export type OrganizationsControllerCreateOrganizationV1Responses = {
-    201: UsersMeResponseDto;
+    201: WorkspaceSidebarResponseDto;
 };
 
 export type OrganizationsControllerCreateOrganizationV1Response = OrganizationsControllerCreateOrganizationV1Responses[keyof OrganizationsControllerCreateOrganizationV1Responses];
@@ -1834,7 +1931,7 @@ export type OrganizationsControllerSetActiveOrganizationV1Data = {
 };
 
 export type OrganizationsControllerSetActiveOrganizationV1Responses = {
-    200: UsersMeResponseDto;
+    200: WorkspaceSidebarResponseDto;
 };
 
 export type OrganizationsControllerSetActiveOrganizationV1Response = OrganizationsControllerSetActiveOrganizationV1Responses[keyof OrganizationsControllerSetActiveOrganizationV1Responses];
@@ -1847,7 +1944,7 @@ export type DepartmentsControllerCreateDepartmentV1Data = {
 };
 
 export type DepartmentsControllerCreateDepartmentV1Responses = {
-    201: UsersMeResponseDto;
+    201: WorkspaceSidebarResponseDto;
 };
 
 export type DepartmentsControllerCreateDepartmentV1Response = DepartmentsControllerCreateDepartmentV1Responses[keyof DepartmentsControllerCreateDepartmentV1Responses];
@@ -1860,7 +1957,7 @@ export type DepartmentsControllerSetActiveDepartmentV1Data = {
 };
 
 export type DepartmentsControllerSetActiveDepartmentV1Responses = {
-    200: UsersMeResponseDto;
+    200: WorkspaceSidebarResponseDto;
 };
 
 export type DepartmentsControllerSetActiveDepartmentV1Response = DepartmentsControllerSetActiveDepartmentV1Responses[keyof DepartmentsControllerSetActiveDepartmentV1Responses];

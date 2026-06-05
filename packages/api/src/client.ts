@@ -1,49 +1,68 @@
-import { client } from "./generated/client.gen";
+import { client } from "./generated/client.gen"
+import type { Config } from "./generated/client/types.gen"
 
 export type ApiAccessTokenStorage = {
-  get: () => string | Promise<string | undefined> | undefined;
-  set?: (token: string) => void | Promise<void>;
-  clear?: () => void | Promise<void>;
-};
+  get: () => string | Promise<string | undefined> | undefined
+  set?: (token: string) => void | Promise<void>
+  clear?: () => void | Promise<void>
+}
 
-export type ConfigureApiClientOptions = {
-  baseUrl: string;
-  tokenStorage?: ApiAccessTokenStorage;
-};
+export type ConfigureRestApiClientOptions = {
+  baseUrl: string
+  tokenStorage?: ApiAccessTokenStorage
+  fetch?: Config["fetch"]
+  headers?: Config["headers"]
+}
 
-let accessTokenStorage: ApiAccessTokenStorage | undefined;
+export type ConfigureApiClientOptions = ConfigureRestApiClientOptions
+
+let accessTokenStorage: ApiAccessTokenStorage | undefined
+let restApiBaseUrl = "http://localhost:3000"
 
 export function configureApiAccessTokenStorage(storage: ApiAccessTokenStorage) {
-  accessTokenStorage = storage;
+  accessTokenStorage = storage
 }
 
 export async function setApiAccessToken(token: string) {
-  await accessTokenStorage?.set?.(token);
+  await accessTokenStorage?.set?.(token)
 }
 
 export async function clearApiAccessToken() {
-  await accessTokenStorage?.clear?.();
+  await accessTokenStorage?.clear?.()
 }
 
 export function getApiAccessToken() {
-  return accessTokenStorage?.get();
+  return accessTokenStorage?.get()
 }
 
-export function configureApiClient({
+export function getRestApiBaseUrl() {
+  return restApiBaseUrl
+}
+
+export function configureRestApiClient({
   baseUrl,
   tokenStorage,
-}: ConfigureApiClientOptions) {
+  fetch,
+  headers,
+}: ConfigureRestApiClientOptions) {
+  restApiBaseUrl = baseUrl
+
   if (tokenStorage) {
-    configureApiAccessTokenStorage(tokenStorage);
+    configureApiAccessTokenStorage(tokenStorage)
   }
 
   client.setConfig({
     auth: () => getApiAccessToken(),
     baseUrl,
     credentials: "include",
-  });
+    fetch,
+    headers,
+  })
 
-  return client;
+  return client
 }
 
-export { client as apiClient };
+export const configureApiClient = configureRestApiClient
+
+export { client as restApiClient }
+export { client as apiClient }
