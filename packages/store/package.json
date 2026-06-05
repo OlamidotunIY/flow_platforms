@@ -1,0 +1,12 @@
+{
+  "name": "@flow/store",
+  "version": "1.0.0",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@flow/api": "workspace:*",
+    "zustand": "5.0.9"
+  }
+}

@@ -274,6 +274,13 @@ importers:
         version: 7.3.2(@types/node@25.3.0)(jiti@2.6.1)(lightningcss@1.31.1)(terser@5.48.0)(yaml@2.9.0)
 
   packages/api:
+    dependencies:
+      better-auth:
+        specifier: 1.6.11
+        version: 1.6.11(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      socket.io-client:
+        specifier: ^4.8.3
+        version: 4.8.3
     devDependencies:
       '@hey-api/openapi-ts':
         specifier: 0.97.2
@@ -290,9 +297,6 @@ importers:
       '@flow/ui':
         specifier: workspace:*
         version: link:../ui
-      better-auth:
-        specifier: 1.6.11
-        version: 1.6.11(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       lucide-react:
         specifier: ^1.16.0
         version: 1.16.0(react@19.2.4)
@@ -305,9 +309,6 @@ importers:
       react-router-dom:
         specifier: ^7.15.1
         version: 7.15.1(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
-      socket.io-client:
-        specifier: ^4.8.3
-        version: 4.8.3
       zustand:
         specifier: 5.0.9
         version: 5.0.9(@types/react@19.2.14)(react@19.2.4)(use-sync-external-store@1.6.0(react@19.2.4))
@@ -319,8 +320,23 @@ importers:
         specifier: ^5.9.3
         version: 5.9.3
 
+  packages/store:
+    dependencies:
+      '@flow/api':
+        specifier: workspace:*
+        version: link:../api
+      zustand:
+        specifier: 5.0.9
+        version: 5.0.9(@types/react@19.2.14)(react@19.2.4)(use-sync-external-store@1.6.0(react@19.2.4))
+
   packages/ui:
     dependencies:
+      '@flow/api':
+        specifier: workspace:*
+        version: link:../api
+      '@flow/app-shell':
+        specifier: workspace:*
+        version: link:../app-shell
       '@fontsource-variable/noto-serif':
         specifier: ^5.2.9
         version: 5.2.9

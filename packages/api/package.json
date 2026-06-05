@@ -15,11 +15,17 @@
     "@hey-api/openapi-ts": "0.97.2",
     "@types/node": "25.1.0"
   },
+  "dependencies": {
+    "better-auth": "1.6.11",
+    "socket.io-client": "^4.8.3"
+  },
   "exports": {
     ".": "./src/index.ts",
+    "./auth": "./src/auth.ts",
     "./client": "./src/client.ts",
     "./generated": "./src/generated/index.ts",
-    "./types": "./src/generated/types.gen.ts",
-    "./sdk": "./src/generated/sdk.gen.ts"
+    "./sdk": "./src/generated/sdk.gen.ts",
+    "./socket": "./src/workspace-socket.ts",
+    "./types": "./src/generated/types.gen.ts"
   }
 }

@@ -2,7 +2,8 @@ import React from "react"
 import ReactDOM from "react-dom/client"
 import App from "./App.tsx"
 import "@flow/ui/globals.css"
-import { configureFlowClients } from "@flow/app-shell/auth"
+import { configureFlowClients } from "@flow/api"
+import { setFlowPlatform } from "@flow/app-shell"
 import { ThemeProvider } from "./components/theme-provider.tsx"
 
 const defaultBaseUrl = import.meta.env.DEV
@@ -14,8 +15,8 @@ const authBaseUrl = import.meta.env.VITE_AUTH_BASE_URL ?? apiBaseUrl
 configureFlowClients({
   apiBaseUrl,
   authBaseUrl,
-  platform: "desktop",
 })
+setFlowPlatform("desktop")
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>

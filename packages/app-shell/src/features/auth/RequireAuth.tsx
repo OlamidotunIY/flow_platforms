@@ -1,25 +1,27 @@
 import { Navigate, Outlet, useNavigate } from "react-router-dom"
 import { useEffect, useRef, useState } from "react"
-import {
+import
+{
   usersControllerGetUserInfoV1,
   workspaceSetupControllerRetryV1,
 } from "@flow/api"
 import { Skeleton } from "@flow/ui/components/skeleton"
 import { Button } from "@flow/ui/components/button"
 
-import { getFlowAuthClient } from "../../auth"
-import { getDesktopWindowControls, isDesktopPlatform } from "../../config"
+import { connectWorkspaceSetupSocket, getFlowAuthClient } from "@flow/api"
+import { getDesktopWindowControls, isDesktopPlatform } from "../../util/config"
 import { PATHS } from "../../routing/paths"
-import {
+import
+{
   type WorkspaceContext,
   type FlowUser,
   useUserStore,
 } from "../../store/userStore"
 import { PageError } from "../../components/page-state"
-import { connectWorkspaceSetupSocket } from "../../workspace-socket"
 import { getWorkspaceSidebar } from "../../workspace-context"
 
-function isMeResponse(value: unknown): value is { user: FlowUser } {
+function isMeResponse(value: unknown): value is { user: FlowUser }
+{
   return (
     typeof value === "object" &&
     value !== null &&
@@ -28,7 +30,8 @@ function isMeResponse(value: unknown): value is { user: FlowUser } {
   )
 }
 
-function isWorkspaceContext(value: unknown): value is WorkspaceContext {
+function isWorkspaceContext(value: unknown): value is WorkspaceContext
+{
   return (
     typeof value === "object" &&
     value !== null &&
@@ -37,7 +40,8 @@ function isWorkspaceContext(value: unknown): value is WorkspaceContext {
   )
 }
 
-export function RequireAuth() {
+export function RequireAuth()
+{
   const authClient = getFlowAuthClient()
   const session = authClient.useSession()
   const navigate = useNavigate()
@@ -63,24 +67,31 @@ export function RequireAuth() {
         ? ["PENDING", "PROCESSING"].includes(userInfo.workspaceSetupStatus)
         : false))
 
-  useEffect(() => {
-    if (!isDesktopPlatform() || session.isPending) {
+  useEffect(() =>
+  {
+    if (!isDesktopPlatform() || session.isPending)
+    {
       return
     }
 
-    if (session.data) {
+    if (session.data)
+    {
       void windowControls?.openApp()
-    } else {
+    } else
+    {
       void windowControls?.openAuth()
     }
   }, [session.data, session.isPending, windowControls])
 
-  useEffect(() => {
-    if (session.isPending) {
+  useEffect(() =>
+  {
+    if (session.isPending)
+    {
       return
     }
 
-    if (!session.data) {
+    if (!session.data)
+    {
       activeRequestUserId.current = null
       setWorkspaceContext(null)
       return
@@ -91,14 +102,16 @@ export function RequireAuth() {
     if (
       userInfoStatus === "success" &&
       activeRequestUserId.current === userId
-    ) {
+    )
+    {
       return
     }
 
     if (
       activeRequestUserId.current === userId &&
       userInfoStatus === "loading"
-    ) {
+    )
+    {
       return
     }
 
@@ -106,8 +119,10 @@ export function RequireAuth() {
     setUserInfoStatus("loading")
 
     usersControllerGetUserInfoV1()
-      .then(async (result) => {
-        if (result.error || !isMeResponse(result.data)) {
+      .then(async (result) =>
+      {
+        if (result.error || !isMeResponse(result.data))
+        {
           activeRequestUserId.current = null
           setUserInfoStatus("error")
           return
@@ -119,7 +134,8 @@ export function RequireAuth() {
         if (
           contextResult.error ||
           !isWorkspaceContext(contextResult.data)
-        ) {
+        )
+        {
           activeRequestUserId.current = null
           setUserInfoStatus("error")
           return
@@ -128,7 +144,8 @@ export function RequireAuth() {
         setSetupError(null)
         setWorkspaceContext(contextResult.data)
       })
-      .catch(() => {
+      .catch(() =>
+      {
         activeRequestUserId.current = null
         setUserInfoStatus("error")
       })
@@ -141,54 +158,67 @@ export function RequireAuth() {
     userInfoStatus,
   ])
 
-  useEffect(() => {
-    if (!isSettingUp) {
+  useEffect(() =>
+  {
+    if (!isSettingUp)
+    {
       return
     }
 
     let cleanup: (() => void) | undefined
     let cancelled = false
 
-    connectWorkspaceSetupSocket({
-      onCompleted: (payload) => {
-        if (cancelled) {
+    connectWorkspaceSetupSocket<WorkspaceContext, { errorMessage?: string }>({
+      onCompleted: (payload) =>
+      {
+        if (cancelled)
+        {
           return
         }
         replaceUserInfoFromSetup(payload)
         setSetupError(null)
         navigate(PATHS.root, { replace: true })
       },
-      onFailed: (payload) => {
-        if (cancelled) {
+      onFailed: (payload) =>
+      {
+        if (cancelled)
+        {
           return
         }
         setSetupError(payload.errorMessage ?? "Workspace setup failed.")
       },
-    }).then((disconnect) => {
-      if (cancelled) {
+    }).then((disconnect) =>
+    {
+      if (cancelled)
+      {
         disconnect()
         return
       }
       cleanup = disconnect
     })
 
-    return () => {
+    return () =>
+    {
       cancelled = true
       cleanup?.()
     }
   }, [isSettingUp, navigate, replaceUserInfoFromSetup])
 
-  useEffect(() => {
-    if (!isSettingUp) {
+  useEffect(() =>
+  {
+    if (!isSettingUp)
+    {
       return
     }
 
     let cancelled = false
 
-    async function refreshSetupState() {
+    async function refreshSetupState()
+    {
       const result = await usersControllerGetUserInfoV1()
 
-      if (cancelled || result.error || !isMeResponse(result.data)) {
+      if (cancelled || result.error || !isMeResponse(result.data))
+      {
         return
       }
 
@@ -198,7 +228,8 @@ export function RequireAuth() {
         cancelled ||
         contextResult.error ||
         !isWorkspaceContext(contextResult.data)
-      ) {
+      )
+      {
         return
       }
 
@@ -207,24 +238,28 @@ export function RequireAuth() {
       if (
         contextResult.data.workspaceSetupStatus === "COMPLETED" &&
         contextResult.data.activeOrganization
-      ) {
+      )
+      {
         replaceUserInfoFromSetup(contextResult.data)
         setSetupError(null)
         navigate(PATHS.root, { replace: true })
         return
       }
 
-      if (contextResult.data.workspaceSetupStatus === "FAILED") {
+      if (contextResult.data.workspaceSetupStatus === "FAILED")
+      {
         setSetupError("Workspace setup failed.")
       }
     }
 
     void refreshSetupState()
-    const intervalId = window.setInterval(() => {
+    const intervalId = window.setInterval(() =>
+    {
       void refreshSetupState()
     }, 2500)
 
-    return () => {
+    return () =>
+    {
       cancelled = true
       window.clearInterval(intervalId)
     }
@@ -236,7 +271,8 @@ export function RequireAuth() {
     setWorkspaceContext,
   ])
 
-  if (session.data && userInfoStatus === "error") {
+  if (session.data && userInfoStatus === "error")
+  {
     return (
       <main className="min-h-svh bg-background p-6 text-foreground">
         <PageError
@@ -247,12 +283,14 @@ export function RequireAuth() {
     )
   }
 
-  if (isSettingUp) {
+  if (isSettingUp)
+  {
     return (
       <WorkspaceLoadingShell
         description="We are creating your organization pages, views, teams, docs, meetings, and default fields."
         error={setupError}
-        onRetry={() => {
+        onRetry={() =>
+        {
           setSetupError(null)
           void workspaceSetupControllerRetryV1()
         }}
@@ -265,7 +303,8 @@ export function RequireAuth() {
     session.isPending ||
     (session.data &&
       (userInfoStatus === "idle" || userInfoStatus === "loading"))
-  ) {
+  )
+  {
     return (
       <WorkspaceLoadingShell
         description="Preparing your sidebar, dashboard, and workspace context."
@@ -274,8 +313,10 @@ export function RequireAuth() {
     )
   }
 
-  if (!session.data) {
-    if (isDesktopPlatform()) {
+  if (!session.data)
+  {
+    if (isDesktopPlatform())
+    {
       return null
     }
 
@@ -295,7 +336,8 @@ function WorkspaceLoadingShell({
   error?: string | null
   onRetry?: () => void
   title: string
-}) {
+})
+{
   return (
     <main className="relative min-h-svh overflow-hidden bg-background text-foreground">
       <div className="grid min-h-svh grid-cols-[17rem_1fr] opacity-70">

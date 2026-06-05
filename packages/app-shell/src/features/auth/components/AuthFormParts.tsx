@@ -4,12 +4,14 @@ import type * as React from "react"
 import { CardDescription, CardTitle } from "@flow/ui/components/card"
 import { Spinner } from "@flow/ui/components/spinner"
 
-import { getFlowAuthEndpointUrl } from "../../../auth"
+import { getFlowAuthEndpointUrl } from "@flow/api"
 
 export type AuthStep = "email" | "password"
 
-export function isAppleDevice() {
-  if (typeof navigator === "undefined") {
+export function isAppleDevice()
+{
+  if (typeof navigator === "undefined")
+  {
     return false
   }
 
@@ -24,7 +26,8 @@ export function FlowLogo({
 }: {
   title: string
   description: string
-}) {
+})
+{
   return (
     <div className="mx-auto flex flex-col items-center gap-3">
       <div className="grid size-12 place-items-center rounded-xl bg-primary text-primary-foreground ring-1 ring-primary/30">
@@ -40,7 +43,8 @@ export function FlowLogo({
   )
 }
 
-export function AppleIcon() {
+export function AppleIcon()
+{
   return (
     <svg data-icon="inline-start" viewBox="0 0 24 24" aria-hidden="true">
       <path
@@ -51,7 +55,8 @@ export function AppleIcon() {
   )
 }
 
-export function GoogleIcon() {
+export function GoogleIcon()
+{
   return (
     <svg data-icon="inline-start" viewBox="0 0 24 24" aria-hidden="true">
       <path
@@ -80,7 +85,8 @@ export function LoadingButtonContent({
 }: {
   children: React.ReactNode
   isLoading: boolean
-}) {
+})
+{
   return (
     <>
       {isLoading ? <Spinner /> : null}
@@ -89,16 +95,20 @@ export function LoadingButtonContent({
   )
 }
 
-export function getAuthErrorMessage(error: unknown) {
-  if (error instanceof Error && error.name === "AbortError") {
+export function getAuthErrorMessage(error: unknown)
+{
+  if (error instanceof Error && error.name === "AbortError")
+  {
     return "The auth request timed out. Check the console for request details."
   }
 
-  if (error instanceof TypeError && error.message === "Failed to fetch") {
+  if (error instanceof TypeError && error.message === "Failed to fetch")
+  {
     return "Unable to reach the auth server. Check the console for request details."
   }
 
-  if (error instanceof Error && error.message) {
+  if (error instanceof Error && error.message)
+  {
     return error.message
   }
 
@@ -113,17 +123,18 @@ export function logAuthRequestError({
   action: string
   error: unknown
   path: string
-}) {
+})
+{
   const payload = {
     action,
     endpoint: getFlowAuthEndpointUrl(path),
     error:
       error instanceof Error
         ? {
-            message: error.message,
-            name: error.name,
-            stack: error.stack,
-          }
+          message: error.message,
+          name: error.name,
+          stack: error.stack,
+        }
         : error,
   }
 

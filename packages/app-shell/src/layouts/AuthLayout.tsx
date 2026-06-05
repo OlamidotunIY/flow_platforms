@@ -1,23 +1,28 @@
 import { Outlet } from "react-router-dom"
 import { useEffect } from "react"
 
-import { isDesktopPlatform } from "../config"
+import { isDesktopPlatform } from "../util/config"
 
-export function AuthLayout() {
+export function AuthLayout()
+{
   const isDesktop = isDesktopPlatform()
-  useEffect(() => {
-    if (!isDesktop) {
+  useEffect(() =>
+  {
+    if (!isDesktop)
+    {
       return
     }
 
     document.documentElement.classList.add("flow-transparent-window")
 
-    return () => {
+    return () =>
+    {
       document.documentElement.classList.remove("flow-transparent-window")
     }
   }, [isDesktop])
 
-  if (isDesktop) {
+  if (isDesktop)
+  {
     return (
       <main className="h-svh max-h-svh w-screen overflow-hidden bg-transparent p-3 text-foreground">
         <div className="h-full w-full overflow-hidden">

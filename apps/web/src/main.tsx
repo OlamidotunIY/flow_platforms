@@ -2,7 +2,8 @@ import { StrictMode } from "react"
 import { createRoot } from "react-dom/client"
 
 import "@flow/ui/globals.css"
-import { configureFlowClients } from "@flow/app-shell/auth"
+import { configureFlowClients } from "@flow/api"
+import { setFlowPlatform } from "@flow/app-shell"
 import { App } from "./App.tsx"
 import { ThemeProvider } from "@/components/theme-provider.tsx"
 
@@ -15,8 +16,8 @@ const authBaseUrl = import.meta.env.VITE_AUTH_BASE_URL ?? apiBaseUrl
 configureFlowClients({
   apiBaseUrl,
   authBaseUrl,
-  platform: "web",
 })
+setFlowPlatform("web")
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

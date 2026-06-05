@@ -1,55 +1,54 @@
 import { useMemo, useState, type ComponentProps, type ReactNode } from "react"
 import { Link } from "react-router-dom"
 import
-  {
-    Check,
-    ChevronRight,
-    ChevronsLeft,
-    CircleUserRound,
-    CalendarClock,
-    Hash,
-    MessageCircle,
-    MessagesSquare,
-    MoreHorizontal,
-    Plus,
-    Settings,
-    UserPlus,
-  } from "lucide-react"
+{
+  Check,
+  ChevronRight,
+  ChevronsLeft,
+  CircleUserRound,
+  CalendarClock,
+  Hash,
+  MessageCircle,
+  MessagesSquare,
+  MoreHorizontal,
+  Plus,
+  Settings,
+  UserPlus,
+} from "lucide-react"
 import type {
   DepartmentSummaryResponseDto,
   OrganizationSummaryResponseDto,
 } from "@flow/api"
 import
-  {
-    Sidebar,
-    SidebarContent,
-    SidebarRail,
-    useSidebar,
-  } from "@flow/ui/components/sidebar"
+{
+  Sidebar,
+  SidebarContent,
+  SidebarRail,
+  useSidebar,
+} from "@flow/ui/components/sidebar"
 import { Button } from "@flow/ui/components/button"
 
-import { isDesktopPlatform } from "../util/config"
 import
-  {
-    type FlowUserInfo,
-    type WorkspaceSidebarDepartment,
-    type WorkspaceSidebarMeeting,
-    type WorkspaceSidebarRecentAiChat,
-    type WorkspaceSidebarRoom,
-    useUserStore,
-  } from "../store/userStore"
-import { PATHS } from "../routing/paths"
+{
+  type FlowUserInfo,
+  type WorkspaceSidebarDepartment,
+  type WorkspaceSidebarMeeting,
+  type WorkspaceSidebarRecentAiChat,
+  type WorkspaceSidebarRoom,
+  useUserStore,
+} from "../store/userStore"
 import { NavMain } from "./NavMain"
 import
-  {
-    NavDepartments,
-    NavPages,
-    type SidebarPage,
-    type SidebarPageDepartment,
-    type SidebarPageTeam,
-  } from "./NavPages"
+{
+  NavDepartments,
+  NavPages,
+  type SidebarPage,
+  type SidebarPageDepartment,
+  type SidebarPageTeam,
+} from "./NavPages"
 import { NavSecondary } from "./NavSecondary"
-import { sidebarNavMain, sidebarNavSecondary } from "./sidebar-data"
+import { isDesktopPlatform, PATHS } from "@flow/app-shell"
+import { sidebarNavMain, sidebarNavSecondary } from "@flow/ui/lib/sidebar-data"
 
 function initials(value: string)
 {

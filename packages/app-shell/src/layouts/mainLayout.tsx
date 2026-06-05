@@ -1,4 +1,5 @@
-import {
+import
+{
   useCallback,
   useEffect,
   useRef,
@@ -6,7 +7,8 @@ import {
   type CSSProperties,
 } from "react"
 import { Outlet, useLocation, useNavigate } from "react-router-dom"
-import {
+import
+{
   ArrowLeft,
   ArrowRight,
   Bell,
@@ -22,7 +24,8 @@ import {
   Star,
   Users,
 } from "lucide-react"
-import {
+import
+{
   departmentsControllerCreateDepartmentV1,
   departmentsControllerSetActiveDepartmentV1,
   organizationsControllerSetActiveOrganizationV1,
@@ -30,7 +33,8 @@ import {
   type OrganizationSummaryResponseDto,
 } from "@flow/api"
 import { Button } from "@flow/ui/components/button"
-import {
+import
+{
   SidebarInset,
   SidebarProvider,
   SidebarTrigger,
@@ -40,10 +44,11 @@ import { TooltipProvider } from "@flow/ui/components/tooltip"
 import { WindowTitleBar } from "@flow/ui/components/window-controls"
 import { cn } from "@flow/ui/lib/utils"
 
-import { clearFlowAuthState, getFlowAuthClient } from "../auth"
-import { getDesktopWindowControls, isDesktopPlatform } from "../config"
+import { clearFlowAuthState, getFlowAuthClient } from "@flow/api"
+import { getDesktopWindowControls, isDesktopPlatform } from "../util/config"
 import { PATHS } from "../routing/paths"
-import {
+import
+{
   type FlowUserInfo,
   type WorkspaceContext,
   type WorkspaceSidebarDepartment,
@@ -53,7 +58,8 @@ import {
 import { getWorkspaceSidebar } from "../workspace-context"
 import { AppSidebar } from "./AppSidebar"
 
-function getBreadcrumbPage(pathname: string) {
+function getBreadcrumbPage(pathname: string)
+{
   const labels: Record<string, string> = {
     [PATHS.app.account]: "Account",
     [PATHS.app.askAi]: "Ask AI",
@@ -71,30 +77,36 @@ function getBreadcrumbPage(pathname: string) {
     [PATHS.projects.root]: "Projects",
   }
 
-  if (pathname.startsWith(`${PATHS.projects.root}/`)) {
+  if (pathname.startsWith(`${PATHS.projects.root}/`))
+  {
     return "Project"
   }
 
   return labels[pathname] ?? "Workspace"
 }
 
-function getLocationKey(location: ReturnType<typeof useLocation>) {
+function getLocationKey(location: ReturnType<typeof useLocation>)
+{
   return `${location.pathname}${location.search}${location.hash}`
 }
 
-function getSidebarTab(pathname: string): WorkspaceSidebarTab {
+function getSidebarTab(pathname: string): WorkspaceSidebarTab
+{
   if (
     pathname === PATHS.app.inbox ||
     pathname.startsWith(`${PATHS.app.inbox}/`)
-  ) {
+  )
+  {
     return "inbox"
   }
 
-  if (pathname === PATHS.app.askAi) {
+  if (pathname === PATHS.app.askAi)
+  {
     return "message"
   }
 
-  if (pathname === PATHS.app.meetings || pathname === PATHS.app.calendar) {
+  if (pathname === PATHS.app.meetings || pathname === PATHS.app.calendar)
+  {
     return "meeting"
   }
 
@@ -133,13 +145,16 @@ function WorkspaceHeader({
   pageIcon,
   pageTitle,
   sidebarOffset,
-}: WorkspaceHeaderProps) {
+}: WorkspaceHeaderProps)
+{
   const [openMenu, setOpenMenu] = useState<
     "organization" | "department" | null
   >(null)
 
-  useEffect(() => {
-    function closeMenu() {
+  useEffect(() =>
+  {
+    function closeMenu()
+    {
       setOpenMenu(null)
     }
 
@@ -165,7 +180,8 @@ function WorkspaceHeader({
           <Button
             aria-expanded={openMenu === "organization"}
             className="h-8 max-w-56 justify-start gap-1.5 px-2 text-sm font-medium"
-            onClick={(event) => {
+            onClick={(event) =>
+            {
               event.stopPropagation()
               setOpenMenu((current) =>
                 current === "organization" ? null : "organization"
@@ -193,7 +209,8 @@ function WorkspaceHeader({
                 <button
                   className="flex min-h-9 w-full items-center gap-2 rounded-md px-2 py-1 text-left text-sm hover:bg-muted"
                   key={organization.id}
-                  onClick={() => {
+                  onClick={() =>
+                  {
                     setOpenMenu(null)
                     onOrganizationChange(organization)
                   }}
@@ -217,7 +234,8 @@ function WorkspaceHeader({
               <Button
                 aria-expanded={openMenu === "department"}
                 className="h-8 max-w-48 justify-start gap-1.5 px-2 text-sm font-medium"
-                onClick={(event) => {
+                onClick={(event) =>
+                {
                   event.stopPropagation()
                   setOpenMenu((current) =>
                     current === "department" ? null : "department"
@@ -245,7 +263,8 @@ function WorkspaceHeader({
                     <button
                       className="flex min-h-9 w-full items-center gap-2 rounded-md px-2 py-1 text-left text-sm hover:bg-muted"
                       key={department.id}
-                      onClick={() => {
+                      onClick={() =>
+                      {
                         setOpenMenu(null)
                         onDepartmentChange(department)
                       }}
@@ -262,7 +281,8 @@ function WorkspaceHeader({
                   <div className="-mx-1 my-1 h-px bg-border/50" />
                   <button
                     className="flex min-h-9 w-full items-center gap-2 rounded-md px-2 py-1 text-left text-sm hover:bg-muted"
-                    onClick={() => {
+                    onClick={() =>
+                    {
                       setOpenMenu(null)
                       onCreateDepartment()
                     }}
@@ -354,10 +374,12 @@ function WorkspaceHeader({
   )
 }
 
-function HeaderSidebarToggle() {
+function HeaderSidebarToggle()
+{
   const { state, toggleSidebar } = useSidebar()
 
-  if (state !== "collapsed") {
+  if (state !== "collapsed")
+  {
     return null
   }
 
@@ -384,7 +406,8 @@ function DesktopNavigationControls({
   canGoForward: boolean
   onBack: () => void
   onForward: () => void
-}) {
+})
+{
   const { state } = useSidebar()
 
   return (
@@ -418,7 +441,8 @@ function DesktopNavigationControls({
   )
 }
 
-export function MainLayout() {
+export function MainLayout()
+{
   const authClient = getFlowAuthClient()
   const windowControls = getDesktopWindowControls()
   const userInfo = useUserStore((state) => state.userInfo)
@@ -437,11 +461,11 @@ export function MainLayout() {
   const activeOrganization = userInfo?.activeOrganization ?? null
   const organizations = userInfo?.activeOrganization
     ? [
-        userInfo.activeOrganization,
-        ...(userInfo.organizations ?? []).filter(
-          (organization) => organization.id !== userInfo.activeOrganization?.id
-        ),
-      ]
+      userInfo.activeOrganization,
+      ...(userInfo.organizations ?? []).filter(
+        (organization) => organization.id !== userInfo.activeOrganization?.id
+      ),
+    ]
     : []
   const activeDepartment = activeOrganization?.activeDepartment ?? null
   const hasSidebar = Boolean(userInfo && activeOrganization?.id)
@@ -464,16 +488,20 @@ export function MainLayout() {
   const canGoBack = routeHistoryIndex > 0 && currentLocationKey !== PATHS.root
   const canGoForward = routeHistoryIndex < routeHistory.length - 1
 
-  useEffect(() => {
+  useEffect(() =>
+  {
     const intent = navigationIntent.current
     navigationIntent.current = null
 
-    if (intent) {
+    if (intent)
+    {
       return
     }
 
-    setRouteHistory((history) => {
-      if (history[routeHistoryIndex] === currentLocationKey) {
+    setRouteHistory((history) =>
+    {
+      if (history[routeHistoryIndex] === currentLocationKey)
+      {
         return history
       }
 
@@ -485,28 +513,35 @@ export function MainLayout() {
     })
   }, [currentLocationKey, routeHistoryIndex])
 
-  useEffect(() => {
-    if (!userInfo?.user) {
+  useEffect(() =>
+  {
+    if (!userInfo?.user)
+    {
       return
     }
 
     let mounted = true
 
-    getWorkspaceSidebar(activeSidebarTab).then((result) => {
-      if (!mounted || result.error || !result.data) {
+    getWorkspaceSidebar(activeSidebarTab).then((result) =>
+    {
+      if (!mounted || result.error || !result.data)
+      {
         return
       }
 
       setWorkspaceContext(result.data as WorkspaceContext)
     })
 
-    return () => {
+    return () =>
+    {
       mounted = false
     }
   }, [activeSidebarTab, setWorkspaceContext, userInfo?.user])
 
-  function goBack() {
-    if (!canGoBack) {
+  function goBack()
+  {
+    if (!canGoBack)
+    {
       return
     }
 
@@ -516,8 +551,10 @@ export function MainLayout() {
     navigate(routeHistory[nextIndex])
   }
 
-  function goForward() {
-    if (!canGoForward) {
+  function goForward()
+  {
+    if (!canGoForward)
+    {
       return
     }
 
@@ -527,11 +564,13 @@ export function MainLayout() {
     navigate(routeHistory[nextIndex])
   }
 
-  const signOut = useCallback(async () => {
+  const signOut = useCallback(async () =>
+  {
     await authClient.signOut()
     await clearFlowAuthState()
 
-    if (isDesktopPlatform()) {
+    if (isDesktopPlatform())
+    {
       await windowControls?.openAuth()
       return
     }
@@ -539,10 +578,12 @@ export function MainLayout() {
     window.location.assign(PATHS.auth.login)
   }, [authClient, windowControls])
 
-  async function refreshWorkspaceContext(tab: WorkspaceSidebarTab = activeSidebarTab) {
+  async function refreshWorkspaceContext(tab: WorkspaceSidebarTab = activeSidebarTab)
+  {
     const result = await getWorkspaceSidebar(tab)
 
-    if (!result.error && result.data) {
+    if (!result.error && result.data)
+    {
       setWorkspaceContext(result.data as WorkspaceContext)
     }
   }
@@ -551,13 +592,16 @@ export function MainLayout() {
     organization:
       | NonNullable<FlowUserInfo["activeOrganization"]>
       | OrganizationSummaryResponseDto
-  ) {
+  )
+  {
     const result = await organizationsControllerSetActiveOrganizationV1({
       body: { organizationId: organization.id },
     })
-    if (!result.error && result.data) {
+    if (!result.error && result.data)
+    {
       setWorkspaceContext(result.data as unknown as WorkspaceContext)
-    } else {
+    } else
+    {
       await refreshWorkspaceContext("home")
     }
     navigate(PATHS.root)
@@ -565,38 +609,47 @@ export function MainLayout() {
 
   async function changeDepartment(
     department: WorkspaceSidebarDepartment | DepartmentSummaryResponseDto
-  ) {
+  )
+  {
     const result = await departmentsControllerSetActiveDepartmentV1({
       body: { departmentId: department.id },
     })
-    if (!result.error && result.data) {
+    if (!result.error && result.data)
+    {
       setWorkspaceContext(result.data as unknown as WorkspaceContext)
-    } else {
+    } else
+    {
       await refreshWorkspaceContext("home")
     }
     navigate(PATHS.root)
   }
 
-  async function clearDepartment() {
+  async function clearDepartment()
+  {
     const result = await departmentsControllerSetActiveDepartmentV1({
       body: { departmentId: null as unknown as string },
     })
-    if (!result.error && result.data) {
+    if (!result.error && result.data)
+    {
       setWorkspaceContext(result.data as unknown as WorkspaceContext)
-    } else {
+    } else
+    {
       await refreshWorkspaceContext("home")
     }
     navigate(PATHS.root)
   }
 
-  async function createDepartment() {
-    if (!activeOrganization) {
+  async function createDepartment()
+  {
+    if (!activeOrganization)
+    {
       return
     }
 
     const departmentName = window.prompt("Department name")
 
-    if (!departmentName?.trim()) {
+    if (!departmentName?.trim())
+    {
       return
     }
 
@@ -607,9 +660,11 @@ export function MainLayout() {
       },
     })
 
-    if (!result.error && result.data) {
+    if (!result.error && result.data)
+    {
       setWorkspaceContext(result.data as unknown as WorkspaceContext)
-    } else {
+    } else
+    {
       await refreshWorkspaceContext("home")
     }
   }
@@ -656,7 +711,8 @@ export function MainLayout() {
               onDepartmentChange={changeDepartment}
               onDepartmentClear={clearDepartment}
               onOrganizationChange={changeOrganization}
-              onSignOut={() => {
+              onSignOut={() =>
+              {
                 void signOut()
               }}
             />

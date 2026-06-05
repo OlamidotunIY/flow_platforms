@@ -1,24 +1,14 @@
-/// <reference path="./types/desktop-window.d.ts" />
+/// <reference path="../types/desktop-window.d.ts" />
 
 export type FlowPlatform = "web" | "desktop"
 
-export type FlowClientConfig = {
-  apiBaseUrl: string
-  authBaseUrl: string
-  platform?: FlowPlatform
-}
-
-let flowConfig: Required<FlowClientConfig> = {
-  apiBaseUrl: "http://localhost:3000",
-  authBaseUrl: "http://localhost:3000",
+let flowConfig: { platform: FlowPlatform } = {
   platform: "web",
 }
 
-export function setFlowConfig(config: FlowClientConfig) {
+export function setFlowPlatform(platform: FlowPlatform = "web") {
   flowConfig = {
-    apiBaseUrl: config.apiBaseUrl,
-    authBaseUrl: config.authBaseUrl,
-    platform: config.platform ?? "web",
+    platform,
   }
 }
 

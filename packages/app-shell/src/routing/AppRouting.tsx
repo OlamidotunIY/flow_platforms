@@ -1,5 +1,6 @@
 import { useEffect } from "react"
-import {
+import
+{
   RouterProvider,
   Route,
   Routes,
@@ -10,13 +11,15 @@ import { Card, CardContent } from "@flow/ui/components/card"
 import { LoaderBody } from "@flow/ui/components/screen-loader"
 import { WindowControls } from "@flow/ui/components/window-controls"
 
-import { getFlowAuthClient } from "../auth"
-import {
+import { getFlowAuthClient } from "@flow/api"
+import
+{
   getDesktopWindowControls,
   getDesktopWindowKind,
   isDesktopPlatform,
-} from "../config"
-import {
+} from "../util/config"
+import
+{
   LoginPage,
   SignUpPage,
   ForgotPasswordPage,
@@ -26,40 +29,48 @@ import { AuthLayout } from "../layouts/AuthLayout"
 import { router } from "./router"
 import { PATHS } from "./paths"
 
-function DesktopLoadingWindow() {
+function DesktopLoadingWindow()
+{
   const authClient = getFlowAuthClient()
   const session = authClient.useSession()
   const windowControls = getDesktopWindowControls()
 
-  useEffect(() => {
+  useEffect(() =>
+  {
     document.documentElement.classList.add("flow-transparent-window")
 
-    return () => {
+    return () =>
+    {
       document.documentElement.classList.remove("flow-transparent-window")
     }
   }, [])
 
-  useEffect(() => {
-    const timeout = window.setTimeout(() => {
+  useEffect(() =>
+  {
+    const timeout = window.setTimeout(() =>
+    {
       void windowControls?.openAuth()
     }, 10000)
 
-    if (session.isPending) {
+    if (session.isPending)
+    {
       return () => window.clearTimeout(timeout)
     }
 
     window.clearTimeout(timeout)
 
-    if (session.data) {
+    if (session.data)
+    {
       void windowControls?.openApp()
-    } else {
+    } else
+    {
       void windowControls?.openAuth()
     }
   }, [session.data, session.isPending, windowControls])
 
   return (
     <main className="grid min-h-svh place-items-center overflow-hidden bg-transparent p-2 text-foreground">
-      <Card className="relative w-full max-w-[440px] py-0 [-webkit-app-region:drag]">
+      <Card className="relative w-full max-w-110 py-0 [-webkit-app-region:drag]">
         <div className="absolute top-2 right-2 [-webkit-app-region:no-drag]">
           <WindowControls
             onClose={windowControls?.close}
@@ -75,7 +86,8 @@ function DesktopLoadingWindow() {
   )
 }
 
-function DesktopAuthWindow() {
+function DesktopAuthWindow()
+{
   return (
     <BrowserRouter>
       <Routes>
@@ -101,15 +113,19 @@ function DesktopAuthWindow() {
   )
 }
 
-const AppRouting = () => {
-  if (isDesktopPlatform()) {
+const AppRouting = () =>
+{
+  if (isDesktopPlatform())
+  {
     const windowKind = getDesktopWindowKind()
 
-    if (windowKind === "loading") {
+    if (windowKind === "loading")
+    {
       return <DesktopLoadingWindow />
     }
 
-    if (windowKind === "auth") {
+    if (windowKind === "auth")
+    {
       return <DesktopAuthWindow />
     }
   }

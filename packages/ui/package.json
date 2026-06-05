@@ -9,6 +9,8 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@flow/api": "workspace:*",
+    "@flow/app-shell": "workspace:*",
     "@fontsource-variable/noto-serif": "^5.2.9",
     "@fontsource-variable/roboto-slab": "^5.2.8",
     "class-variance-authority": "^0.7.1",
