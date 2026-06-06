@@ -36,7 +36,7 @@ import
   type WorkspaceSidebarRecentAiChat,
   type WorkspaceSidebarRoom,
   useUserStore,
-} from "../store/userStore"
+} from "@flow/store"
 import { NavMain } from "./NavMain"
 import
 {

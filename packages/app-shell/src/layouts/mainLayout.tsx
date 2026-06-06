@@ -57,7 +57,7 @@ import
   useUserStore,
 } from "../store/userStore"
 import { getWorkspaceSidebar } from "../workspace-context"
-import { AppSidebar } from "./AppSidebar"
+import { AppSidebar } from "@flow/ui/components"
 
 function getBreadcrumbPage(pathname: string)
 {

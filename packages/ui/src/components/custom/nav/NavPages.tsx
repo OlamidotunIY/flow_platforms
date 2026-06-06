@@ -1,35 +1,37 @@
 import { useState } from "react"
 import { Link } from "react-router-dom"
-import {
-  CalendarDays,
-  CheckSquare,
-  ChevronRight,
-  Columns3,
-  FileText,
-  Home,
-  LayoutDashboard,
-  List,
-  MoreHorizontal,
-  Repeat,
-  Rows3,
-  Target,
-  TimerReset,
-  Users,
-  type LucideIcon,
-} from "lucide-react"
-import {
-  Collapsible,
-  CollapsibleContent,
-} from "@flow/ui/components/collapsible"
-import {
-  SidebarGroup,
-  SidebarGroupLabel,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-} from "@flow/ui/components/sidebar"
-
-import { PATHS } from "../routing/paths"
+import
+  {
+    CalendarDays,
+    CheckSquare,
+    ChevronRight,
+    Columns3,
+    FileText,
+    Home,
+    LayoutDashboard,
+    List,
+    MoreHorizontal,
+    Repeat,
+    Rows3,
+    Target,
+    TimerReset,
+    Users,
+    type LucideIcon,
+  } from "lucide-react"
+import
+  {
+    Collapsible,
+    CollapsibleContent,
+  } from "@flow/ui/components/collapsible"
+import
+  {
+    SidebarGroup,
+    SidebarGroupLabel,
+    SidebarMenu,
+    SidebarMenuButton,
+    SidebarMenuItem,
+  } from "@flow/ui/components/sidebar"
+import { PATHS } from "@flow/app-shell"
 
 export type SidebarPageView = {
   id: string
@@ -66,7 +68,8 @@ export type SidebarPageDepartment = {
   updatedAt: string
 }
 
-function iconFromValue(value: unknown, fallback: LucideIcon): LucideIcon {
+function iconFromValue(value: unknown, fallback: LucideIcon): LucideIcon
+{
   const key = typeof value === "string" ? value : ""
   const icons: Record<string, LucideIcon> = {
     "calendar-days": CalendarDays,
@@ -80,15 +83,18 @@ function iconFromValue(value: unknown, fallback: LucideIcon): LucideIcon {
   return icons[key] ?? fallback
 }
 
-function pageIcon(value: unknown): LucideIcon {
+function pageIcon(value: unknown): LucideIcon
+{
   return iconFromValue(value, FileText)
 }
 
-function teamIcon(value: unknown): LucideIcon {
+function teamIcon(value: unknown): LucideIcon
+{
   return iconFromValue(value, Users)
 }
 
-function viewIcon(type: string): LucideIcon {
+function viewIcon(type: string): LucideIcon
+{
   const icons: Record<string, LucideIcon> = {
     BOARD: Columns3,
     CALENDAR: CalendarDays,
@@ -100,17 +106,20 @@ function viewIcon(type: string): LucideIcon {
   return icons[type] ?? Rows3
 }
 
-function defaultPageUrl(page: SidebarPage) {
+function defaultPageUrl(page: SidebarPage)
+{
   return PATHS.pages.detail(page.id)
 }
 
-function defaultPageState(page: SidebarPage) {
+function defaultPageState(page: SidebarPage)
+{
   const defaultView =
     page.views?.find((view) => view.isDefault) ?? page.views?.[0]
   return defaultView ? { viewId: defaultView.id } : undefined
 }
 
-function PageNode({ page }: { page: SidebarPage }) {
+function PageNode({ page }: { page: SidebarPage })
+{
   const [open, setOpen] = useState(false)
   const PageIcon = pageIcon(page.icon)
   const hasViews = Boolean(page.views?.length)
@@ -125,7 +134,8 @@ function PageNode({ page }: { page: SidebarPage }) {
                 aria-expanded={open}
                 aria-label={`${open ? "Hide" : "Show"} ${page.title} views`}
                 className="relative grid size-5 shrink-0 place-items-center rounded-md text-sidebar-foreground/65 transition hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-                onClick={(event) => {
+                onClick={(event) =>
+                {
                   event.preventDefault()
                   event.stopPropagation()
                   setOpen((current) => !current)
@@ -133,18 +143,16 @@ function PageNode({ page }: { page: SidebarPage }) {
                 type="button"
               >
                 <PageIcon
-                  className={`absolute size-4 transition-opacity ${
-                    open
+                  className={`absolute size-4 transition-opacity ${open
                       ? "opacity-0"
                       : "opacity-100 group-focus-within/page-row:opacity-0 group-hover/page-row:opacity-0"
-                  }`}
+                    }`}
                 />
                 <ChevronRight
-                  className={`absolute size-4 transition ${
-                    open
+                  className={`absolute size-4 transition ${open
                       ? "rotate-90 opacity-100"
                       : "opacity-0 group-focus-within/page-row:opacity-100 group-hover/page-row:opacity-100"
-                  }`}
+                    }`}
                 />
               </button>
             ) : (
@@ -164,7 +172,8 @@ function PageNode({ page }: { page: SidebarPage }) {
         {hasViews ? (
           <CollapsibleContent>
             <div className="mt-1 ml-5 border-l border-sidebar-border/80 pl-2">
-              {page.views?.map((view) => {
+              {page.views?.map((view) =>
+              {
                 const ViewIcon = viewIcon(view.type)
                 return (
                   <SidebarMenuButton
@@ -190,7 +199,8 @@ function PageNode({ page }: { page: SidebarPage }) {
   )
 }
 
-function TeamNode({ team }: { team: SidebarPageTeam }) {
+function TeamNode({ team }: { team: SidebarPageTeam })
+{
   const [open, setOpen] = useState(true)
   const TeamIcon = teamIcon(team.icon)
 
@@ -204,18 +214,16 @@ function TeamNode({ team }: { team: SidebarPageTeam }) {
         >
           <span className="relative grid size-5 shrink-0 place-items-center rounded-md text-sidebar-foreground/65 transition group-hover/team-row:bg-sidebar-accent group-hover/team-row:text-sidebar-accent-foreground group-focus-visible/team-row:bg-sidebar-accent">
             <TeamIcon
-              className={`absolute size-4 transition-opacity ${
-                open
+              className={`absolute size-4 transition-opacity ${open
                   ? "opacity-0"
                   : "opacity-100 group-hover/team-row:opacity-0 group-focus-visible/team-row:opacity-0"
-              }`}
+                }`}
             />
             <ChevronRight
-              className={`absolute size-4 transition ${
-                open
+              className={`absolute size-4 transition ${open
                   ? "rotate-90 opacity-100"
                   : "opacity-0 group-hover/team-row:opacity-100 group-focus-visible/team-row:opacity-100"
-              }`}
+                }`}
             />
           </span>
           <span className="min-w-0 flex-1 truncate text-sm font-medium">
@@ -237,7 +245,8 @@ function TeamNode({ team }: { team: SidebarPageTeam }) {
   )
 }
 
-export function NavPages({ teams }: { teams: SidebarPageTeam[] }) {
+export function NavPages({ teams }: { teams: SidebarPageTeam[] })
+{
   const teamsWithPages = teams.filter((team) => team.pages.length)
 
   return (
@@ -270,7 +279,8 @@ function DepartmentNode({
   department: SidebarPageDepartment
   isActive: boolean
   onDepartmentChange: (department: SidebarPageDepartment) => void
-}) {
+})
+{
   const [open, setOpen] = useState(isActive)
   const hasPages = department.pages.length > 0
 
@@ -280,9 +290,11 @@ function DepartmentNode({
         <SidebarMenuButton
           className="group/department-row h-8 px-1.5 text-sidebar-foreground/85"
           isActive={isActive}
-          onClick={() => {
+          onClick={() =>
+          {
             onDepartmentChange(department)
-            if (hasPages) {
+            if (hasPages)
+            {
               setOpen((current) => !current)
             }
           }}
@@ -290,18 +302,16 @@ function DepartmentNode({
         >
           <span className="relative grid size-5 shrink-0 place-items-center rounded-md text-sidebar-foreground/65 transition group-hover/department-row:bg-sidebar-accent group-hover/department-row:text-sidebar-accent-foreground group-focus-visible/department-row:bg-sidebar-accent">
             <Users
-              className={`absolute size-4 transition-opacity ${
-                open && hasPages
+              className={`absolute size-4 transition-opacity ${open && hasPages
                   ? "opacity-0"
                   : "opacity-100 group-hover/department-row:opacity-0 group-focus-visible/department-row:opacity-0"
-              }`}
+                }`}
             />
             <ChevronRight
-              className={`absolute size-4 transition ${
-                open && hasPages
+              className={`absolute size-4 transition ${open && hasPages
                   ? "rotate-90 opacity-100"
                   : "opacity-0 group-hover/department-row:opacity-100 group-focus-visible/department-row:opacity-100"
-              }`}
+                }`}
             />
           </span>
           <span className="min-w-0 flex-1 truncate text-sm font-medium">
@@ -333,7 +343,8 @@ export function NavDepartments({
   activeDepartmentId?: string | null
   departments: SidebarPageDepartment[]
   onDepartmentChange: (department: SidebarPageDepartment) => void
-}) {
+})
+{
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
       <SidebarGroupLabel className="text-[0.7rem] tracking-wide text-sidebar-foreground/50 uppercase">

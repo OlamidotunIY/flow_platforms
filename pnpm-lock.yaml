@@ -337,6 +337,9 @@ importers:
       '@flow/app-shell':
         specifier: workspace:*
         version: link:../app-shell
+      '@flow/store':
+        specifier: workspace:*
+        version: link:../store
       '@fontsource-variable/inter':
         specifier: ^5.2.8
         version: 5.2.8
@@ -364,6 +367,9 @@ importers:
       react-dom:
         specifier: ^19.2.4
         version: 19.2.4(react@19.2.4)
+      react-router-dom:
+        specifier: ^7.15.1
+        version: 7.15.1(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       shadcn:
         specifier: ^4.10.0
         version: 4.10.0(@types/node@25.3.0)(typescript@5.9.3)
@@ -9923,7 +9929,9 @@ snapshots:
       metro-runtime: 0.84.4
     transitivePeerDependencies:
       - '@babel/core'
+      - bufferutil
       - supports-color
+      - utf-8-validate
 
   '@react-native/normalize-colors@0.74.89': {}
 
